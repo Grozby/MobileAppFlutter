@@ -7,6 +7,11 @@ import 'package:http/http.dart' as http;
 
 import '../../models/registration/registration_form.dart';
 import '../../models/exceptions/registration/already_used_email_exception.dart';
+import '../../models/exceptions/registration/name_exception.dart';
+import '../../models/exceptions/registration/surname_exception.dart';
+import '../../models/exceptions/registration/email_exception.dart';
+import '../../models/exceptions/registration/password_exception.dart';
+import '../../models/exceptions/registration/company_exception.dart';
 import '../../models/exceptions/registration/registration_exception.dart';
 import '../../models/users/user.dart';
 import 'authentication_strategy/authentication_behavior.dart';
@@ -45,16 +50,43 @@ class AuthenticationProvider with ChangeNotifier {
     return true;
   }
 
-  Future<bool> registration (
+  /// Registration function that throws an RegistrationException if
+  /// anything goes wrong.
+  ///
+  Future<bool> registration(
       User userType, RegistrationForm registrationForm) async {
-    final response = await http.post(
-      userType.registrationUrl,
-      body: json.encode(userType.getBodyRegistration(registrationForm)),
-    );
 
-    print('dajeeeeeee');
+    void throwErrorKey(String key) {
+      switch (key) {
+        case 'name':
+          throw NameException();
+        case 'surname':
+          throw SurnameException();
+        case 'email':
+          throw EmailException();
+        case 'password':
+          throw PasswordException();
+        case 'company':
+          throw CompanyException();
+      }
+    }
+
+    final body = userType.getBodyRegistration(registrationForm);
+    final response = await http.post(userType.registrationUrl,
+        body: json.encode(body),
+        headers: {
+          'Content-type': 'application/json',
+        });
+
+    //If we have a 201, we are all set
+    if (response.statusCode == 201) {
+      return true;
+    }
+
+    //Otherwise, we got an error. We proceed in checking what error is.
     final responseData = json.decode(response.body);
-    if (responseData['error'] != null) {
+
+    if(responseData.containsKey('error')){
       switch (responseData['error']) {
         case 'EMAIL_ALREADY_USED':
           return throw AlreadyUsedEmailException();
@@ -63,9 +95,23 @@ class AuthenticationProvider with ChangeNotifier {
       }
     }
 
+    if(responseData.containsKey('errors')){
+      if((responseData['errors'][0]).containsKey('param')){
+        body.forEach((key, _) {
+          if(responseData['errors'][0]['param'] == key){
+            throwErrorKey(key);
+          }
+        });
+      }
 
-    return Future<bool>.delayed(
-        Duration(seconds: 1), () => throw AlreadyUsedEmailException());
+      body.forEach((key, _) {
+        if (responseData['error'].containsKey(key)) {
+          throwErrorKey(key);
+        }
+      });
+    }
+
+    return throw RegistrationException();
   }
 
   Future<void> authenticate() async {}

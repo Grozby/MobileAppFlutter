@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/exceptions/registration/registration_exception.dart';
-import '../models/users/user.dart';
 import '../models/registration/registration_form.dart';
+import '../models/users/user.dart';
 import '../providers/authentication/authentication_provider.dart';
 import 'button_styled.dart';
 
@@ -59,7 +59,7 @@ class _SignUpFormState extends State<SignUpForm> {
   Future<void> validateFormAndSendRegistration() async {
     widget.isSendingRequest = true;
     final authenticationProvider =
-    Provider.of<AuthenticationProvider>(context, listen: false);
+        Provider.of<AuthenticationProvider>(context, listen: true);
     final isValid = _form.currentState.validate();
     if (!isValid) {
       widget.isSendingRequest = false;
@@ -69,7 +69,8 @@ class _SignUpFormState extends State<SignUpForm> {
     _form.currentState.save();
 
     setState(() {
-      _futureBuilder = authenticationProvider.registration(widget.userType, registrationForm);
+      _futureBuilder = authenticationProvider.registration(
+          widget.userType, registrationForm);
     });
   }
 
@@ -94,6 +95,7 @@ class _SignUpFormState extends State<SignUpForm> {
         //If true is returned, we have successfully registered.
         if (snapshot.data) {
           widget.isSendingRequest = false;
+
           return Center(
             child: Text('Successful!'),
           );
@@ -124,12 +126,11 @@ class _SignUpFormState extends State<SignUpForm> {
                       CustomTextForm(
                         controller: registrationForm.name,
                         focusNode: _focusNodeName,
-                        onFieldSubmitted: (_) =>
-                            _fieldFocusChange(
-                              context,
-                              _focusNodeName,
-                              _focusNodeSurname,
-                            ),
+                        onFieldSubmitted: (_) => _fieldFocusChange(
+                          context,
+                          _focusNodeName,
+                          _focusNodeSurname,
+                        ),
                         userType: widget.userType,
                         labelText: 'Name',
                         validator: (currentName) {
@@ -145,12 +146,11 @@ class _SignUpFormState extends State<SignUpForm> {
                       CustomTextForm(
                         controller: registrationForm.surname,
                         focusNode: _focusNodeSurname,
-                        onFieldSubmitted: (_) =>
-                            _fieldFocusChange(
-                              context,
-                              _focusNodeSurname,
-                              _focusNodeEmail,
-                            ),
+                        onFieldSubmitted: (_) => _fieldFocusChange(
+                          context,
+                          _focusNodeSurname,
+                          _focusNodeEmail,
+                        ),
                         userType: widget.userType,
                         labelText: 'Surname',
                         validator: (currentSurname) {
@@ -166,12 +166,11 @@ class _SignUpFormState extends State<SignUpForm> {
                       CustomTextForm(
                         controller: registrationForm.email,
                         focusNode: _focusNodeEmail,
-                        onFieldSubmitted: (_) =>
-                            _fieldFocusChange(
-                              context,
-                              _focusNodeEmail,
-                              _focusNodePassword,
-                            ),
+                        onFieldSubmitted: (_) => _fieldFocusChange(
+                          context,
+                          _focusNodeEmail,
+                          _focusNodePassword,
+                        ),
                         userType: widget.userType,
                         labelText: 'Email',
                         validator: (currentEmail) {
@@ -189,16 +188,15 @@ class _SignUpFormState extends State<SignUpForm> {
                         controller: registrationForm.password,
                         focusNode: _focusNodePassword,
                         onFieldSubmitted: widget.userType.isMentor()
-                            ? (_) =>
-                            _fieldFocusChange(
-                              context,
-                              _focusNodePassword,
-                              _focusNodeCompany,
-                            )
+                            ? (_) => _fieldFocusChange(
+                                  context,
+                                  _focusNodePassword,
+                                  _focusNodeCompany,
+                                )
                             : (_) {
-                          _focusNodePassword.unfocus();
-                          validateFormAndSendRegistration();
-                        },
+                                _focusNodePassword.unfocus();
+                                validateFormAndSendRegistration();
+                              },
                         userType: widget.userType,
                         labelText: 'Password',
                         validator: (currentPassword) {
@@ -215,24 +213,24 @@ class _SignUpFormState extends State<SignUpForm> {
                       ),
                       widget.userType.isMentor()
                           ? CustomTextForm(
-                        controller: registrationForm.company,
-                        focusNode: _focusNodeCompany,
-                        onFieldSubmitted: (_) {
-                          _focusNodeCompany.unfocus();
-                          validateFormAndSendRegistration();
-                        },
-                        userType: widget.userType,
-                        labelText: 'Company',
-                        validator: (currentText) {
-                          if (currentText.isEmpty) {
-                            return 'Provide a valid company.';
-                          }
+                              controller: registrationForm.company,
+                              focusNode: _focusNodeCompany,
+                              onFieldSubmitted: (_) {
+                                _focusNodeCompany.unfocus();
+                                validateFormAndSendRegistration();
+                              },
+                              userType: widget.userType,
+                              labelText: 'Company',
+                              validator: (currentText) {
+                                if (currentText.isEmpty) {
+                                  return 'Provide a valid company.';
+                                }
 
-                          return null;
-                        },
-                        errorText: registrationForm.errorCompany,
-                        inputAction: TextInputAction.done,
-                      )
+                                return null;
+                              },
+                              errorText: registrationForm.errorCompany,
+                              inputAction: TextInputAction.done,
+                            )
                           : Container(),
                     ],
                   ),
@@ -257,9 +255,11 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 }
 
-void _fieldFocusChange(BuildContext context,
-    FocusNode currentFocus,
-    FocusNode nextFocus,) {
+void _fieldFocusChange(
+  BuildContext context,
+  FocusNode currentFocus,
+  FocusNode nextFocus,
+) {
   currentFocus.unfocus();
   FocusScope.of(context).requestFocus(nextFocus);
 }
@@ -294,8 +294,7 @@ class CustomTextForm extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           child: Text(
             labelText,
-            style: Theme
-                .of(context)
+            style: Theme.of(context)
                 .textTheme
                 .subhead
                 .copyWith(color: Colors.grey.shade600),
@@ -309,10 +308,7 @@ class CustomTextForm extends StatelessWidget {
               ? TextInputType.emailAddress
               : TextInputType.text,
           textInputAction: inputAction,
-          style: Theme
-              .of(context)
-              .textTheme
-              .subhead,
+          style: Theme.of(context).textTheme.subhead,
           validator: validator,
           onFieldSubmitted: onFieldSubmitted,
           decoration: InputDecoration(

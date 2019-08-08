@@ -9,6 +9,7 @@ class ThemeProvider with ChangeNotifier {
   static Color _mentorColor = Color.fromRGBO(234, 128, 59, 1);
   static Color _primaryColor = _mentorColor;
   static Color _menteeColor = Color.fromRGBO(0, 119, 181, 1);
+  static Color _loginButtonColor = Colors.grey.shade200;
 
   ThemeData _lightTheme = ThemeData.light().copyWith(
     pageTransitionsTheme: PageTransitionsTheme(
@@ -36,6 +37,8 @@ class ThemeProvider with ChangeNotifier {
   static Color get mentorColor => _mentorColor;
 
   static Color get menteeColor => _menteeColor;
+
+  static Color get loginButtonColor => _loginButtonColor;
 
   void setTheme(ThemeData newTheme) {
     _themeData = newTheme;

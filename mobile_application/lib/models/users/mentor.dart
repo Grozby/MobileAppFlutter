@@ -27,7 +27,7 @@ class Mentor extends User {
       'password': registrationForm.password.text,
       'name': registrationForm.name.text,
       'surname': registrationForm.surname.text,
-      'company': registrationForm.company.text,
+      'referralCompany': registrationForm.company.text,
     };
   }
 }

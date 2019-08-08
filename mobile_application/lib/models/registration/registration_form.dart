@@ -21,7 +21,7 @@ class RegistrationForm {
 
     name.text = 'a';
     surname.text = 'a';
-    email.text = "asdasadsds@google.com";
+    email.text = "asdasadsds@google.c";
     password.text = 'aaaaaaaaaaaa';
     company.text = 'a';
   }
