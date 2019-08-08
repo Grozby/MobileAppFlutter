@@ -20,10 +20,10 @@ class Mentee extends User{
   @override
   getBodyRegistration(RegistrationForm registrationForm) {
     return {
-      'email': registrationForm.email,
-      'password': registrationForm.password,
-      'name': registrationForm.name,
-      'surname': registrationForm.surname,
+      'email': registrationForm.email.text,
+      'password': registrationForm.password.text,
+      'name': registrationForm.name.text,
+      'surname': registrationForm.surname.text,
     };
   }
 }

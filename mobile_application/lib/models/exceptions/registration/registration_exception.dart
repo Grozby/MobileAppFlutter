@@ -1,6 +1,8 @@
 import '../../../models/registration/registration_form.dart';
+import '../something_went_wrong_exception.dart';
 
-abstract class RegistrationException implements Exception {
-  getMessage();
-  updateRegistrationForm(RegistrationForm registrationForm);
+class RegistrationException extends SomethingWentWrongException {
+  updateRegistrationForm(RegistrationForm registrationForm) {
+
+  }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/models/users/user.dart';
 
 class RegistrationForm {
   TextEditingController name;
@@ -19,5 +18,11 @@ class RegistrationForm {
     email = TextEditingController();
     password = TextEditingController();
     company = TextEditingController();
+
+    name.text = 'a';
+    surname.text = 'a';
+    email.text = "asdasadsds@google.com";
+    password.text = 'aaaaaaaaaaaa';
+    company.text = 'a';
   }
 }

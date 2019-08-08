@@ -23,11 +23,11 @@ class Mentor extends User {
   @override
   getBodyRegistration(RegistrationForm registrationForm) {
     return {
-      'email': registrationForm.email,
-      'password': registrationForm.password,
-      'name': registrationForm.name,
-      'surname': registrationForm.surname,
-      'company': registrationForm.company,
+      'email': registrationForm.email.text,
+      'password': registrationForm.password.text,
+      'name': registrationForm.name.text,
+      'surname': registrationForm.surname.text,
+      'company': registrationForm.company.text,
     };
   }
 }

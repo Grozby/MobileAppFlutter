@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import '../../models/registration/registration_form.dart';
 import '../../models/exceptions/registration/already_used_email_exception.dart';
+import '../../models/exceptions/registration/registration_exception.dart';
 import '../../models/users/user.dart';
 import 'authentication_strategy/authentication_behavior.dart';
 
@@ -51,9 +52,15 @@ class AuthenticationProvider with ChangeNotifier {
       body: json.encode(userType.getBodyRegistration(registrationForm)),
     );
 
+    print('dajeeeeeee');
     final responseData = json.decode(response.body);
     if (responseData['error'] != null) {
-      throw HttpException(responseData['error']['message']);
+      switch (responseData['error']) {
+        case 'EMAIL_ALREADY_USED':
+          return throw AlreadyUsedEmailException();
+        default:
+          return throw RegistrationException();
+      }
     }
 
 
