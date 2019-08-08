@@ -10,6 +10,7 @@ import 'button_styled.dart';
 class SignUpForm extends StatefulWidget {
   final User userType;
   final ScrollController scrollController;
+  bool isSendingRequest = false;
 
   SignUpForm({
     this.userType,
@@ -56,10 +57,12 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   Future<void> validateFormAndSendRegistration() async {
+    widget.isSendingRequest = true;
     final authenticationProvider =
     Provider.of<AuthenticationProvider>(context, listen: false);
     final isValid = _form.currentState.validate();
     if (!isValid) {
+      widget.isSendingRequest = false;
       return;
     }
 
@@ -84,15 +87,18 @@ class _SignUpFormState extends State<SignUpForm> {
         if (snapshot.hasError) {
           final exception = snapshot.error as RegistrationException;
           exception.updateRegistrationForm(registrationForm);
+          widget.isSendingRequest = false;
           return buildForm();
         }
 
         //If true is returned, we have successfully registered.
         if (snapshot.data) {
+          widget.isSendingRequest = false;
           return Center(
             child: Text('Successful!'),
           );
         } else {
+          widget.isSendingRequest = false;
           return buildForm();
         }
       },
