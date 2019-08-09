@@ -18,11 +18,5 @@ class RegistrationForm {
     email = TextEditingController();
     password = TextEditingController();
     company = TextEditingController();
-
-    name.text = 'a';
-    surname.text = 'a';
-    email.text = "asdasadsds@google.c";
-    password.text = 'aaaaaaaaaaaa';
-    company.text = 'a';
   }
 }

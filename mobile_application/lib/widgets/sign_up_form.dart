@@ -5,6 +5,8 @@ import '../models/exceptions/registration/registration_exception.dart';
 import '../models/registration/registration_form.dart';
 import '../models/users/user.dart';
 import '../providers/authentication/authentication_provider.dart';
+import '../providers/theming/theme_provider.dart';
+import '../screens/login_screen.dart';
 import 'button_styled.dart';
 
 class SignUpForm extends StatefulWidget {
@@ -96,8 +98,46 @@ class _SignUpFormState extends State<SignUpForm> {
         if (snapshot.data) {
           widget.isSendingRequest = false;
 
-          return Center(
-            child: Text('Successful!'),
+          return Column(
+            children: <Widget>[
+              Expanded(
+                flex: 3,
+                child: Container(),
+              ),
+              Expanded(
+                child: Container(
+                  child: Text(
+                    'Your registration is successful!',
+                    style: Theme.of(context).textTheme.title,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  child: Text(
+                    'Proceed to login.',
+                    style: Theme.of(context).textTheme.subtitle,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ButtonStyled(
+                  dimensionButton: 10,
+                  text: 'Login',
+                  onPressFunction: () {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      LoginScreen.routeName,
+                      ModalRoute.withName(Navigator.defaultRouteName),
+                    );
+                  },
+                  color: ThemeProvider.loginButtonColor,
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Container(),
+              )
+            ],
           );
         } else {
           widget.isSendingRequest = false;
@@ -110,6 +150,15 @@ class _SignUpFormState extends State<SignUpForm> {
   Widget buildForm() {
     return Column(
       children: <Widget>[
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Sign up as a ${widget.userType.name}',
+              style: Theme.of(context).textTheme.title,
+            ),
+          ),
+        ),
         Expanded(
           flex: 7,
           child: Row(
@@ -250,6 +299,23 @@ class _SignUpFormState extends State<SignUpForm> {
             color: widget.userType.color,
           ),
         ),
+        Flexible(
+          fit: FlexFit.loose,
+          child: Container(
+            alignment: Alignment.bottomCenter,
+            child: InkWell(
+              onTap: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  LoginScreen.routeName,
+                  ModalRoute.withName(Navigator.defaultRouteName),
+                );
+              },
+              child: Text(
+                'Already have an account? Log in',
+              ),
+            ),
+          ),
+        )
       ],
     );
   }

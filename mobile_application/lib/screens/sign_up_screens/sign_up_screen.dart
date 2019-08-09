@@ -42,38 +42,8 @@ class SignUpScreen extends StatelessWidget {
                 ),
                 Flexible(
                   fit: FlexFit.loose,
-                  flex: 1,
-                  child: Container(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'Sign up as a ${userType.name}',
-                        style: Theme.of(context).textTheme.title,
-                      ),
-                    ),
-                  ),
-                ),
-                Flexible(
-                  fit: FlexFit.loose,
-                  flex: 8,
+                  flex: 10,
                   child: form,
-                ),
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: Container(
-                    alignment: Alignment.bottomCenter,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                          LoginScreen.routeName,
-                          ModalRoute.withName(Navigator.defaultRouteName),
-                        );
-                      },
-                      child: Text(
-                        'Already have an account? Log in',
-                      ),
-                    ),
-                  ),
                 ),
                 Flexible(
                   fit: FlexFit.loose,
