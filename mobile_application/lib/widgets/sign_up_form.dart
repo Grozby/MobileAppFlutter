@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/exceptions/registration/registration_exception.dart';
-import '../models/registration/registration_form.dart';
+import '../models/registration/sign_up_form_model.dart';
 import '../models/users/user.dart';
 import '../providers/authentication/authentication_provider.dart';
 import '../providers/theming/theme_provider.dart';
 import '../screens/login_screen.dart';
 import 'button_styled.dart';
+import 'custom_text_form.dart';
 
 class SignUpForm extends StatefulWidget {
   final User userType;
@@ -25,21 +26,21 @@ class SignUpForm extends StatefulWidget {
 
 class _SignUpFormState extends State<SignUpForm> {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
-  RegistrationForm registrationForm;
+  SignUpFormModel registrationForm;
   FocusNode _focusNodeName = FocusNode();
   FocusNode _focusNodeSurname = FocusNode();
   FocusNode _focusNodeEmail = FocusNode();
   FocusNode _focusNodePassword = FocusNode();
   FocusNode _focusNodeCompany = FocusNode();
 
-  Future<bool> _futureBuilder;
+  Future<void> _futureBuilder;
 
   @override
   void initState() {
     super.initState();
-    registrationForm = RegistrationForm();
+    registrationForm = SignUpFormModel();
 
-    _futureBuilder = Future<bool>.delayed(Duration.zero, () => false);
+    _futureBuilder = null;
   }
 
   @override
@@ -56,6 +57,24 @@ class _SignUpFormState extends State<SignUpForm> {
     _focusNodeEmail.dispose();
     _focusNodePassword.dispose();
     _focusNodeCompany.dispose();
+  }
+
+  void showErrorDialog(BuildContext context){
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('An error occured'),
+        content: Text('Something went wrong. The internet connection seems to be down.'),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
   }
 
   Future<void> validateFormAndSendRegistration() async {
@@ -87,62 +106,68 @@ class _SignUpFormState extends State<SignUpForm> {
           );
         }
 
+        if (snapshot.connectionState == ConnectionState.none) {
+          widget.isSendingRequest = false;
+          return buildForm();
+        }
+
+        //If some errors has been found, we display them.
         if (snapshot.hasError) {
           final exception = snapshot.error as RegistrationException;
-          exception.updateRegistrationForm(registrationForm);
+          if(exception.getMessage() == RegistrationException().getMessage()){
+            Future.delayed(Duration.zero, () => showErrorDialog(context));
+          } else {
+            exception.updateRegistrationForm(registrationForm);
+          }
           widget.isSendingRequest = false;
           return buildForm();
         }
 
-        //If true is returned, we have successfully registered.
-        if (snapshot.data) {
-          widget.isSendingRequest = false;
+        //Otherwise, everything went smoothly and the registration is
+        //successful
+        widget.isSendingRequest = false;
 
-          return Column(
-            children: <Widget>[
-              Expanded(
-                flex: 3,
-                child: Container(),
-              ),
-              Expanded(
-                child: Container(
-                  child: Text(
-                    'Your registration is successful!',
-                    style: Theme.of(context).textTheme.title,
-                  ),
+        return Column(
+          children: <Widget>[
+            Expanded(
+              flex: 3,
+              child: Container(),
+            ),
+            Expanded(
+              child: Container(
+                child: Text(
+                  'Your registration is successful!',
+                  style: Theme.of(context).textTheme.title,
                 ),
               ),
-              Expanded(
-                child: Container(
-                  child: Text(
-                    'Proceed to login.',
-                    style: Theme.of(context).textTheme.subtitle,
-                  ),
+            ),
+            Expanded(
+              child: Container(
+                child: Text(
+                  'Proceed to login.',
+                  style: Theme.of(context).textTheme.subtitle,
                 ),
               ),
-              Expanded(
-                child: ButtonStyled(
-                  dimensionButton: 10,
-                  text: 'Login',
-                  onPressFunction: () {
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                      LoginScreen.routeName,
-                      ModalRoute.withName(Navigator.defaultRouteName),
-                    );
-                  },
-                  color: ThemeProvider.loginButtonColor,
-                ),
+            ),
+            Expanded(
+              child: ButtonStyled(
+                dimensionButton: 10,
+                text: 'Login',
+                onPressFunction: () {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    LoginScreen.routeName,
+                    ModalRoute.withName(Navigator.defaultRouteName),
+                  );
+                },
+                color: ThemeProvider.loginButtonColor,
               ),
-              Expanded(
-                flex: 3,
-                child: Container(),
-              )
-            ],
-          );
-        } else {
-          widget.isSendingRequest = false;
-          return buildForm();
-        }
+            ),
+            Expanded(
+              flex: 3,
+              child: Container(),
+            )
+          ],
+        );
       },
     );
   }
@@ -180,7 +205,7 @@ class _SignUpFormState extends State<SignUpForm> {
                           _focusNodeName,
                           _focusNodeSurname,
                         ),
-                        userType: widget.userType,
+                        color: widget.userType.color,
                         labelText: 'Name',
                         validator: (currentName) {
                           if (currentName.isEmpty) {
@@ -200,7 +225,7 @@ class _SignUpFormState extends State<SignUpForm> {
                           _focusNodeSurname,
                           _focusNodeEmail,
                         ),
-                        userType: widget.userType,
+                        color: widget.userType.color,
                         labelText: 'Surname',
                         validator: (currentSurname) {
                           if (currentSurname.isEmpty) {
@@ -220,7 +245,7 @@ class _SignUpFormState extends State<SignUpForm> {
                           _focusNodeEmail,
                           _focusNodePassword,
                         ),
-                        userType: widget.userType,
+                        color: widget.userType.color,
                         labelText: 'Email',
                         validator: (currentEmail) {
                           if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
@@ -246,7 +271,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                 _focusNodePassword.unfocus();
                                 validateFormAndSendRegistration();
                               },
-                        userType: widget.userType,
+                        color: widget.userType.color,
                         labelText: 'Password',
                         validator: (currentPassword) {
                           if (currentPassword.length < 8) {
@@ -268,7 +293,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                 _focusNodeCompany.unfocus();
                                 validateFormAndSendRegistration();
                               },
-                              userType: widget.userType,
+                        color: widget.userType.color,
                               labelText: 'Company',
                               validator: (currentText) {
                                 if (currentText.isEmpty) {
@@ -328,69 +353,4 @@ void _fieldFocusChange(
 ) {
   currentFocus.unfocus();
   FocusScope.of(context).requestFocus(nextFocus);
-}
-
-class CustomTextForm extends StatelessWidget {
-  final TextEditingController controller;
-  final String labelText;
-  final User userType;
-  final Function validator;
-  final String errorText;
-  final FocusNode focusNode;
-  final Function onFieldSubmitted;
-  final TextInputAction inputAction;
-
-  CustomTextForm({
-    @required this.controller,
-    @required this.labelText,
-    @required this.userType,
-    @required this.validator,
-    @required this.focusNode,
-    @required this.onFieldSubmitted,
-    @required this.inputAction,
-    this.errorText,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Container(
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.all(8),
-          child: Text(
-            labelText,
-            style: Theme.of(context)
-                .textTheme
-                .subhead
-                .copyWith(color: Colors.grey.shade600),
-          ),
-        ),
-        TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          obscureText: labelText == 'Password',
-          keyboardType: labelText == 'Email'
-              ? TextInputType.emailAddress
-              : TextInputType.text,
-          textInputAction: inputAction,
-          style: Theme.of(context).textTheme.subhead,
-          validator: validator,
-          onFieldSubmitted: onFieldSubmitted,
-          decoration: InputDecoration(
-            errorText: errorText,
-            contentPadding: EdgeInsets.all(10),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: userType.color),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            focusColor: userType.color,
-          ),
-        ),
-      ],
-    );
-  }
 }

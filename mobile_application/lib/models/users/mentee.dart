@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import '../../models/registration/registration_form.dart';
+import '../../models/registration/sign_up_form_model.dart';
 import '../../providers/configuration.dart';
 import '../../providers/theming/theme_provider.dart';
 import 'user.dart';
@@ -18,7 +18,7 @@ class Mentee extends User{
   String get registrationUrl => Configuration.serverUrl + Configuration.registrationPath + '/mentor';
 
   @override
-  getBodyRegistration(RegistrationForm registrationForm) {
+  getBodyRegistration(SignUpFormModel registrationForm) {
     return {
       'email': registrationForm.email.text,
       'password': registrationForm.password.text,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class RegistrationForm {
+class SignUpFormModel {
   TextEditingController name;
   String errorName;
   TextEditingController surname;
@@ -12,11 +12,17 @@ class RegistrationForm {
   TextEditingController company;
   String errorCompany;
 
-  RegistrationForm() {
+  SignUpFormModel() {
     name = TextEditingController();
     surname = TextEditingController();
     email = TextEditingController();
     password = TextEditingController();
     company = TextEditingController();
+
+    name.text = 'a';
+    surname.text = 'a';
+    email.text = 'a@a.a';
+    password.text = 'aaaaaaaaa';
+    company.text = 'a';
   }
 }

@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import '../../models/registration/registration_form.dart';
+import '../../models/registration/sign_up_form_model.dart';
 
 abstract class User {
   String get registrationUrl;
@@ -11,5 +11,5 @@ abstract class User {
 
   Color get color;
 
-  getBodyRegistration(RegistrationForm registrationForm);
+  getBodyRegistration(SignUpFormModel registrationForm);
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'package:provider/provider.dart';
 import '../widgets/button_styled.dart';
+import 'login_screen.dart';
 import 'sign_up_screens/sign_up_choice_screen.dart';
 
 class LandingScreen extends StatelessWidget {
@@ -80,7 +81,9 @@ class LandingScreen extends StatelessWidget {
                 child: ButtonStyled(
                   dimensionButton: 10,
                   text: 'Login',
-                  onPressFunction: () {},
+                  onPressFunction: () {
+                    Navigator.of(context).pushNamed(LoginScreen.routeName,);
+                  },
                   color: ThemeProvider.loginButtonColor,
                 ),
               ),

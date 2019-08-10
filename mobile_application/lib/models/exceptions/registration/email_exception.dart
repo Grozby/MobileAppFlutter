@@ -1,4 +1,4 @@
-import 'package:mobile_application/models/registration/registration_form.dart';
+import 'package:mobile_application/models/registration/sign_up_form_model.dart';
 
 import 'registration_exception.dart';
 
@@ -7,7 +7,7 @@ class EmailException extends RegistrationException{
   getMessage() => 'Incorrect email.';
 
   @override
-  updateRegistrationForm(RegistrationForm registrationForm) {
+  updateRegistrationForm(SignUpFormModel registrationForm) {
     registrationForm.errorEmail = getMessage();
   }
 }

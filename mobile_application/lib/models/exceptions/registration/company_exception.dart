@@ -1,4 +1,4 @@
-import 'package:mobile_application/models/registration/registration_form.dart';
+import 'package:mobile_application/models/registration/sign_up_form_model.dart';
 
 import 'registration_exception.dart';
 
@@ -7,7 +7,7 @@ class CompanyException extends RegistrationException{
   getMessage() => 'Incorrect company.';
 
   @override
-  updateRegistrationForm(RegistrationForm registrationForm) {
+  updateRegistrationForm(SignUpFormModel registrationForm) {
     registrationForm.errorCompany = getMessage();
   }
 }

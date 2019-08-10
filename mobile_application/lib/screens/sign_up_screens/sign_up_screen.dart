@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../models/users/user.dart';
-import '../login_screen.dart';
 import '../../widgets/sign_up_form.dart';
 
 class SignUpScreen extends StatelessWidget {

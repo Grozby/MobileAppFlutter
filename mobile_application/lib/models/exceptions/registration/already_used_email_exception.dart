@@ -1,4 +1,4 @@
-import 'package:mobile_application/models/registration/registration_form.dart';
+import 'package:mobile_application/models/registration/sign_up_form_model.dart';
 
 import 'registration_exception.dart';
 
@@ -7,7 +7,7 @@ class AlreadyUsedEmailException extends RegistrationException{
   getMessage() => 'The email is already used.';
 
   @override
-  updateRegistrationForm(RegistrationForm registrationForm) {
+  updateRegistrationForm(SignUpFormModel registrationForm) {
     registrationForm.errorEmail = getMessage();
   }
 }

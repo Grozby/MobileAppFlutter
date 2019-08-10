@@ -5,6 +5,7 @@ import '../../models/users/mentor.dart';
 import '../../models/users/mentee.dart';
 import '../../providers/theming/theme_provider.dart';
 import '../../widgets/button_styled.dart';
+import '../login_screen.dart';
 import 'sign_up_screen.dart';
 
 class SignUpChoiceScreen extends StatelessWidget {
@@ -85,7 +86,9 @@ class SignUpChoiceScreen extends StatelessWidget {
                 child: ButtonStyled(
                   dimensionButton: 10,
                   text: 'Login',
-                  onPressFunction: () {},
+                  onPressFunction: () {
+                    Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
+                  },
                   color: Colors.grey.shade200,
                 ),
               ),

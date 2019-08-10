@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:mobile_application/models/registration/registration_form.dart';
+import 'package:mobile_application/models/registration/sign_up_form_model.dart';
 
 import '../../providers/theming/theme_provider.dart';
 import '../../providers/configuration.dart';
@@ -21,7 +21,7 @@ class Mentor extends User {
       Configuration.serverUrl + Configuration.registrationPath + '/mentor';
 
   @override
-  getBodyRegistration(RegistrationForm registrationForm) {
+  getBodyRegistration(SignUpFormModel registrationForm) {
     return {
       'email': registrationForm.email.text,
       'password': registrationForm.password.text,
