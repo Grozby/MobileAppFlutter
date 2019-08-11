@@ -7,6 +7,7 @@ import '../models/users/user.dart';
 import '../providers/authentication/authentication_provider.dart';
 import '../providers/theming/theme_provider.dart';
 import '../screens/login_screen.dart';
+import 'custom_alert_dialog.dart';
 import 'button_styled.dart';
 import 'custom_text_form.dart';
 
@@ -59,24 +60,6 @@ class _SignUpFormState extends State<SignUpForm> {
     _focusNodeCompany.dispose();
   }
 
-  void showErrorDialog(BuildContext context){
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('An error occured'),
-        content: Text('Something went wrong. The internet connection seems to be down.'),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          )
-        ],
-      ),
-    );
-  }
-
   Future<void> validateFormAndSendRegistration() async {
     widget.isSendingRequest = true;
     final authenticationProvider =
@@ -114,8 +97,14 @@ class _SignUpFormState extends State<SignUpForm> {
         //If some errors has been found, we display them.
         if (snapshot.hasError) {
           final exception = snapshot.error as RegistrationException;
-          if(exception.getMessage() == RegistrationException().getMessage()){
-            Future.delayed(Duration.zero, () => showErrorDialog(context));
+          if (snapshot.error.runtimeType == RegistrationException) {
+            Future.delayed(
+              Duration.zero,
+              () => showErrorDialog(
+                context,
+                exception.getMessage(),
+              ),
+            );
           } else {
             exception.updateRegistrationForm(registrationForm);
           }
@@ -293,7 +282,7 @@ class _SignUpFormState extends State<SignUpForm> {
                                 _focusNodeCompany.unfocus();
                                 validateFormAndSendRegistration();
                               },
-                        color: widget.userType.color,
+                              color: widget.userType.color,
                               labelText: 'Company',
                               validator: (currentText) {
                                 if (currentText.isEmpty) {

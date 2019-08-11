@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/login/login_form_model.dart';
 import '../models/exceptions/login/login_exception.dart';
-import '../models/users/user.dart';
+import '../models/login/login_form_model.dart';
 import '../providers/authentication/authentication_provider.dart';
-import '../providers/theming/theme_provider.dart';
 import '../screens/login_screen.dart';
 import 'button_styled.dart';
+import 'custom_alert_dialog.dart';
 import 'custom_text_form.dart';
 
 class LoginForm extends StatefulWidget {
@@ -86,14 +85,27 @@ class _LoginFormState extends State<LoginForm> {
 
         if (snapshot.hasError) {
           final exception = snapshot.error as LoginException;
-          exception.updateLoginForm(loginForm);
+          if (snapshot.error.runtimeType == LoginException) {
+            Future.delayed(
+              Duration.zero,
+              () => showErrorDialog(context, exception.getMessage()),
+            );
+          } else {
+            exception.updateLoginForm(loginForm);
+          }
           widget.isSendingRequest = false;
           return buildForm();
         }
 
-
         //TODO
         widget.isSendingRequest = false;
+        Future.delayed(
+          Duration.zero,
+              () => Navigator.of(context).pushNamedAndRemoveUntil(
+                Navigator.defaultRouteName,
+                ModalRoute.withName(""),
+              )
+          );
         return Container();
       },
     );
@@ -177,7 +189,7 @@ class _LoginFormState extends State<LoginForm> {
         Expanded(
           child: ButtonStyled(
             dimensionButton: 10,
-            text: 'Sign Up',
+            text: 'Login',
             onPressFunction: validateFormAndLogin,
           ),
         ),

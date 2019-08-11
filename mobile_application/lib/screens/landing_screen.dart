@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-
-import 'package:mobile_application/providers/theming/theme_provider.dart';
-import 'package:provider/provider.dart';
+import '../providers/theming/theme_provider.dart';
 import '../widgets/button_styled.dart';
 import 'login_screen.dart';
 import 'sign_up_screens/sign_up_choice_screen.dart';
@@ -14,6 +12,7 @@ class LandingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: ThemeProvider.primaryColor,

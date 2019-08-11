@@ -1,20 +1,21 @@
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
-import '../../models/registration/sign_up_form_model.dart';
 import '../../models/exceptions/registration/already_used_email_exception.dart';
-import '../../models/exceptions/registration/name_exception.dart';
-import '../../models/exceptions/registration/surname_exception.dart';
-import '../../models/exceptions/registration/email_exception.dart';
-import '../../models/exceptions/registration/password_exception.dart';
 import '../../models/exceptions/registration/company_exception.dart';
+import '../../models/exceptions/registration/email_exception.dart';
+import '../../models/exceptions/registration/name_exception.dart';
+import '../../models/exceptions/registration/password_exception.dart';
 import '../../models/exceptions/registration/registration_exception.dart';
+import '../../models/exceptions/registration/surname_exception.dart';
+
+import '../../models/exceptions/login/login_exception.dart';
 import '../../models/exceptions/login/incorrect_email_or_password_exception.dart';
+import '../../models/registration/sign_up_form_model.dart';
 import '../../models/users/user.dart';
 import '../configuration.dart';
 
@@ -73,6 +74,7 @@ class AuthenticationProvider with ChangeNotifier {
     return true;
   }
 
+  ///
   /// Registration function that throws an RegistrationException if
   /// anything goes wrong.
   ///
@@ -101,10 +103,16 @@ class AuthenticationProvider with ChangeNotifier {
       if (response.statusCode == 201) {
         return;
       }
-      //TODO Throw error
+      //Otherwise we received something not expected. We throw an error.
+      else {
+        throw RegistrationException(
+            'Something went wrong. We couldn\'t validate the response.');
+      }
     } on DioError catch (error) {
-      if(error.type != DioErrorType.RESPONSE ){
-        throw RegistrationException();
+      if (error.type != DioErrorType.RESPONSE) {
+        throw RegistrationException(
+          'Something went wrong. The internet connection seems to be down.',
+        );
       }
 
       if (error.response.data.containsKey('error')) {
@@ -112,7 +120,9 @@ class AuthenticationProvider with ChangeNotifier {
           case 'EMAIL_ALREADY_USED':
             throw AlreadyUsedEmailException();
           default:
-            throw RegistrationException();
+            throw RegistrationException(
+              'Something went wrong. We couldn\'t validate the response.',
+            );
         }
       }
 
@@ -132,44 +142,42 @@ class AuthenticationProvider with ChangeNotifier {
         });
       }
 
-      throw RegistrationException();
+      throw RegistrationException(
+        'Something went wrong. We couldn\'t validate the response.',
+      );
     }
-
-    //Otherwise, we got an error. We proceed in checking what error is.
-//    final responseData = json.decode(response.data);
-//
-//    if (responseData.containsKey('error')) {
-//      switch (responseData['error']) {
-//        case 'EMAIL_ALREADY_USED':
-//          throw AlreadyUsedEmailException();
-//        default:
-//          throw RegistrationException();
-//      }
-//    }
-//
-//    if (responseData.containsKey('errors')) {
-//      if ((responseData['errors'][0]).containsKey('param')) {
-//        body.forEach((key, _) {
-//          if (responseData['errors'][0]['param'] == key) {
-//            throwErrorKey(key);
-//          }
-//        });
-//      }
-//
-//      body.forEach((key, _) {
-//        if (responseData['error'].containsKey(key)) {
-//          throwErrorKey(key);
-//        }
-//      });
-//    }
-//
-//    throw RegistrationException();
   }
 
   Future<void> authenticateWithCredentials(
       String email, String password) async {
-    return Future.delayed(Duration(seconds: 2), () {
-      throw IncorrectEmailOrPasswordException();
-    });
+    try {
+      final response = await _httpManager.post(
+        "/auth/login",
+        data: {
+          "username": email,
+          "password": password,
+          "grant_type": "password",
+        },
+        options: new Options(
+          contentType: ContentType.parse("application/x-www-form-urlencoded"),
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        _token = response.data["token_type"];
+        notifyListeners();
+        return;
+      }
+
+    } on DioError catch (error) {
+      if (error.type != DioErrorType.RESPONSE) {
+        throw LoginException(
+          'Something went wrong. The internet connection seems to be down.',
+        );
+      }
+      else {
+        throw IncorrectEmailOrPasswordException();
+      }
+    }
   }
 }

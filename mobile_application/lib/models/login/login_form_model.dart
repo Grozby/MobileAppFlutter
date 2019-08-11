@@ -9,5 +9,8 @@ class LoginFormModel {
   LoginFormModel() {
     email = TextEditingController();
     password = TextEditingController();
+
+    email.text = 'asdasadsds@google.com';
+    password.text = 'pasadawd';
   }
 }
