@@ -1,16 +1,117 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:ui';
 
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+import '../providers/authentication/authentication_provider.dart';
 import '../providers/theming/theme_provider.dart';
 import '../widgets/button_styled.dart';
 import 'login_screen.dart';
 import 'sign_up_screens/sign_up_choice_screen.dart';
 
-class LandingScreen extends StatelessWidget {
+class LandingScreen extends StatefulWidget {
   static const routeName = '/landing';
 
   @override
-  Widget build(BuildContext context) {
+  _LandingScreenState createState() => _LandingScreenState();
+}
 
+class _LandingScreenState extends State<LandingScreen> {
+  OverlayEntry _overlayEntry;
+  AuthenticationProvider _authenticationProvider;
+  Completer<WebViewController> _webViewController =
+      Completer<WebViewController>();
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      _authenticationProvider =
+          Provider.of<AuthenticationProvider>(context, listen: true);
+    });
+  }
+
+  OverlayEntry _createOverlay(String authenticationUrl) {
+    return OverlayEntry(builder: (BuildContext ctx) {
+      return SafeArea(
+        child: Stack(
+          children: <Widget>[
+            GestureDetector(
+              onTap: () {
+                _webViewController = Completer<WebViewController>();
+                _overlayEntry.remove();
+              },
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                child: Container(
+                  color: Colors.grey.shade200.withOpacity(0.2),
+                ),
+              ),
+            ),
+            LayoutBuilder(
+              builder: (BuildContext ctx, BoxConstraints constraints) {
+                return Center(
+                  child: Container(
+                    height: constraints.maxHeight * 0.7,
+                    width: constraints.maxWidth * 0.8,
+                    child: WebView(
+                      initialUrl: authenticationUrl,
+
+                      javascriptMode: JavascriptMode.unrestricted,
+                      onWebViewCreated: (WebViewController controller) {
+                        _webViewController.complete(controller);
+                      },
+                    ),
+//                    child: FutureBuilder(
+//                      future: authenticationRequest,
+//                      builder:
+//                          (BuildContext context, AsyncSnapshot snapshot) {
+//                            if (snapshot.connectionState == ConnectionState.waiting) {
+//                              return Center(
+//                                child: CircularProgressIndicator(),
+//                              );
+//                            }
+//
+//                            if (snapshot.hasError) {
+//                              final exception = snapshot.error as LoginException;
+//                              if (snapshot.error.runtimeType == LoginException) {
+//                                Future.delayed(
+//                                  Duration.zero,
+//                                      () => showErrorDialog(context, exception.getMessage()),
+//                                );
+//                              }
+//                              return Container();
+////                              final exception = snapshot.error as LoginException;
+////                              if (snapshot.error.runtimeType == LoginException) {
+////                                Future.delayed(
+////                                  Duration.zero,
+////                                      () => showErrorDialog(context, exception.getMessage()),
+////                                );
+////                              } else {
+////                                exception.updateLoginForm(loginForm);
+////                              }
+////                              widget.isSendingRequest = false;
+////                              return buildForm();
+//                            }
+//
+//                            //If we have successfully logged in, we go back to the homepage.
+//                            return Container(child: Text(snapshot.data),);
+//                          },
+//                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
@@ -55,7 +156,9 @@ class LandingScreen extends StatelessWidget {
                   dimensionButton: 10,
                   text: 'Sign Up',
                   onPressFunction: () {
-                    Navigator.of(context).pushNamed(SignUpChoiceScreen.routeName,);
+                    Navigator.of(context).pushNamed(
+                      SignUpChoiceScreen.routeName,
+                    );
                   },
                   color: ThemeProvider.primaryColor,
                 ),
@@ -64,7 +167,11 @@ class LandingScreen extends StatelessWidget {
                 child: ButtonStyled(
                   dimensionButton: 10,
                   text: 'Login with Google',
-                  onPressFunction: () {},
+                  onPressFunction: () {
+                    _overlayEntry = _createOverlay(
+                        _authenticationProvider.loginWithGoogleUrl());
+                    Overlay.of(context).insert(_overlayEntry);
+                  },
                   color: Colors.green,
                 ),
               ),
@@ -81,7 +188,9 @@ class LandingScreen extends StatelessWidget {
                   dimensionButton: 10,
                   text: 'Login',
                   onPressFunction: () {
-                    Navigator.of(context).pushNamed(LoginScreen.routeName,);
+                    Navigator.of(context).pushNamed(
+                      LoginScreen.routeName,
+                    );
                   },
                   color: ThemeProvider.loginButtonColor,
                 ),

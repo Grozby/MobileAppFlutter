@@ -97,7 +97,7 @@ class _LoginFormState extends State<LoginForm> {
           return buildForm();
         }
 
-        //TODO
+        //If we have successfully logged in, we go back to the homepage.
         widget.isSendingRequest = false;
         Future.delayed(
           Duration.zero,

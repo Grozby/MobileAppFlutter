@@ -7,7 +7,7 @@ import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'widgets/themed_material_app.dart';
 
 void main() async {
-  SystemChrome.setPreferredOrientations([
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
@@ -24,8 +24,8 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
-  ThemeProvider themeProvider;
-  AuthenticationProvider authenticationProvider;
+  final ThemeProvider themeProvider;
+  final AuthenticationProvider authenticationProvider;
 
   MyApp({
     @required this.themeProvider,

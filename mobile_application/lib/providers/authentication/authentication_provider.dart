@@ -168,16 +168,34 @@ class AuthenticationProvider with ChangeNotifier {
         notifyListeners();
         return;
       }
-
     } on DioError catch (error) {
       if (error.type != DioErrorType.RESPONSE) {
         throw LoginException(
           'Something went wrong. The internet connection seems to be down.',
         );
-      }
-      else {
+      } else {
         throw IncorrectEmailOrPasswordException();
       }
     }
+  }
+
+  Future<String> loginWithGoogle() async {
+    try {
+      final response = await _httpManager.get(
+        "/auth/google",
+      );
+      print(response);
+    } on DioError catch (_) {
+      throw LoginException(
+        'Something went wrong. The internet connection seems to be down.',
+      );
+    }
+
+    return Future.delayed(Duration(seconds: 2), () => "string");
+  }
+
+  String loginWithGoogleUrl() {
+    return "https:www.google.com";
+    //return "https://10.0.2.2:5001/auth/google";
   }
 }
