@@ -66,7 +66,7 @@ class ThemeProvider with ChangeNotifier {
     if (_isLight) {
       _themeData = ThemeData.dark();
     } else {
-      _themeData = ThemeData.light();
+      _themeData = _lightTheme;
     }
 
     _isLight = !_isLight;

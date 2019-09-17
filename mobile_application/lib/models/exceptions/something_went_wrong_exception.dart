@@ -1,3 +1,11 @@
 class SomethingWentWrongException implements Exception {
-  getMessage() => "Something went wrong";
+  final String text;
+
+  SomethingWentWrongException() : text = "Something went wrong";
+
+  SomethingWentWrongException.message(dynamic t)
+      : text =
+            (t != null && t.runtimeType == String) ? t : "Something went wrong";
+
+  getMessage() => text;
 }

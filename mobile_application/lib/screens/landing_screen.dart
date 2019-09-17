@@ -3,11 +3,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import '../providers/authentication/authentication_provider.dart';
 import '../providers/theming/theme_provider.dart';
 import '../widgets/button_styled.dart';
+import '../widgets/custom_alert_dialog.dart';
+import './../models/exceptions/something_went_wrong_exception.dart';
 import 'login_screen.dart';
 import 'sign_up_screens/sign_up_choice_screen.dart';
 
@@ -19,10 +20,7 @@ class LandingScreen extends StatefulWidget {
 }
 
 class _LandingScreenState extends State<LandingScreen> {
-  OverlayEntry _overlayEntry;
   AuthenticationProvider _authenticationProvider;
-  Completer<WebViewController> _webViewController =
-      Completer<WebViewController>();
 
   @override
   void initState() {
@@ -30,83 +28,6 @@ class _LandingScreenState extends State<LandingScreen> {
     Future.delayed(Duration.zero, () {
       _authenticationProvider =
           Provider.of<AuthenticationProvider>(context, listen: true);
-    });
-  }
-
-  OverlayEntry _createOverlay(String authenticationUrl) {
-    return OverlayEntry(builder: (BuildContext ctx) {
-      return SafeArea(
-        child: Stack(
-          children: <Widget>[
-            GestureDetector(
-              onTap: () {
-                _webViewController = Completer<WebViewController>();
-                _overlayEntry.remove();
-              },
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-                child: Container(
-                  color: Colors.grey.shade200.withOpacity(0.2),
-                ),
-              ),
-            ),
-            LayoutBuilder(
-              builder: (BuildContext ctx, BoxConstraints constraints) {
-                return Center(
-                  child: Container(
-                    height: constraints.maxHeight * 0.7,
-                    width: constraints.maxWidth * 0.8,
-                    child: WebView(
-                      initialUrl: authenticationUrl,
-
-                      javascriptMode: JavascriptMode.unrestricted,
-                      onWebViewCreated: (WebViewController controller) {
-                        _webViewController.complete(controller);
-                      },
-                    ),
-//                    child: FutureBuilder(
-//                      future: authenticationRequest,
-//                      builder:
-//                          (BuildContext context, AsyncSnapshot snapshot) {
-//                            if (snapshot.connectionState == ConnectionState.waiting) {
-//                              return Center(
-//                                child: CircularProgressIndicator(),
-//                              );
-//                            }
-//
-//                            if (snapshot.hasError) {
-//                              final exception = snapshot.error as LoginException;
-//                              if (snapshot.error.runtimeType == LoginException) {
-//                                Future.delayed(
-//                                  Duration.zero,
-//                                      () => showErrorDialog(context, exception.getMessage()),
-//                                );
-//                              }
-//                              return Container();
-////                              final exception = snapshot.error as LoginException;
-////                              if (snapshot.error.runtimeType == LoginException) {
-////                                Future.delayed(
-////                                  Duration.zero,
-////                                      () => showErrorDialog(context, exception.getMessage()),
-////                                );
-////                              } else {
-////                                exception.updateLoginForm(loginForm);
-////                              }
-////                              widget.isSendingRequest = false;
-////                              return buildForm();
-//                            }
-//
-//                            //If we have successfully logged in, we go back to the homepage.
-//                            return Container(child: Text(snapshot.data),);
-//                          },
-//                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-      );
     });
   }
 
@@ -167,10 +88,19 @@ class _LandingScreenState extends State<LandingScreen> {
                 child: ButtonStyled(
                   dimensionButton: 10,
                   text: 'Login with Google',
-                  onPressFunction: () {
-                    _overlayEntry = _createOverlay(
-                        _authenticationProvider.loginWithGoogleUrl());
-                    Overlay.of(context).insert(_overlayEntry);
+                  onPressFunction: () async {
+                    try {
+                      await _authenticationProvider.authenticateWithGoogle();
+                      Future.delayed(
+                          Duration.zero,
+                              () => Navigator.of(context).pushNamedAndRemoveUntil(
+                            Navigator.defaultRouteName,
+                            ModalRoute.withName(""),
+                          )
+                      );
+                    } on SomethingWentWrongException catch(e) {
+                      showErrorDialog(context, e.getMessage());
+                    }
                   },
                   color: Colors.green,
                 ),

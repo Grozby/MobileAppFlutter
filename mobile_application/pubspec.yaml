@@ -19,12 +19,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  meta: ^1.1.6
   dio: ^2.1.13
   http: ^0.12.0+2
   shared_preferences: ^0.5.3+4
   provider: ^3.0.0+1
   flutter_svg: ^0.14.0
-  webview_flutter: ^0.3.11+2
+  google_sign_in: ^4.0.6
 
 
   # The following adds the Cupertino Icons font to your application.

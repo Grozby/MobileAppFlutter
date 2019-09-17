@@ -12,12 +12,10 @@ import '../../models/exceptions/registration/name_exception.dart';
 import '../../models/exceptions/registration/password_exception.dart';
 import '../../models/exceptions/registration/registration_exception.dart';
 import '../../models/exceptions/registration/surname_exception.dart';
-
-import '../../models/exceptions/login/login_exception.dart';
-import '../../models/exceptions/login/incorrect_email_or_password_exception.dart';
 import '../../models/registration/sign_up_form_model.dart';
 import '../../models/users/user.dart';
 import '../configuration.dart';
+import 'types/authentication_mode.dart';
 
 // Must be top-level function
 _parseAndDecode(String response) {
@@ -29,12 +27,11 @@ parseJson(String text) {
 }
 
 class AuthenticationProvider with ChangeNotifier {
-  String _token;
-  String _user;
+  AuthenticationMode _authenticationMode;
   Dio _httpManager;
 
   AuthenticationProvider() {
-    // or new Dio with a Options instance.
+    // Setup of a Dio connection
     BaseOptions options = new BaseOptions(
       baseUrl: Configuration.serverUrl,
       connectTimeout: 7000,
@@ -43,36 +40,44 @@ class AuthenticationProvider with ChangeNotifier {
     _httpManager = new Dio(options);
     (_httpManager.transformer as DefaultTransformer).jsonDecodeCallback =
         parseJson;
+    _authenticationMode = AuthenticationMode.getAuthenticationMode(
+      'credentials',
+      _httpManager,
+      this,
+    );
   }
 
   /*----------
      Methods
    -----------*/
 
-  bool gotAToken() => _token?.isNotEmpty ?? false;
+  bool gotAToken() => _authenticationMode.gotAToken();
 
   Future<void> loadAuthentication() async {
     //Load saved data, and check whether there is some token data stored.
     final storedData = await SharedPreferences.getInstance();
     //If we have some token, we proceed in storing it.
-    if (storedData.containsKey('loginData')) {
-      _token = storedData.getString('loginData');
+    if (storedData.containsKey('loginData') &&
+        storedData.containsKey('loginType')) {
+      _authenticationMode = AuthenticationMode.getAuthenticationMode(
+        storedData.get('loginType'),
+        _httpManager,
+        this,
+      );
+      _authenticationMode.authenticationToken =
+          storedData.getString('loginData');
     }
   }
 
   Map<String, String> get _authenticatedHeader {
-    return {HttpHeaders.authorizationHeader: "Bearer " + _token};
+    return {
+      HttpHeaders.authorizationHeader:
+          "Bearer " + _authenticationMode.authenticationToken
+    };
   }
 
-  Future<bool> checkAuthentication() async {
-    if (!gotAToken()) {
-      return false;
-    }
-
-    //If some data has been found, we proceed in make an authenticated request.
-    //TODO
-    return true;
-  }
+  Future<bool> checkAuthentication() async =>
+      _authenticationMode.checkAuthentication();
 
   ///
   /// Registration function that throws an RegistrationException if
@@ -148,54 +153,37 @@ class AuthenticationProvider with ChangeNotifier {
     }
   }
 
+  Future<void> authenticate(dynamic data) async {
+    await _authenticationMode.authenticate(data);
+    notifyListeners();
+  }
+
   Future<void> authenticateWithCredentials(
       String email, String password) async {
-    try {
-      final response = await _httpManager.post(
-        "/auth/login",
-        data: {
-          "username": email,
-          "password": password,
-          "grant_type": "password",
-        },
-        options: new Options(
-          contentType: ContentType.parse("application/x-www-form-urlencoded"),
-        ),
-      );
+    _authenticationMode = AuthenticationMode.getAuthenticationMode(
+      'credentials',
+      _httpManager,
+      this,
+    );
 
-      if (response.statusCode == 200) {
-        _token = response.data["token_type"];
-        notifyListeners();
-        return;
-      }
-    } on DioError catch (error) {
-      if (error.type != DioErrorType.RESPONSE) {
-        throw LoginException(
-          'Something went wrong. The internet connection seems to be down.',
-        );
-      } else {
-        throw IncorrectEmailOrPasswordException();
-      }
-    }
+    authenticate({'email': email, 'password': password});
   }
 
-  Future<String> loginWithGoogle() async {
-    try {
-      final response = await _httpManager.get(
-        "/auth/google",
-      );
-      print(response);
-    } on DioError catch (_) {
-      throw LoginException(
-        'Something went wrong. The internet connection seems to be down.',
-      );
-    }
-
-    return Future.delayed(Duration(seconds: 2), () => "string");
+  Future<void> authenticateWithGoogle() async {
+    _authenticationMode = AuthenticationMode.getAuthenticationMode(
+      'google',
+      _httpManager,
+      this,
+    );
+    await authenticate(null);
   }
 
-  String loginWithGoogleUrl() {
-    return "https:www.google.com";
-    //return "https://10.0.2.2:5001/auth/google";
+  Future<void> logout() async {
+    _authenticationMode = AuthenticationMode.getAuthenticationMode(
+      'credentials',
+      _httpManager,
+      this,
+    );
+    notifyListeners();
   }
 }
