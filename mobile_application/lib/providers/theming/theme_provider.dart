@@ -24,6 +24,18 @@ class ThemeProvider with ChangeNotifier {
       buttonColor: Color.fromRGBO(234, 128, 59, 1),
     ),
     cursorColor: Colors.grey,
+    textTheme: ThemeData.light().textTheme.copyWith(
+          display1: TextStyle(
+            fontSize: 36.0,
+            fontWeight: FontWeight.bold,
+            color: Color.fromRGBO(68, 86, 108, 1),
+          ),
+      display2: TextStyle(
+        fontSize: 18.0,
+        fontWeight: FontWeight.w600,
+        color: _primaryColor,
+      ),
+        ),
   );
 
   /*----------

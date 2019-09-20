@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,8 +35,8 @@ class AuthenticationProvider with ChangeNotifier {
     // Setup of a Dio connection
     BaseOptions options = new BaseOptions(
       baseUrl: Configuration.serverUrl,
-      connectTimeout: 7000,
-      receiveTimeout: 3000,
+      connectTimeout: 5000,
+      receiveTimeout: 5000,
     );
     _httpManager = new Dio(options);
     (_httpManager.transformer as DefaultTransformer).jsonDecodeCallback =
@@ -56,16 +57,18 @@ class AuthenticationProvider with ChangeNotifier {
   Future<void> loadAuthentication() async {
     //Load saved data, and check whether there is some token data stored.
     final storedData = await SharedPreferences.getInstance();
-    //If we have some token, we proceed in storing it.
-    if (storedData.containsKey('loginData') &&
-        storedData.containsKey('loginType')) {
+
+
+    //If we have some saved data, we proceed in loading them.
+    if (storedData.containsKey('loginData')){
+      var loginData = json.decode(storedData.getString('loginData'));
+
       _authenticationMode = AuthenticationMode.getAuthenticationMode(
-        storedData.get('loginType'),
+        loginData.type,
         _httpManager,
         this,
       );
-      _authenticationMode.authenticationToken =
-          storedData.getString('loginData');
+      _authenticationMode.authenticationToken = loginData.token;
     }
   }
 
@@ -169,13 +172,13 @@ class AuthenticationProvider with ChangeNotifier {
     authenticate({'email': email, 'password': password});
   }
 
-  Future<void> authenticateWithGoogle() async {
+  Future<void> authenticateWithGoogle(BuildContext context) async {
     _authenticationMode = AuthenticationMode.getAuthenticationMode(
       'google',
       _httpManager,
       this,
     );
-    await authenticate(null);
+    await authenticate(context);
   }
 
   Future<void> logout() async {

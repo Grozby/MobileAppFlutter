@@ -90,14 +90,7 @@ class _LandingScreenState extends State<LandingScreen> {
                   text: 'Login with Google',
                   onPressFunction: () async {
                     try {
-                      await _authenticationProvider.authenticateWithGoogle();
-                      Future.delayed(
-                          Duration.zero,
-                              () => Navigator.of(context).pushNamedAndRemoveUntil(
-                            Navigator.defaultRouteName,
-                            ModalRoute.withName(""),
-                          )
-                      );
+                      await _authenticationProvider.authenticateWithGoogle(context);
                     } on SomethingWentWrongException catch(e) {
                       showErrorDialog(context, e.getMessage());
                     }

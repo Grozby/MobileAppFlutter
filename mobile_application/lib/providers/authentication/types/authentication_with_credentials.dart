@@ -26,12 +26,12 @@ class AuthenticationWithCredentials extends AuthenticationMode {
           "grant_type": "password",
         },
         options: new Options(
-          contentType: ContentType.parse("application/x-www-form-urlencoded"),
+          contentType: Headers.formUrlEncodedContentType,
         ),
       );
 
       if (response.statusCode == 200) {
-        token = response.data["token_type"];
+        token = response.data["access_token"];
         return;
       }
     } on DioError catch (error) {

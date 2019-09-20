@@ -61,6 +61,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider.value(
           value: widget.themeProvider,
         ),
+        
       ],
       child: ThemedMaterialApp(),
     );

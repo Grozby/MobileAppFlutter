@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/models/exceptions/something_went_wrong_exception.dart';
 import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +11,7 @@ import '../screens/settings_screen.dart';
 import '../screens/sign_up_screens/sign_up_choice_screen.dart';
 import '../screens/sign_up_screens/sign_up_screen.dart';
 import '../screens/waiting_screen.dart';
+import 'custom_alert_dialog.dart';
 
 class ThemedMaterialApp extends StatelessWidget {
   @override
@@ -21,7 +23,12 @@ class ThemedMaterialApp extends StatelessWidget {
       theme: currentTheme.getTheme(),
       debugShowCheckedModeBanner: false,
       home: FutureBuilder(
+        //TODO re-add authentication check
         future: authenticationProvider.checkAuthentication(),
+//        future: Future.delayed(
+//          Duration.zero,
+//          () => true,
+//        ),
         builder: (BuildContext ctx, AsyncSnapshot snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
@@ -29,9 +36,12 @@ class ThemedMaterialApp extends StatelessWidget {
 
             default:
               if (snapshot.hasError) {
-                return Center(
-                  child: new Text('Something went wrong...'),
+                Future.delayed(
+                  Duration.zero,
+                  () => showErrorDialog(ctx,
+                      (snapshot.error as SomethingWentWrongException).text),
                 );
+                return LandingScreen();
               }
 
               if (snapshot.data) {
