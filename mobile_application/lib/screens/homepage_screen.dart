@@ -148,7 +148,7 @@ class InfoBarWidget extends StatelessWidget {
                     .display2,
               ),
             ),
-            flex: 2,
+            flex: 3,
           ),
         ],
       ),

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/exceptions/registration/registration_exception.dart';
 import '../models/registration/sign_up_form_model.dart';
-import '../models/users/user.dart';
+import '../models/users/user_registration.dart';
 import '../providers/authentication/authentication_provider.dart';
 import '../providers/theming/theme_provider.dart';
 import '../screens/login_screen.dart';
@@ -12,7 +12,7 @@ import 'button_styled.dart';
 import 'custom_text_form.dart';
 
 class SignUpForm extends StatefulWidget {
-  final User userType;
+  final UserRegistration userType;
   final ScrollController scrollController;
   bool isSendingRequest = false;
 
@@ -168,7 +168,7 @@ class _SignUpFormState extends State<SignUpForm> {
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              'Sign up as a ${widget.userType.name}',
+              'Sign up as a ${widget.userType.typeName}',
               style: Theme.of(context).textTheme.title,
             ),
           ),

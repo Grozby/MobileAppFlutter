@@ -3,11 +3,11 @@ import 'dart:ui';
 import '../../models/registration/sign_up_form_model.dart';
 import '../../providers/configuration.dart';
 import '../../providers/theming/theme_provider.dart';
-import 'user.dart';
+import 'user_registration.dart';
 
-class Mentee extends User{
+class MenteeRegistration extends UserRegistration{
   @override
-  String get name => 'Mentee';
+  String get typeName => 'Mentee';
   @override
   bool isMentor() => false;
   @override

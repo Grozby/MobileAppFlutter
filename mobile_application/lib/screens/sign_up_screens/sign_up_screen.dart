@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../models/users/user.dart';
+import '../../models/users/user_registration.dart';
 import '../../widgets/back_button_customized.dart';
 import '../../widgets/sign_up_form.dart';
 
@@ -9,7 +9,7 @@ class SignUpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userType = ModalRoute.of(context).settings.arguments as User;
+    final userType = ModalRoute.of(context).settings.arguments as UserRegistration;
     final scrollController = ScrollController();
     final form = SignUpForm(
       userType: userType,

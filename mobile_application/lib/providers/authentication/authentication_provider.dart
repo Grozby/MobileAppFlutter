@@ -14,7 +14,7 @@ import '../../models/exceptions/registration/password_exception.dart';
 import '../../models/exceptions/registration/registration_exception.dart';
 import '../../models/exceptions/registration/surname_exception.dart';
 import '../../models/registration/sign_up_form_model.dart';
-import '../../models/users/user.dart';
+import '../../models/users/user_registration.dart';
 import '../configuration.dart';
 import 'types/authentication_mode.dart';
 
@@ -86,7 +86,7 @@ class AuthenticationProvider with ChangeNotifier {
   /// anything goes wrong.
   ///
   Future<void> registration(
-      User userType, SignUpFormModel registrationForm) async {
+      UserRegistration userType, SignUpFormModel registrationForm) async {
     void throwErrorKey(String key) {
       switch (key) {
         case 'name':

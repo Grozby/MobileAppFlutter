@@ -2,10 +2,10 @@ import 'dart:ui';
 
 import '../../models/registration/sign_up_form_model.dart';
 
-abstract class User {
+abstract class UserRegistration {
   String get registrationUrl;
 
-  String get name;
+  String get typeName;
 
   bool isMentor();
 

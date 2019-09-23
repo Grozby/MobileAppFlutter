@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../models/users/mentee.dart';
-import '../../models/users/mentor.dart';
+import '../../models/users/mentee_registration.dart';
+import '../../models/users/mentor_registration.dart';
 import '../../providers/theming/theme_provider.dart';
 import '../../widgets/back_button_customized.dart';
 import '../../widgets/button_styled.dart';
@@ -59,7 +59,7 @@ class SignUpChoiceScreen extends StatelessWidget {
                   onPressFunction: () {
                     Navigator.of(context).pushNamed(
                       SignUpScreen.routeName,
-                      arguments: Mentor(),
+                      arguments: MentorRegistration(),
                     );
                   },
                   color: ThemeProvider.mentorColor,
@@ -72,7 +72,7 @@ class SignUpChoiceScreen extends StatelessWidget {
                   onPressFunction: () {
                     Navigator.of(context).pushNamed(
                       SignUpScreen.routeName,
-                      arguments: Mentee(),
+                      arguments: MenteeRegistration(),
                     );
                   },
                   color: ThemeProvider.menteeColor,
