@@ -12,6 +12,8 @@ import '../../../models/exceptions/something_went_wrong_exception.dart';
 import 'authentication_mode.dart';
 
 class AuthenticationWithGoogle extends AuthenticationMode {
+  final String authenticationUrl = "/auth/google/signintoken?token=";
+
   AuthenticationWithGoogle({
     @required httpManager,
     @required authenticationProvider,
@@ -31,7 +33,7 @@ class AuthenticationWithGoogle extends AuthenticationMode {
 
   ///The function authenticate accepts a BuildContext, used for aesthetic reasons.
   @override
-  Future<void> authenticate(data) async {
+  Future<bool> authenticate(data) async {
     GoogleSignIn googleSignIn = GoogleSignIn(scopes: [
       'profile',
       'email',
@@ -42,13 +44,17 @@ class AuthenticationWithGoogle extends AuthenticationMode {
       await googleSignIn.signOut();
       GoogleSignInAccount account = await googleSignIn.signIn();
 
+      if(account == null){
+        return false;
+      }
+
       //We add an overlay for aesthetic reasons.
       var overlay = _createOverlay(data);
       Overlay.of(data).insert(overlay);
 
       //Then, we check with the backend the obtained token.
-      final response = await httpManager.get("/auth/google/signintoken?token=" +
-          (await account.authentication).idToken);
+      final response = await httpManager
+          .get(authenticationUrl + (await account.authentication).idToken);
 
       //We check whether the request went smoothly or not.
       if (response.statusCode != 200) {
@@ -56,6 +62,7 @@ class AuthenticationWithGoogle extends AuthenticationMode {
       } else {
         token = response.data["access_token"];
         overlay.remove();
+        return true;
       }
     } on PlatformException catch (e) {
       //Check if something went wrong with the GoogleSignIn plugin
@@ -86,16 +93,18 @@ class AuthenticationWithGoogle extends AuthenticationMode {
     }
   }
 
+  ///When we check for the authentication we can have that the user has not
+  ///completed the registration process, by selecting if is a mentee or a mentor.
   @override
   Future<bool> checkAuthentication() async {
     //TODO
-    if (token == null) {
+    if (!gotAToken()) {
       return false;
     }
 
     return true;
   }
-  
+
   OverlayEntry _createOverlay(BuildContext context) {
     double _value = 10;
     return OverlayEntry(
@@ -103,7 +112,9 @@ class AuthenticationWithGoogle extends AuthenticationMode {
         children: <Widget>[
           new BackdropFilter(
             filter: ImageFilter.blur(sigmaX: _value, sigmaY: _value),
-            child: Container(color: Colors.black26,),
+            child: Container(
+              color: Colors.black26,
+            ),
           ),
           Center(
             child: CircularProgressIndicator(),

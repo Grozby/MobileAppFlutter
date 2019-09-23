@@ -12,8 +12,6 @@ class Mentee extends User{
   bool isMentor() => false;
   @override
   Color get color => ThemeProvider.menteeColor;
-
-  @override
   @override
   String get registrationUrl => Configuration.serverUrl + Configuration.registrationPath + '/mentor';
 

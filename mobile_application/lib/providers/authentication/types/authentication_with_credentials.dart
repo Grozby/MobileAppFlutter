@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -16,13 +14,13 @@ class AuthenticationWithCredentials extends AuthenticationMode {
             authenticationProvider: authenticationProvider);
 
   @override
-  Future<void> authenticate(dynamic data) async {
+  Future<bool> authenticate(dynamic data) async {
     try {
       final response = await httpManager.post(
         "/auth/login",
         data: {
-          "username": data.email,
-          "password": data.password,
+          "username": data['email'],
+          "password": data['password'],
           "grant_type": "password",
         },
         options: new Options(
@@ -32,7 +30,11 @@ class AuthenticationWithCredentials extends AuthenticationMode {
 
       if (response.statusCode == 200) {
         token = response.data["access_token"];
-        return;
+        return true;
+      } else {
+        throw LoginException(
+          'Something went wrong. We couldn\'t validate the account. Try again later.',
+        );
       }
     } on DioError catch (error) {
       if (error.type != DioErrorType.RESPONSE) {
@@ -45,6 +47,8 @@ class AuthenticationWithCredentials extends AuthenticationMode {
     }
   }
 
+  ///When we register with email and password we already know if the user is
+  ///a mentor or mentee.
   @override
   Future<bool> checkAuthentication() async {
     if (!gotAToken()) {

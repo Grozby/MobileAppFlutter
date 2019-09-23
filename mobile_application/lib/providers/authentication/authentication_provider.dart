@@ -58,9 +58,8 @@ class AuthenticationProvider with ChangeNotifier {
     //Load saved data, and check whether there is some token data stored.
     final storedData = await SharedPreferences.getInstance();
 
-
     //If we have some saved data, we proceed in loading them.
-    if (storedData.containsKey('loginData')){
+    if (storedData.containsKey('loginData')) {
       var loginData = json.decode(storedData.getString('loginData'));
 
       _authenticationMode = AuthenticationMode.getAuthenticationMode(
@@ -104,6 +103,7 @@ class AuthenticationProvider with ChangeNotifier {
     }
 
     final body = userType.getBodyRegistration(registrationForm);
+
     try {
       final response =
           await _httpManager.post(userType.registrationUrl, data: body);
@@ -157,8 +157,11 @@ class AuthenticationProvider with ChangeNotifier {
   }
 
   Future<void> authenticate(dynamic data) async {
-    await _authenticationMode.authenticate(data);
-    notifyListeners();
+    bool result = await _authenticationMode.authenticate(data);
+
+    if (result) {
+      notifyListeners();
+    }
   }
 
   Future<void> authenticateWithCredentials(
@@ -169,7 +172,10 @@ class AuthenticationProvider with ChangeNotifier {
       this,
     );
 
-    authenticate({'email': email, 'password': password});
+    await authenticate({
+      'email': email,
+      'password': password,
+    });
   }
 
   Future<void> authenticateWithGoogle(BuildContext context) async {

@@ -27,6 +27,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
         ],
       ),
       body: FutureBuilder(
+        //TODO update with correct future that fetches the data
         future: Future.delayed(Duration(seconds: 1)),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -38,7 +39,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
           if (snapshot.hasError) {
             Future.delayed(
               Duration.zero,
-              () => showErrorDialog(context, "Something went wrong..."),
+                  () => showErrorDialog(context, "Something went wrong..."),
             );
           }
 
@@ -62,15 +63,7 @@ class HomepageWidget extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   InfoBarWidget(),
-                  Flexible(
-                    child: Container(
-                      color: Colors.red,
-                      child: Center(
-                        child: Text("Card"),
-                      ),
-                    ),
-                    flex: 4,
-                  ),
+                  ExploreBodyWidget(),
                 ],
               ),
             ),
@@ -80,6 +73,23 @@ class HomepageWidget extends StatelessWidget {
     );
   }
 }
+
+
+class ExploreBodyWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: Container(
+        color: Colors.red,
+        child: Center(
+          child: Text("Card"),
+        ),
+      ),
+      flex: 4,
+    );
+  }
+}
+
 
 class InfoBarWidget extends StatelessWidget {
   @override
@@ -107,7 +117,10 @@ class InfoBarWidget extends StatelessWidget {
                   child: Center(
                     child: Text(
                       "Explore",
-                      style: Theme.of(context).textTheme.display1,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .display1,
                     ),
                   ),
                   flex: 3,
@@ -129,7 +142,10 @@ class InfoBarWidget extends StatelessWidget {
               alignment: Alignment.topCenter,
               child: Text(
                 "You have 3 tokens left.",
-                style: Theme.of(context).textTheme.display2,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .display2,
               ),
             ),
             flex: 2,

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-
-import '../../models/users/mentor.dart';
 import '../../models/users/mentee.dart';
+import '../../models/users/mentor.dart';
 import '../../providers/theming/theme_provider.dart';
+import '../../widgets/back_button_customized.dart';
 import '../../widgets/button_styled.dart';
 import '../login_screen.dart';
 import 'sign_up_screen.dart';
@@ -13,20 +13,19 @@ class SignUpChoiceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       resizeToAvoidBottomPadding: false,
-      appBar: AppBar(
-        backgroundColor: ThemeProvider.primaryColor,
-        centerTitle: true,
-        title: const Text('Sign Up'),
-      ),
       body: SafeArea(
         child: Container(
           child: Column(
             children: <Widget>[
               Expanded(
-                child: Container(),
+                child: Container(
+                  child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: BackButtonCustomized(),
+                  ),
+                ),
               ),
               Expanded(
                 flex: 1,
@@ -87,7 +86,8 @@ class SignUpChoiceScreen extends StatelessWidget {
                   dimensionButton: 10,
                   text: 'Login',
                   onPressFunction: () {
-                    Navigator.of(context).pushReplacementNamed(LoginScreen.routeName);
+                    Navigator.of(context)
+                        .pushReplacementNamed(LoginScreen.routeName);
                   },
                   color: Colors.grey.shade200,
                 ),

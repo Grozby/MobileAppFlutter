@@ -57,5 +57,6 @@ abstract class AuthenticationMode {
 
   Future<bool> checkAuthentication();
 
-  Future<void> authenticate(dynamic data);
+  ///We return a boolean to decide whether we need to broadcast the notifyUpdates().
+  Future<bool> authenticate(dynamic data);
 }

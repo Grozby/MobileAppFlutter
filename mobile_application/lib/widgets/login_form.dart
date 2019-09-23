@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/screens/sign_up_screens/sign_up_choice_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../models/exceptions/login/login_exception.dart';
 import '../models/login/login_form_model.dart';
 import '../providers/authentication/authentication_provider.dart';
-import '../screens/login_screen.dart';
+import '../screens/sign_up_screens/sign_up_choice_screen.dart';
 import 'button_styled.dart';
 import 'custom_alert_dialog.dart';
 import 'custom_text_form.dart';
@@ -200,7 +201,7 @@ class _LoginFormState extends State<LoginForm> {
             child: InkWell(
               onTap: () {
                 Navigator.of(context).pushNamedAndRemoveUntil(
-                  LoginScreen.routeName,
+                  SignUpChoiceScreen.routeName,
                   ModalRoute.withName(Navigator.defaultRouteName),
                 );
               },

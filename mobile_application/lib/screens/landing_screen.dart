@@ -35,11 +35,6 @@ class _LandingScreenState extends State<LandingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: ThemeProvider.primaryColor,
-        title: const Text('Ryfy'),
-      ),
       body: SafeArea(
         child: Container(
           child: Column(
@@ -90,8 +85,10 @@ class _LandingScreenState extends State<LandingScreen> {
                   text: 'Login with Google',
                   onPressFunction: () async {
                     try {
-                      await _authenticationProvider.authenticateWithGoogle(context);
-                    } on SomethingWentWrongException catch(e) {
+                      await _authenticationProvider
+                          .authenticateWithGoogle(context);
+                      print("");
+                    } on SomethingWentWrongException catch (e) {
                       showErrorDialog(context, e.getMessage());
                     }
                   },
