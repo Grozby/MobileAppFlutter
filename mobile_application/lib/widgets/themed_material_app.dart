@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/models/exceptions/something_went_wrong_exception.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'package:provider/provider.dart';
 
+import '../models/exceptions/something_went_wrong_exception.dart';
 import '../providers/authentication/authentication_provider.dart';
+import '../providers/theming/theme_provider.dart';
 import '../screens/homepage_screen.dart';
 import '../screens/landing_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/messages_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/sign_up_screens/sign_up_choice_screen.dart';
 import '../screens/sign_up_screens/sign_up_screen.dart';
+import '../screens/user_profile_screen.dart';
 import '../screens/waiting_screen.dart';
 import 'custom_alert_dialog.dart';
 
@@ -61,6 +63,8 @@ class ThemedMaterialApp extends StatelessWidget {
         SettingsScreen.routeName: (_) => SettingsScreen(),
         SignUpChoiceScreen.routeName: (_) => SignUpChoiceScreen(),
         SignUpScreen.routeName: (_) => SignUpScreen(),
+        UserProfileScreen.routeName: (_) => UserProfileScreen(),
+        MessagesScreen.routeName: (_) => MessagesScreen(),
       },
     );
   }

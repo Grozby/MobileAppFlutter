@@ -14,7 +14,7 @@ import '../../models/exceptions/registration/password_exception.dart';
 import '../../models/exceptions/registration/registration_exception.dart';
 import '../../models/exceptions/registration/surname_exception.dart';
 import '../../models/registration/sign_up_form_model.dart';
-import '../../models/users/user_registration.dart';
+import '../../models/registration/user_registration.dart';
 import '../configuration.dart';
 import 'types/authentication_mode.dart';
 
@@ -37,6 +37,7 @@ class AuthenticationProvider with ChangeNotifier {
       baseUrl: Configuration.serverUrl,
       connectTimeout: 5000,
       receiveTimeout: 5000,
+
     );
     _httpManager = new Dio(options);
     (_httpManager.transformer as DefaultTransformer).jsonDecodeCallback =
@@ -67,7 +68,7 @@ class AuthenticationProvider with ChangeNotifier {
         _httpManager,
         this,
       );
-      _authenticationMode.authenticationToken = loginData.token;
+      _authenticationMode.authenticationToken = loginData.tokenCount;
     }
   }
 

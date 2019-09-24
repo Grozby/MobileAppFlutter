@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/exceptions/registration/registration_exception.dart';
 import '../models/registration/sign_up_form_model.dart';
-import '../models/users/user_registration.dart';
+import '../models/registration/user_registration.dart';
 import '../providers/authentication/authentication_provider.dart';
 import '../providers/theming/theme_provider.dart';
 import '../screens/login_screen.dart';

@@ -1,0 +1,3 @@
+class NotMenteeException implements Exception {
+
+}

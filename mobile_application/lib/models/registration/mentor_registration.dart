@@ -4,7 +4,7 @@ import 'package:mobile_application/models/registration/sign_up_form_model.dart';
 
 import '../../providers/theming/theme_provider.dart';
 import '../../providers/configuration.dart';
-import 'user_registration.dart';
+import '../registration/user_registration.dart';
 
 class MentorRegistration extends UserRegistration {
   @override

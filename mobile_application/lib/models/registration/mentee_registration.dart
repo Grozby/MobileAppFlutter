@@ -1,9 +1,9 @@
 import 'dart:ui';
 
-import '../../models/registration/sign_up_form_model.dart';
+import 'sign_up_form_model.dart';
 import '../../providers/configuration.dart';
 import '../../providers/theming/theme_provider.dart';
-import 'user_registration.dart';
+import '../registration/user_registration.dart';
 
 class MenteeRegistration extends UserRegistration{
   @override
