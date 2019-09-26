@@ -189,7 +189,7 @@ class _LoginFormState extends State<LoginForm> {
         ),
         Expanded(
           child: ButtonStyled(
-            fractionalWidthDimension: 10,
+            fractionalWidthDimension: 0.833,
             text: 'Login',
             onPressFunction: validateFormAndLogin,
           ),

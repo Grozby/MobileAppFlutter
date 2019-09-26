@@ -140,7 +140,7 @@ class _SignUpFormState extends State<SignUpForm> {
             ),
             Expanded(
               child: ButtonStyled(
-                fractionalWidthDimension: 10,
+                fractionalWidthDimension: 0.833,
                 text: 'Login',
                 onPressFunction: () {
                   Navigator.of(context).pushNamedAndRemoveUntil(
@@ -307,7 +307,7 @@ class _SignUpFormState extends State<SignUpForm> {
         ),
         Expanded(
           child: ButtonStyled(
-            fractionalWidthDimension: 10,
+            fractionalWidthDimension: 0.833,
             text: 'Sign Up',
             onPressFunction: validateFormAndSendRegistration,
             color: widget.userType.color,

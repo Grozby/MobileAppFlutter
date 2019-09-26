@@ -73,7 +73,8 @@ class HomepageWidget<I extends Widget, E extends Widget>
   HomepageWidget({
     @required this.infoWidgetCreator,
     @required this.exploreWidgetCreator,
-  });
+  })  : assert(infoWidgetCreator != null),
+        assert(exploreWidgetCreator != null);
 
   @override
   Widget build(BuildContext context) {

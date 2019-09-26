@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ButtonStyled extends StatelessWidget {
-  final int fractionalWidthDimension;
+  final double fractionalWidthDimension;
   final double radius = 30.0;
   final Color color;
   final Function onPressFunction;
@@ -16,25 +16,18 @@ class ButtonStyled extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: Container(),
-        ),
-        Expanded(
-          flex: fractionalWidthDimension,
-          child: RaisedButton(
-
-            color: color,
-            child: Text(text),
-            onPressed: onPressFunction,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
+    return Center(
+      child: FractionallySizedBox(
+        widthFactor: fractionalWidthDimension,
+        child: RaisedButton(
+          color: color,
+          child: Text(text),
+          onPressed: onPressFunction,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radius),
           ),
         ),
-        Expanded(
-          child: Container(),
-        ),
-      ],
+      ),
     );
   }
 }

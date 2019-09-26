@@ -10,7 +10,6 @@ import 'circular_button_info_bar.dart';
 import 'explore_card.dart';
 
 class InfoBarWidget extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -35,17 +34,13 @@ class InfoBarWidget extends StatelessWidget {
                       },
                     );
                   },
-
                 ),
               ),
               Expanded(
                 child: Center(
                   child: Text(
                     "Explore",
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .display3,
+                    style: Theme.of(context).textTheme.display3,
                   ),
                 ),
                 flex: 3,
@@ -71,15 +66,9 @@ class InfoBarWidget extends StatelessWidget {
               builder: (context, userData, child) {
                 return Text(
                   userData.behavior.remainingTokensString,
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .display1
-                      .copyWith(
-                    color: Theme
-                        .of(context)
-                        .primaryColor,
-                  ),
+                  style: Theme.of(context).textTheme.display1.copyWith(
+                        color: Theme.of(context).primaryColor,
+                      ),
                 );
               },
             ),
@@ -91,27 +80,52 @@ class InfoBarWidget extends StatelessWidget {
   }
 }
 
-class ExploreBodyWidget extends StatelessWidget {
+class ExploreBodyWidget extends StatefulWidget {
+  @override
+  _ExploreBodyWidgetState createState() => _ExploreBodyWidgetState();
+}
+
+class _ExploreBodyWidgetState extends State<ExploreBodyWidget> {
+  int offset;
+
+  @override
+  void initState() {
+    super.initState();
+    offset = 0;
+  }
+
+  void setOffset(int offset) {
+    setState(() {
+      this.offset = offset;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(12),
-      child: ExploreCard(
-        user: Mentor(
-          name: "Bob",
-          surname: "Ross",
-          bio: "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\"",
-          location: "Mountain View, US",
-          company: "Google",
-          workingSpecialization: ["Software Engineer"],
-          urlCompanyImage:
-          "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
-          jobType: "Software Engineer",
-          favoriteLanguages: ["Java", "Python", "C++"],
-          pictureUrl:
-          "https://images.csmonitor.com/csm/2015/06/913184_1_0610-larry_standard.jpg?alias=standard_900x600",
+    return LayoutBuilder(builder: (ctx, constraints) {
+      return SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(12),
+          constraints: BoxConstraints(minHeight: constraints.minHeight),
+          child: ExploreCard(
+            user: Mentor(
+              name: "Bob",
+              surname: "Ross",
+              bio:
+                  "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\"",
+              location: "Mountain View, US",
+              company: "Google",
+              workingSpecialization: ["Software Engineer"],
+              urlCompanyImage:
+                  "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
+              jobType: "Software Engineer",
+              favoriteLanguages: ["Java", "Python", "C++"],
+              pictureUrl:
+                  "https://images.csmonitor.com/csm/2015/06/913184_1_0610-larry_standard.jpg?alias=standard_900x600",
+            ),
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

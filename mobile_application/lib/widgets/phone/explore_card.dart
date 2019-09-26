@@ -8,24 +8,23 @@ import '../../models/users/mentor.dart';
 import '../../models/users/user.dart';
 import '../../widgets/button_styled.dart';
 
-class ExploreCard extends StatefulWidget {
+class ExploreCard extends StatelessWidget {
   final User user;
 
-  ExploreCard({this.user});
+  ExploreCard({
+    this.user,
+  });
 
-  @override
-  _ExploreCardState createState() => _ExploreCardState();
-}
-
-class _ExploreCardState extends State<ExploreCard> {
   @override
   Widget build(BuildContext context) {
-    switch (widget.user.runtimeType) {
+    switch (user.runtimeType) {
       case Mentee:
-        Mentee m = widget.user as Mentee;
+        Mentee m = user as Mentee;
         return Card();
       case Mentor:
-        return MentorCard(mentor: widget.user as Mentor);
+        return MentorCard(
+          mentor: user as Mentor,
+        );
       default:
         throw Exception();
     }
@@ -38,13 +37,24 @@ class _ExploreCardState extends State<ExploreCard> {
 class MentorCard extends StatefulWidget {
   final Mentor mentor;
 
-  const MentorCard({@required this.mentor});
+  const MentorCard({
+    @required this.mentor,
+  });
 
   @override
   _MentorCardState createState() => _MentorCardState();
 }
 
-class _MentorCardState extends State<MentorCard> {
+class _MentorCardState extends State<MentorCard> with SingleTickerProviderStateMixin{
+  bool isExpanded;
+  final double heightText = 100;
+
+  @override
+  void initState() {
+    super.initState();
+    isExpanded = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -52,80 +62,98 @@ class _MentorCardState extends State<MentorCard> {
         borderRadius: BorderRadius.circular(24.0),
       ),
       elevation: 8,
-      child: LayoutBuilder(
-        builder: (ctx, constraints) {
-          return Container(
-            padding: EdgeInsets.all(10),
-            width: constraints.maxWidth,
-            height: constraints.maxHeight,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24.0),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: [0, 0.4],
-                colors: [
-                  Theme.of(context).primaryColor.withOpacity(0.10),
-                  const Color(0xFFFFFF),
-                ],
-              ),
-            ),
-            child: FractionallySizedBox(
-              widthFactor: 0.90,
-              child: Column(
+      child: Container(
+        padding: EdgeInsets.all(10),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24.0),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0, 0.4],
+            colors: [
+              Theme.of(context).primaryColor.withOpacity(0.10),
+              const Color(0xFFFFFF),
+            ],
+          ),
+        ),
+        child: FractionallySizedBox(
+          widthFactor: 0.90,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Column(
                 children: <Widget>[
                   CompanyInformationBar(
                     mentor: widget.mentor,
                   ),
                   Divider(),
-                  Flexible(
-                    fit: FlexFit.loose,
-                    flex: 5,
-                    child: MentorBasicInformation(
-                      mentor: widget.mentor,
-                    ),
+                  MentorBasicInformation(
+                    mentor: widget.mentor,
                   ),
-                  Divider(),
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Container(
-                          width: double.infinity,
-                          child: Text(
-                            "Favourite programming languages...",
-                            style: Theme.of(context).textTheme.overline,
-                            textAlign: TextAlign.left,
-                          ),
+                  SizedBox(height: 8),
+                  AnimatedSize(
+                    vsync: this,
+                    duration: Duration(milliseconds: 300),
+                    child: InkWell(
+                      hoverColor:
+                          Theme.of(context).primaryColor.withOpacity(0.1),
+                      onTap: () {
+                        setState(() {
+                          isExpanded = !isExpanded;
+                        });
+                      },
+                      child: Container(
+                        alignment: Alignment.topCenter,
+                        height: isExpanded ? null : heightText,
+                        child: Text(
+                          widget.mentor.bio,
+                          style: Theme.of(context).textTheme.body1,
                         ),
-                        Container(
-                          width: double.infinity,
-                          child: Text(
-                            widget.mentor.favoriteLanguagesString,
-                            style: Theme.of(context)
-                                .textTheme
-                                .body1
-                                .copyWith(fontWeight: FontWeight.w700),
-                            textAlign: TextAlign.right,
-                          ),
-                        )
-                      ],
+                      )
                     ),
                   ),
                   Divider(),
-                  Container(
-                    child: ButtonStyled(
-                      onPressFunction: () {},
-                      fractionalWidthDimension: 10,
-                      text: "Contact him!",
-                    ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Container(
+                        width: double.infinity,
+                        child: Text(
+                          "Favourite programming languages...",
+                          style: Theme.of(context).textTheme.overline,
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Container(
+                        width: double.infinity,
+                        child: Text(
+                          widget.mentor.favoriteLanguagesString,
+                          style: Theme.of(context)
+                              .textTheme
+                              .body1
+                              .copyWith(fontWeight: FontWeight.w700),
+                          textAlign: TextAlign.right,
+                        ),
+                      )
+                    ],
                   ),
+                  Divider(),
                 ],
               ),
-            ),
-          );
-        },
+              Container(
+                child: ButtonStyled(
+                  onPressFunction: () {},
+                  fractionalWidthDimension: 0.99,
+                  text: "Contact him!",
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -232,17 +260,6 @@ class MentorBasicInformation extends StatelessWidget {
                       ),
                 ),
               ],
-            ),
-          ),
-        ),
-        SizedBox(height: 8),
-        Flexible(
-          child: SingleChildScrollView(
-            child: Container(
-              child: Text(
-                mentor.bio,
-                style: Theme.of(context).textTheme.body1,
-              ),
             ),
           ),
         ),

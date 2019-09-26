@@ -69,7 +69,7 @@ class _LandingScreenState extends State<LandingScreen> {
               ),
               Expanded(
                 child: ButtonStyled(
-                  fractionalWidthDimension: 10,
+                  fractionalWidthDimension: 0.833,
                   text: 'Sign Up',
                   onPressFunction: () {
                     Navigator.of(context).pushNamed(
@@ -81,7 +81,7 @@ class _LandingScreenState extends State<LandingScreen> {
               ),
               Expanded(
                 child: ButtonStyled(
-                  fractionalWidthDimension: 10,
+                  fractionalWidthDimension: 0.833,
                   text: 'Login with Google',
                   onPressFunction: () async {
                     try {
@@ -97,7 +97,7 @@ class _LandingScreenState extends State<LandingScreen> {
               ),
               Expanded(
                 child: ButtonStyled(
-                  fractionalWidthDimension: 10,
+                  fractionalWidthDimension: 0.833,
                   text: 'Login with LinkedIn',
                   onPressFunction: () {},
                   color: Colors.blueAccent,
@@ -105,7 +105,7 @@ class _LandingScreenState extends State<LandingScreen> {
               ),
               Expanded(
                 child: ButtonStyled(
-                  fractionalWidthDimension: 10,
+                  fractionalWidthDimension: 0.833,
                   text: 'Login',
                   onPressFunction: () {
                     Navigator.of(context).pushNamed(
