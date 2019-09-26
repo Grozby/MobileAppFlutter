@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 class ButtonStyled extends StatelessWidget {
-  final int dimensionButton;
+  final int fractionalWidthDimension;
+  final double radius = 30.0;
   final Color color;
   final Function onPressFunction;
   final String text;
 
   ButtonStyled({
-    @required this.dimensionButton,
+    @required this.fractionalWidthDimension,
     @required this.onPressFunction,
     @required this.text,
     this.color,
@@ -21,12 +22,13 @@ class ButtonStyled extends StatelessWidget {
           child: Container(),
         ),
         Expanded(
-          flex: dimensionButton,
+          flex: fractionalWidthDimension,
           child: RaisedButton(
+
             color: color,
             child: Text(text),
             onPressed: onPressFunction,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
           ),
         ),
         Expanded(

@@ -54,7 +54,7 @@ class SignUpChoiceScreen extends StatelessWidget {
               ),
               Expanded(
                 child: ButtonStyled(
-                  dimensionButton: 10,
+                  fractionalWidthDimension: 10,
                   text: 'Mentor',
                   onPressFunction: () {
                     Navigator.of(context).pushNamed(
@@ -67,7 +67,7 @@ class SignUpChoiceScreen extends StatelessWidget {
               ),
               Expanded(
                 child: ButtonStyled(
-                  dimensionButton: 10,
+                  fractionalWidthDimension: 10,
                   text: 'Mentee',
                   onPressFunction: () {
                     Navigator.of(context).pushNamed(
@@ -83,7 +83,7 @@ class SignUpChoiceScreen extends StatelessWidget {
               ),
               Expanded(
                 child: ButtonStyled(
-                  dimensionButton: 10,
+                  fractionalWidthDimension: 10,
                   text: 'Login',
                   onPressFunction: () {
                     Navigator.of(context)

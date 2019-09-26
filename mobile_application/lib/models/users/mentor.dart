@@ -4,7 +4,9 @@ import 'user.dart';
 
 class Mentor extends User {
   String company;
-  String workingRole;
+  String jobType;
+  List<String> workingSpecialization;
+  String urlCompanyImage;
 
   Mentor({
     @required name,
@@ -12,13 +14,17 @@ class Mentor extends User {
     @required pictureUrl,
     @required location,
     @required bio,
+    @required favoriteLanguages,
     @required this.company,
-    @required this.workingRole,
+    @required this.jobType,
+    @required this.workingSpecialization,
+    @required this.urlCompanyImage,
   }) : super(
           name: name,
           surname: surname,
           pictureUrl: pictureUrl,
           location: location,
           bio: bio,
+          favoriteLanguages: favoriteLanguages,
         );
 }

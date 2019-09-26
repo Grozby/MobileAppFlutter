@@ -6,6 +6,7 @@ abstract class User {
   String pictureUrl;
   String location;
   String bio;
+  List<String> favoriteLanguages;
 
   User({
     @required this.name,
@@ -13,7 +14,10 @@ abstract class User {
     @required this.pictureUrl,
     @required this.location,
     @required this.bio,
+    @required this.favoriteLanguages,
   });
 
   String get completeName => name + " " + surname;
+
+  String get favoriteLanguagesString => favoriteLanguages.join(", ");
 }

@@ -10,6 +10,8 @@ class ThemeProvider with ChangeNotifier {
   static Color _primaryColor = _mentorColor;
   static Color _menteeColor = Color.fromRGBO(0, 119, 181, 1);
   static Color _loginButtonColor = Colors.grey.shade200;
+  static Color _textColor = Color.fromRGBO(68, 86, 108, 1);
+  static Color _greyTextColor = Color.fromRGBO(161, 170 ,181, 1);
 
   ThemeData _lightTheme = ThemeData.light().copyWith(
     pageTransitionsTheme: PageTransitionsTheme(
@@ -25,16 +27,39 @@ class ThemeProvider with ChangeNotifier {
     ),
     cursorColor: Colors.grey,
     textTheme: ThemeData.light().textTheme.copyWith(
-          display1: TextStyle(
-            fontSize: 36.0,
+          display3: TextStyle(
+            fontSize: 32.0,
             fontWeight: FontWeight.bold,
-            color: Color.fromRGBO(68, 86, 108, 1),
+            color: _textColor,
           ),
-      display2: TextStyle(
-        fontSize: 18.0,
-        fontWeight: FontWeight.w600,
-        color: _primaryColor,
-      ),
+          display2: TextStyle(
+            fontSize: 24.0,
+            color: _textColor,
+            fontWeight: FontWeight.w700,
+          ),
+          display1: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.w600,
+          ),
+          subhead: TextStyle(
+            fontSize: 16,
+            color: _greyTextColor,
+          ),
+          title: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: _textColor,
+          ),
+          overline: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: _greyTextColor,
+            letterSpacing: 0,
+          ),
+          body1: TextStyle(
+            fontSize: 16,
+            color: Color.fromRGBO(105, 120, 137, 1),
+          )
         ),
   );
 

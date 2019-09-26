@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/custom_alert_dialog.dart';
-import '../widgets/phone/explore_widgets.dart' as phone;
+import '../widgets/phone/explore_screen_widgets.dart' as phone;
 import 'settings_screen.dart';
 
 class HomepageScreen extends StatefulWidget {
@@ -17,6 +17,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
     var isSmartPhone = MediaQuery.of(context).size.shortestSide < 600;
 
     return Scaffold(
+      //TODO remove appbar!
       appBar: AppBar(
         centerTitle: true,
         title: Text('Ryfy'),
@@ -85,8 +86,15 @@ class HomepageWidget<I extends Widget, E extends Widget>
               height: constraints.maxHeight,
               child: Column(
                 children: <Widget>[
-                  infoWidgetCreator(),
-                  exploreWidgetCreator(),
+                  Flexible(
+                    fit: FlexFit.tight,
+                    child: infoWidgetCreator(),
+                  ),
+                  Flexible(
+                    fit: FlexFit.tight,
+                    flex: 6,
+                    child: exploreWidgetCreator(),
+                  ),
                 ],
               ),
             ),

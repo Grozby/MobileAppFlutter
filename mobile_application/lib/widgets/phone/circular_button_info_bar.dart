@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 class CircularButtonInfoBar extends StatelessWidget {
   final String assetPath;
   final Function onPressFunction;
+  final String imageUrl;
 
   CircularButtonInfoBar({
     @required this.assetPath,
     @required this.onPressFunction,
+    this.imageUrl,
   });
 
   @override
@@ -29,10 +31,19 @@ class CircularButtonInfoBar extends StatelessWidget {
               shape: BoxShape.circle,
               color: Colors.transparent,
             ),
-            child: Image.asset(
-              assetPath,
-              fit: BoxFit.cover,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: imageUrl == null
+                  ? Image.asset(
+                      assetPath,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                    ),
             ),
+//
           ),
           Center(
             child: RawMaterialButton(

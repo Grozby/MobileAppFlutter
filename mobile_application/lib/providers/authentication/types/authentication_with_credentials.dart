@@ -23,7 +23,7 @@ class AuthenticationWithCredentials extends AuthenticationMode {
           "password": data['password'],
           "grant_type": "password",
         },
-        options: new Options(
+        options: Options(
           contentType: Headers.formUrlEncodedContentType,
         ),
       );
