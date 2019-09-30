@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/models/users/mentor.dart';
-import 'package:mobile_application/models/users/user.dart';
-import 'package:mobile_application/screens/messages_screen.dart';
-import 'package:mobile_application/screens/user_profile_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/users/experiences/academic_degree.dart';
+import '../../models/users/mentor.dart';
 import '../../providers/user/user_data_provider.dart';
+import '../../screens/messages_screen.dart';
+import '../../screens/user_profile_screen.dart';
 import 'circular_button_info_bar.dart';
 import 'explore_card.dart';
 
@@ -107,7 +107,7 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget> {
         child: Container(
           padding: EdgeInsets.all(12),
           constraints: BoxConstraints(minHeight: constraints.minHeight),
-        child: ExploreCard(
+          child: ExploreCard(
             user: Mentor(
               name: "Bob",
               surname: "Ross",
@@ -115,13 +115,29 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget> {
                   "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\"",
               location: "Mountain View, US",
               company: "Google",
-              workingSpecialization: ["Software Engineer"],
+              workingSpecialization: [
+                "Software Engineer",
+                "Front End",
+                "Backend"
+              ],
               urlCompanyImage:
                   "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
               jobType: "Software Engineer",
               favoriteLanguages: ["Java", "Python", "C++"],
               pictureUrl:
                   "https://images.csmonitor.com/csm/2015/06/913184_1_0610-larry_standard.jpg?alias=standard_900x600",
+              academicDegrees: [
+                AcademicDegree(
+                  degreeLevel: "Ph.D",
+                  fieldOfStudy: "Computer Science",
+                  university: "Stanford University",
+                ),
+                AcademicDegree(
+                  degreeLevel: "Ph.D",
+                  fieldOfStudy: "Computer Science",
+                  university: "Stanford University",
+                ),
+              ],
             ),
           ),
         ),

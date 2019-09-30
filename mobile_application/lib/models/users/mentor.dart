@@ -15,6 +15,7 @@ class Mentor extends User {
     @required location,
     @required bio,
     @required favoriteLanguages,
+    @required academicDegrees,
     @required this.company,
     @required this.jobType,
     @required this.workingSpecialization,
@@ -26,5 +27,6 @@ class Mentor extends User {
           location: location,
           bio: bio,
           favoriteLanguages: favoriteLanguages,
+          academicDegrees: academicDegrees,
         );
 }

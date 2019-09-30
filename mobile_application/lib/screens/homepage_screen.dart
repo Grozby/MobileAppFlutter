@@ -18,17 +18,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
 
     return Scaffold(
       //TODO remove appbar!
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('Ryfy'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () =>
-                Navigator.of(context).pushNamed(SettingsScreen.routeName),
-          ),
-        ],
-      ),
+
       body: FutureBuilder(
         //TODO update with correct future that fetches the data for the explore
         future: Future.delayed(Duration(milliseconds: 50)),

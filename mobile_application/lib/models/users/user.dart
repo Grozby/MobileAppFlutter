@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:mobile_application/models/users/experiences/past_experience.dart';
 
 abstract class User {
   String name;
@@ -7,6 +8,7 @@ abstract class User {
   String location;
   String bio;
   List<String> favoriteLanguages;
+  List<PastExperience> academicDegrees;
 
   User({
     @required this.name,
@@ -15,6 +17,7 @@ abstract class User {
     @required this.location,
     @required this.bio,
     @required this.favoriteLanguages,
+    @required this.academicDegrees,
   });
 
   String get completeName => name + " " + surname;
