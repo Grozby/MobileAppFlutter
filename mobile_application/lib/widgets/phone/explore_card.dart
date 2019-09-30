@@ -45,14 +45,38 @@ class MentorCard extends StatefulWidget {
   _MentorCardState createState() => _MentorCardState();
 }
 
-class _MentorCardState extends State<MentorCard> with SingleTickerProviderStateMixin{
-  bool isExpanded;
-  final double heightText = 100;
+class _MentorCardState extends State<MentorCard> with TickerProviderStateMixin {
+  bool _isExpanded;
+  final double _heightText = 100;
+  GlobalKey _keyFoldChild;
+  double _childWidth;
+  AnimationController _controller;
+  Animation<double> _sizeAnimation;
+
+  void _afterLayout(_) {
+    final RenderBox renderBox = _keyFoldChild.currentContext.findRenderObject();
+    _sizeAnimation =
+        Tween<double>(begin: _heightText, end: renderBox.size.height).animate(_controller);
+    _childWidth = renderBox.size.width;
+  }
 
   @override
   void initState() {
     super.initState();
-    isExpanded = false;
+    _isExpanded = false;
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _keyFoldChild = GlobalKey();
+    WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
+  }
+
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -92,25 +116,41 @@ class _MentorCardState extends State<MentorCard> with SingleTickerProviderStateM
                     mentor: widget.mentor,
                   ),
                   SizedBox(height: 8),
-                  AnimatedSize(
-                    vsync: this,
-                    duration: Duration(milliseconds: 300),
-                    child: InkWell(
-                      hoverColor:
-                          Theme.of(context).primaryColor.withOpacity(0.1),
-                      onTap: () {
-                        setState(() {
-                          isExpanded = !isExpanded;
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.topCenter,
-                        height: isExpanded ? null : heightText,
-                        child: Text(
-                          widget.mentor.bio,
-                          style: Theme.of(context).textTheme.body1,
+                  AnimatedBuilder(
+                    animation: _controller,
+
+                    builder: (context, child) {
+                      return ClipRect(
+                        child: SizedOverflowBox(
+                          alignment: Alignment.topCenter,
+                          size: Size(double.infinity, _sizeAnimation?.value ?? _heightText ),
+                          child: child,
                         ),
-                      )
+                      );
+                    },
+                    child: Container(
+                      key: _keyFoldChild,
+                      child: InkWell(
+                        hoverColor:
+                        Theme.of(context).primaryColor.withOpacity(0.1),
+                        onTap: () {
+                          setState(() {
+                            _isExpanded = !_isExpanded;
+                            if (_isExpanded) {
+                              _controller.forward();
+                            } else {
+                              _controller.reverse();
+                            }
+                          });
+                        },
+                        child: Container(
+                          alignment: Alignment.topCenter,
+                          child: Text(
+                            widget.mentor.bio,
+                            style: Theme.of(context).textTheme.body1,
+                          ),
+                        )
+                      ),
                     ),
                   ),
                   Divider(),

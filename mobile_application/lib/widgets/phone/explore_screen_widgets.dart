@@ -107,7 +107,7 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget> {
         child: Container(
           padding: EdgeInsets.all(12),
           constraints: BoxConstraints(minHeight: constraints.minHeight),
-          child: ExploreCard(
+        child: ExploreCard(
             user: Mentor(
               name: "Bob",
               surname: "Ross",
