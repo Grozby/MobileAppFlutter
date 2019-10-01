@@ -8,7 +8,7 @@ abstract class User {
   String location;
   String bio;
   List<String> favoriteLanguages;
-  List<PastExperience> academicDegrees;
+  List<PastExperience> pastExperiences;
 
   User({
     @required this.name,
@@ -17,7 +17,7 @@ abstract class User {
     @required this.location,
     @required this.bio,
     @required this.favoriteLanguages,
-    @required this.academicDegrees,
+    @required this.pastExperiences,
   });
 
   String get completeName => name + " " + surname;

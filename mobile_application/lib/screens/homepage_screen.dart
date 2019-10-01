@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import '../providers/explore/card_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../widgets/custom_alert_dialog.dart';
 import '../widgets/phone/explore_screen_widgets.dart' as phone;
-import 'settings_screen.dart';
 
 class HomepageScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -15,13 +16,27 @@ class _HomepageScreenState extends State<HomepageScreen> {
   @override
   Widget build(BuildContext context) {
     var isSmartPhone = MediaQuery.of(context).size.shortestSide < 600;
+    CardProvider cardProvider = Provider.of<CardProvider>(
+      context,
+      listen: false,
+    );
 
     return Scaffold(
       //TODO remove appbar!
-
+//      appBar: AppBar(
+//        centerTitle: true,
+//        title: Text('Ryfy'),
+//        actions: <Widget>[
+//          IconButton(
+//            icon: Icon(Icons.settings),
+//            onPressed: () =>
+//                Navigator.of(context).pushNamed(SettingsScreen.routeName),
+//          ),
+//        ],
+//      ),
       body: FutureBuilder(
         //TODO update with correct future that fetches the data for the explore
-        future: Future.delayed(Duration(milliseconds: 50)),
+        future: cardProvider.loadCardProvider(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(

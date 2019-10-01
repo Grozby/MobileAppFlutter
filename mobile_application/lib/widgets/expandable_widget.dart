@@ -2,6 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+///
+/// Support widget that allows its [child] to be expandable. The starting height
+/// of the widget is determined by the [height] field, while the
+/// [durationInMilliseconds] field determine the animation duration for the
+/// expansion.
+///
 class ExpandableWidget extends StatefulWidget {
   final int durationInMilliseconds;
   final double height;
@@ -77,14 +83,17 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
                 child: Column(
                   children: <Widget>[
                     _isExpanded
-                        ? ClipRect(
-                            child: SizedOverflowBox(
-                              alignment: Alignment.topCenter,
-                              size: Size(
-                                double.infinity,
-                                _sizeAnimation?.value ?? widget.height - 12,
+                        ? Container(
+                            color: Colors.white,
+                            child: ClipRect(
+                              child: SizedOverflowBox(
+                                alignment: Alignment.topCenter,
+                                size: Size(
+                                  double.infinity,
+                                  _sizeAnimation?.value ?? widget.height - 12,
+                                ),
+                                child: child,
                               ),
-                              child: child,
                             ),
                           )
                         : ShaderMask(
@@ -102,14 +111,17 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
                               );
                             },
                             blendMode: BlendMode.dstIn,
-                            child: ClipRect(
-                              child: SizedOverflowBox(
-                                alignment: Alignment.topCenter,
-                                size: Size(
-                                  double.infinity,
-                                  _sizeAnimation?.value ?? widget.height - 12,
+                            child: Container(
+                              color: Colors.white,
+                              child: ClipRect(
+                                child: SizedOverflowBox(
+                                  alignment: Alignment.topCenter,
+                                  size: Size(
+                                    double.infinity,
+                                    _sizeAnimation?.value ?? widget.height - 12,
+                                  ),
+                                  child: child,
                                 ),
-                                child: child,
                               ),
                             ),
                           ),

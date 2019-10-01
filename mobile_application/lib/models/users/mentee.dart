@@ -12,7 +12,7 @@ class Mentee extends User {
     @required location,
     @required bio,
     @required favoriteLanguages,
-    @required academicDegrees,
+    @required pastExperiences,
     @required this.tokenCount,
   }) : super(
           name: name,
@@ -21,6 +21,6 @@ class Mentee extends User {
           location: location,
           bio: bio,
           favoriteLanguages: favoriteLanguages,
-          academicDegrees: academicDegrees,
+          pastExperiences: pastExperiences,
         );
 }

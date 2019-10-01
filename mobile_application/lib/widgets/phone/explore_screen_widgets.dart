@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/explore/card_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/users/experiences/academic_degree.dart';
@@ -85,61 +86,109 @@ class ExploreBodyWidget extends StatefulWidget {
   _ExploreBodyWidgetState createState() => _ExploreBodyWidgetState();
 }
 
-class _ExploreBodyWidgetState extends State<ExploreBodyWidget> {
-  int offset;
+class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
+    with SingleTickerProviderStateMixin {
+  double heightFraction = 0.9;
+  int currentIndex = 0;
+  bool _isForward = false;
+  PageController pageController = PageController(viewportFraction: 0.9);
+  Animation<double> animation;
+  AnimationController controllerAnimation;
 
   @override
   void initState() {
     super.initState();
-    offset = 0;
+    pageController.addListener(updatePage);
+    controllerAnimation = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    animation = Tween<double>(
+      begin: heightFraction,
+      end: 1,
+    ).animate(controllerAnimation);
   }
 
-  void setOffset(int offset) {
+  @override
+  void dispose() {
+    pageController.removeListener(updatePage);
+    pageController.dispose();
+    controllerAnimation.dispose();
+    super.dispose();
+  }
+
+  void updatePage() {
+    int nextIndex = pageController.page.round();
+    if (currentIndex != nextIndex) {
+      setState(() {
+        currentIndex = nextIndex;
+      });
+      callAnimatorController();
+    }
+  }
+
+  void callAnimatorController() {
+    if (_isForward) {
+      controllerAnimation.reverse();
+    } else {
+      controllerAnimation.forward();
+    }
     setState(() {
-      this.offset = offset;
+      _isForward = !_isForward;
     });
+  }
+
+  double get animationValue {
+    if (_isForward) {
+      return animation.value;
+    } else {
+      return 1 + heightFraction - animation.value;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    CardProvider cardProvider = Provider.of<CardProvider>(context);
+
     return LayoutBuilder(builder: (ctx, constraints) {
-      return SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(12),
-          constraints: BoxConstraints(minHeight: constraints.minHeight),
-          child: ExploreCard(
-            user: Mentor(
-              name: "Bob",
-              surname: "Ross",
-              bio:
-                  "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\"",
-              location: "Mountain View, US",
-              company: "Google",
-              workingSpecialization: [
-                "Software Engineer",
-                "Front End",
-                "Backend"
-              ],
-              urlCompanyImage:
-                  "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
-              jobType: "Software Engineer",
-              favoriteLanguages: ["Java", "Python", "C++"],
-              pictureUrl:
-                  "https://images.csmonitor.com/csm/2015/06/913184_1_0610-larry_standard.jpg?alias=standard_900x600",
-              academicDegrees: [
-                AcademicDegree(
-                  degreeLevel: "Ph.D",
-                  fieldOfStudy: "Computer Science",
-                  university: "Stanford University",
+      return Container(
+        constraints: BoxConstraints(
+          maxHeight: constraints.minHeight,
+          maxWidth: constraints.maxWidth,
+        ),
+        child: PageView.builder(
+          controller: pageController,
+          scrollDirection: Axis.horizontal,
+          itemCount: cardProvider.availableUsers.length,
+          itemBuilder: (BuildContext context, int index) {
+            return AnimatedBuilder(
+              animation: controllerAnimation,
+              child: Container(
+                constraints: BoxConstraints(
+                  minHeight: constraints.minHeight,
                 ),
-                AcademicDegree(
-                  degreeLevel: "Ph.D",
-                  fieldOfStudy: "Computer Science",
-                  university: "Stanford University",
+                child: SingleChildScrollView(
+                  child: ExploreCard(indexUser: index),
                 ),
-              ],
-            ),
-          ),
+              ),
+              builder: (_, child) {
+                return Transform.scale(
+                  alignment: index > currentIndex
+                      ? Alignment.centerLeft
+                      : (index < currentIndex
+                      ? Alignment.centerRight
+                      : Alignment.center),
+                  scale: index == currentIndex
+                      ? (controllerAnimation.isAnimating ? animationValue : 1)
+                      : (controllerAnimation.isAnimating
+                      ? 1 + heightFraction - animationValue
+                      : heightFraction),
+                  child: child,
+                );
+              },
+            );
+          },
         ),
       );
     });
