@@ -18,7 +18,7 @@ class ExploreCard extends StatelessWidget {
     User user = Provider.of<CardProvider>(
       context,
       listen: false,
-    ).selectedUser;
+    ).getUser(indexUser);
     switch (user.runtimeType) {
       case Mentee:
         Mentee m = user as Mentee;

@@ -81,6 +81,10 @@ class InfoBarWidget extends StatelessWidget {
   }
 }
 
+///
+/// Widget that shows all the available user cards. It animates the swipe
+/// in and out between each card.
+///
 class ExploreBodyWidget extends StatefulWidget {
   @override
   _ExploreBodyWidgetState createState() => _ExploreBodyWidgetState();

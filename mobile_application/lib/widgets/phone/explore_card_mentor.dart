@@ -1,11 +1,15 @@
+import 'dart:math' as math;
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/models/users/experiences/past_experience.dart';
-import 'package:mobile_application/providers/explore/card_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:transparent_image/transparent_image.dart';
+
+import '../../models/users/experiences/past_experience.dart';
 import '../../models/users/mentor.dart';
+import '../../providers/explore/card_provider.dart';
+import '../../widgets/transition/rotation_transition_upgraded.dart';
 import '../button_styled.dart';
 import '../expandable_widget.dart';
 import '../show_grid.dart';
@@ -27,15 +31,28 @@ class _MentorCardState extends State<MentorCard> {
     _isFrontCardShowing = true;
   }
 
+  void rotateCard() {
+    setState(() {
+      _isFrontCardShowing = !_isFrontCardShowing;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: Duration(milliseconds: 500),
+      duration: Duration(milliseconds: 1000),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        bool isShowing = _isFrontCardShowing && child.key == ValueKey(1) ||
+            !_isFrontCardShowing && child.key == ValueKey(2);
+        return RotationTransitionUpgraded(
+          child: child,
+          turns: animation,
+          isShowing: isShowing,
+        );
+      },
       child: _isFrontCardShowing
-          ? FrontCardMentor()
-          : Container(
-              color: Colors.red,
-            ),
+          ? FrontCardMentor(key: ValueKey(1), rotateCard: rotateCard)
+          : FrontCardMentor(key: ValueKey(2), rotateCard: rotateCard),
     );
   }
 }
@@ -50,6 +67,10 @@ class _MentorCardState extends State<MentorCard> {
 /// Front card containing all the information about the [Mentor].
 ///
 class FrontCardMentor extends StatefulWidget {
+  final Function rotateCard;
+
+  FrontCardMentor({@required this.rotateCard, key}) : super(key: key);
+
   @override
   _FrontCardMentorState createState() => _FrontCardMentorState();
 }
@@ -110,9 +131,7 @@ class _FrontCardMentorState extends State<FrontCardMentor> {
             SizedBox(height: 4),
             Container(
               child: ButtonStyled(
-                onPressFunction: () {
-                  cardProvider.changeSelectedUser(Verse.RIGHT);
-                },
+                onPressFunction: widget.rotateCard,
                 fractionalWidthDimension: 0.99,
                 text: "Contact him!",
               ),
