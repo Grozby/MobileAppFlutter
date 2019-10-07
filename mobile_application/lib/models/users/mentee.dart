@@ -11,16 +11,17 @@ class Mentee extends User {
     @required pictureUrl,
     @required location,
     @required bio,
-    @required favoriteLanguages,
+    @required questions,
     @required pastExperiences,
     @required this.tokenCount,
-  }) : super(
+  })  : assert(tokenCount != null),
+        super(
           name: name,
           surname: surname,
           pictureUrl: pictureUrl,
           location: location,
           bio: bio,
-          favoriteLanguages: favoriteLanguages,
+          questions: questions,
           pastExperiences: pastExperiences,
         );
 }

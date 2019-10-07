@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/should_collapse_provider.dart';
+import 'package:provider/provider.dart';
 
 ///
 /// Support widget that allows its [child] to be expandable. The starting height
@@ -30,6 +34,66 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
   GlobalKey _keyFoldChild;
   AnimationController _controller;
   Animation<double> _sizeAnimation;
+  StreamSubscription streamSubscription;
+  Stream shouldCollapseStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _isExpanded = false;
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: widget.durationInMilliseconds),
+    );
+    _keyFoldChild = GlobalKey();
+    WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
+
+    Future.delayed(Duration.zero, () {
+      //If we have a stream, we subscribe to it. Whenever we have a
+      //a change, we collapse the widget.
+      shouldCollapseStream =
+          Provider.of<ShouldCollapseProvider>(context).changeNotifier.stream;
+
+      if (shouldCollapseStream != null) {
+        shouldCollapseStream.listen((_) => collapse());
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(ExpandableWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // in case the stream instance changed, subscribe to the new one
+    final Stream newShouldCollapseStream =
+        Provider.of<ShouldCollapseProvider>(context).changeNotifier.stream;
+    if (newShouldCollapseStream != shouldCollapseStream) {
+      streamSubscription.cancel();
+      shouldCollapseStream = newShouldCollapseStream;
+      streamSubscription = shouldCollapseStream.listen((_) => collapse());
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    if (streamSubscription != null) streamSubscription.cancel();
+    super.dispose();
+  }
+
+  ///
+  /// Support functions
+  ///
+  void onTap() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+      if (_isExpanded) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+  }
 
   void _afterLayout(_) {
     final RenderBox renderBox = _keyFoldChild.currentContext.findRenderObject();
@@ -43,33 +107,12 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
     ).animate(_controller);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _isExpanded = false;
-    _controller = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: widget.durationInMilliseconds),
-    );
-    _keyFoldChild = GlobalKey();
-    WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void onTap() {
-    setState(() {
-      _isExpanded = !_isExpanded;
-      if (_isExpanded) {
-        _controller.forward();
-      } else {
+  void collapse() {
+    if (_isExpanded)
+      setState(() {
+        _isExpanded = false;
         _controller.reverse();
-      }
-    });
+      });
   }
 
   @override
@@ -140,12 +183,13 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
               )
             : ClipRect(
                 child: SizedOverflowBox(
-                  alignment: Alignment.topCenter,
-                  size: Size(
-                      double.infinity, _sizeAnimation?.value ?? widget.height),
-                  child: child,
+                alignment: Alignment.topCenter,
+                size: Size(
+                  double.infinity,
+                  _sizeAnimation?.value ?? widget.height,
                 ),
-              );
+                child: child,
+              ));
       },
       child: Container(
         key: _keyFoldChild,

@@ -1,23 +1,23 @@
-import 'dart:math' as math;
+import 'dart:async';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/should_collapse_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-import '../../models/users/experiences/past_experience.dart';
-import '../../models/users/mentor.dart';
-import '../../providers/explore/card_provider.dart';
-import '../../widgets/transition/rotation_transition_upgraded.dart';
-import '../button_styled.dart';
-import '../expandable_widget.dart';
-import '../show_grid.dart';
+import '../../../models/users/experiences/past_experience.dart';
+import '../../../models/users/mentor.dart';
+import '../../../providers/explore/card_provider.dart';
+import '../../button_styled.dart';
+import '../../expandable_widget.dart';
+import '../../faded_list_view.dart';
+import '../../transition/rotation_transition_upgraded.dart';
+import 'card_container.dart';
 import 'explore_card.dart';
 
 class MentorCard extends StatefulWidget {
-  MentorCard();
-
   @override
   _MentorCardState createState() => _MentorCardState();
 }
@@ -31,7 +31,13 @@ class _MentorCardState extends State<MentorCard> {
     _isFrontCardShowing = true;
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void rotateCard() {
+    Provider.of<ShouldCollapseProvider>(context).shouldCollapseElements();
     setState(() {
       _isFrontCardShowing = !_isFrontCardShowing;
     });
@@ -51,8 +57,8 @@ class _MentorCardState extends State<MentorCard> {
         );
       },
       child: _isFrontCardShowing
-          ? FrontCardMentor(key: ValueKey(1), rotateCard: rotateCard)
-          : FrontCardMentor(key: ValueKey(2), rotateCard: rotateCard),
+          ? _FrontCardMentor(key: ValueKey(1), rotateCard: rotateCard)
+          : _BackCardMentor(key: ValueKey(2), rotateCard: rotateCard),
     );
   }
 }
@@ -66,126 +72,108 @@ class _MentorCardState extends State<MentorCard> {
 ///
 /// Front card containing all the information about the [Mentor].
 ///
-class FrontCardMentor extends StatefulWidget {
+class _FrontCardMentor extends StatefulWidget {
   final Function rotateCard;
 
-  FrontCardMentor({@required this.rotateCard, key}) : super(key: key);
+  _FrontCardMentor({@required this.rotateCard, key}) : super(key: key);
 
   @override
   _FrontCardMentorState createState() => _FrontCardMentorState();
 }
 
-class _FrontCardMentorState extends State<FrontCardMentor> {
+class _FrontCardMentorState extends State<_FrontCardMentor> {
   @override
   Widget build(BuildContext context) {
-    CardProvider cardProvider = Provider.of<CardProvider>(context);
     int index = ScopedModel.of<IndexUser>(context).indexUser;
+    Mentor mentor = Provider.of<CardProvider>(context).getMentor(index);
 
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24.0),
-      ),
-      elevation: 8,
-      child: Container(
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24.0),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0, 0.4],
-            colors: [
-              Theme.of(context).primaryColor.withOpacity(0.10),
-              const Color(0xFFFFFF),
+    return CardContainer(
+      rotateCard: widget.rotateCard,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              _CompanyInformationBar(),
+              const Divider(),
+              _MentorBasicInformation(),
+              const SizedBox(height: 8),
+              _MentorBio(
+                height: 80,
+              ),
+              const Divider(),
+              FadedListView<String>(
+                list: mentor.workingSpecialization,
+                height: 31,
+                builder: _workingSpecializationBadge,
+              ),
+              const Divider(),
+              _FavoriteLanguages(
+                height: 30,
+              ),
+              const Divider(),
+              FadedListView<PastExperience>(
+                list: mentor.pastExperiences,
+                height: 73,
+                builder: _pastExperienceBadge,
+              ),
             ],
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Column(
-              children: <Widget>[
-                CompanyInformationBar(),
-                Divider(),
-                MentorBasicInformation(),
-                SizedBox(height: 8),
-                MentorBio(),
-                Divider(),
-                ShowGridInPairs<String>(
-                  list: cardProvider.getMentor(index).workingSpecialization,
-                  height: 31,
-                  durationExpansion: 300,
-                  builder: _workingSpecializationBadge,
-                ),
-                Divider(),
-                FavoriteLanguages(),
-                Divider(),
-                ShowGridInPairs<PastExperience>(
-                  list: cardProvider.getMentor(index).pastExperiences,
-                  height: 70,
-                  durationExpansion: 300,
-                  builder: _pastExperienceBadge,
-                ),
-              ],
+          const SizedBox(height: 4),
+          Container(
+            child: ButtonStyled(
+              onPressFunction: widget.rotateCard,
+              fractionalWidthDimension: 0.99,
+              text: "Contact him!",
             ),
-            SizedBox(height: 4),
-            Container(
-              child: ButtonStyled(
-                onPressFunction: widget.rotateCard,
-                fractionalWidthDimension: 0.99,
-                text: "Contact him!",
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _workingSpecializationBadge(String text) {
-    return Expanded(
+    return Container(
+      padding: EdgeInsets.all(4),
+      alignment: Alignment.center,
       child: Container(
-        padding: EdgeInsets.all(4),
-        alignment: Alignment.center,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.red.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
-          child: AutoSizeText(
-            text,
-            textAlign: TextAlign.center,
-          ),
+        decoration: BoxDecoration(
+          color: Colors.red.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+        child: AutoSizeText(
+          text,
+          textAlign: TextAlign.center,
         ),
       ),
     );
   }
 
   Widget _pastExperienceBadge(PastExperience experience) {
-    return Expanded(
-      child: Column(
-        children: <Widget>[
-          Image.asset(
-            experience.assetPath,
-            scale: 1.5,
-          ),
-          AutoSizeText(
-            experience.haveDone + " @",
-            style: Theme.of(context).textTheme.overline,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-          ),
-          AutoSizeText(
-            experience.at,
-            style: Theme.of(context).textTheme.overline.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-          ),
-        ],
-      ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Image.asset(
+          experience.assetPath,
+          height: 25,
+          width: 40,
+        ),
+        AutoSizeText(
+          experience.haveDone + " @",
+          style: Theme.of(context).textTheme.overline,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+        ),
+        AutoSizeText(
+          experience.at,
+          style: Theme.of(context).textTheme.overline.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+        ),
+      ],
     );
   }
 }
@@ -194,7 +182,7 @@ class _FrontCardMentorState extends State<FrontCardMentor> {
 /// Top bar of the card that shows the information about the company in which
 /// the mentor is currently working.
 ///
-class CompanyInformationBar extends StatelessWidget {
+class _CompanyInformationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int index = ScopedModel.of<IndexUser>(context).indexUser;
@@ -232,7 +220,7 @@ class CompanyInformationBar extends StatelessWidget {
 /// Widget that shows the profile picture of the mentor, together with
 /// its name and working position.
 ///
-class MentorBasicInformation extends StatelessWidget {
+class _MentorBasicInformation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int index = ScopedModel.of<IndexUser>(context).indexUser;
@@ -313,7 +301,11 @@ class MentorBasicInformation extends StatelessWidget {
 /// collapses it in case the biography text is to long thanks to
 /// [ExpandableWidget]
 ///
-class MentorBio extends StatelessWidget {
+class _MentorBio extends StatelessWidget {
+  final double height;
+
+  _MentorBio({@required this.height});
+
   @override
   Widget build(BuildContext context) {
     int index = ScopedModel.of<IndexUser>(context).indexUser;
@@ -323,7 +315,7 @@ class MentorBio extends StatelessWidget {
     ).getMentor(index);
 
     return ExpandableWidget(
-      height: 80,
+      height: height,
       durationInMilliseconds: 300,
       child: Container(
         alignment: Alignment.topCenter,
@@ -340,7 +332,11 @@ class MentorBio extends StatelessWidget {
 /// Widget that simply shows which are the favorite programming languages
 /// of the mentor.
 ///
-class FavoriteLanguages extends StatelessWidget {
+class _FavoriteLanguages extends StatelessWidget {
+  final double height;
+
+  _FavoriteLanguages({@required this.height});
+
   @override
   Widget build(BuildContext context) {
     int index = ScopedModel.of<IndexUser>(context).indexUser;
@@ -349,32 +345,80 @@ class FavoriteLanguages extends StatelessWidget {
       listen: false,
     ).getMentor(index);
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Container(
-          width: double.infinity,
-          child: Text(
-            "Favorite programming languages...",
-            style: Theme.of(context).textTheme.overline,
-            textAlign: TextAlign.left,
+    return ExpandableWidget(
+      height: height,
+      durationInMilliseconds: 300,
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: mentor.questions.map((question) {
+            return Column(
+              children: <Widget>[
+                Container(
+                  width: double.infinity,
+                  child: Text(
+                    question.question,
+                    style: Theme.of(context).textTheme.overline,
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+                SizedBox(
+                  height: 2,
+                ),
+                Container(
+                  width: double.infinity,
+                  child: Text(
+                    question.answer,
+                    style: Theme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(fontWeight: FontWeight.w700),
+                    textAlign: TextAlign.right,
+                  ),
+                )
+              ],
+            );
+          }).toList()),
+    );
+  }
+}
+
+/// /////////////////////////////////////////////////////////////////////// ///
+///                                                                         ///
+/// Support Widget for the creation of the back card of the mentor.         ///
+///                                                                         ///
+/// /////////////////////////////////////////////////////////////////////// ///
+
+class _BackCardMentor extends StatelessWidget {
+  final Function rotateCard;
+
+  _BackCardMentor({@required this.rotateCard, key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    CardProvider cardProvider = Provider.of<CardProvider>(context);
+    int index = ScopedModel.of<IndexUser>(context).indexUser;
+
+    return CardContainer(
+      rotateCard: rotateCard,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Column(
+            children: <Widget>[
+              _CompanyInformationBar(),
+              const Divider(),
+            ],
           ),
-        ),
-        SizedBox(
-          height: 8,
-        ),
-        Container(
-          width: double.infinity,
-          child: Text(
-            mentor.favoriteLanguagesString,
-            style: Theme.of(context)
-                .textTheme
-                .body1
-                .copyWith(fontWeight: FontWeight.w700),
-            textAlign: TextAlign.right,
+          const SizedBox(height: 4),
+          Container(
+            child: ButtonStyled(
+              onPressFunction: rotateCard,
+              fractionalWidthDimension: 0.99,
+              text: "Contact him!",
+            ),
           ),
-        )
-      ],
+        ],
+      ),
     );
   }
 }

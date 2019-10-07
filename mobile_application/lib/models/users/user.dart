@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:mobile_application/models/users/experiences/past_experience.dart';
+import '../../models/users/experiences/past_experience.dart';
+import '../../models/users/question.dart';
 
 abstract class User {
   String name;
@@ -7,7 +8,7 @@ abstract class User {
   String pictureUrl;
   String location;
   String bio;
-  List<String> favoriteLanguages;
+  List<Question> questions;
   List<PastExperience> pastExperiences;
 
   User({
@@ -16,11 +17,15 @@ abstract class User {
     @required this.pictureUrl,
     @required this.location,
     @required this.bio,
-    @required this.favoriteLanguages,
+    @required this.questions,
     @required this.pastExperiences,
-  });
+  })  : assert(name != null),
+        assert(surname != null),
+        assert(pictureUrl != null),
+        assert(location != null),
+        assert(bio != null),
+        assert(questions != null),
+        assert(pastExperiences != null);
 
   String get completeName => name + " " + surname;
-
-  String get favoriteLanguagesString => favoriteLanguages.join(", ");
 }

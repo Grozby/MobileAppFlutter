@@ -14,7 +14,7 @@ description: Application for the Mobile Application course at PoliMi
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:

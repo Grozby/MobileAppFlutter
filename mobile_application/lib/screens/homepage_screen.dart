@@ -3,7 +3,7 @@ import '../providers/explore/card_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/custom_alert_dialog.dart';
-import '../widgets/phone/explore_screen_widgets.dart' as phone;
+import '../widgets/phone/explore/explore_screen_widgets.dart' as phone;
 
 class HomepageScreen extends StatefulWidget {
   static const routeName = '/home';

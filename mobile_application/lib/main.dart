@@ -39,11 +39,12 @@ class MyApp extends StatefulWidget {
   final UserDataProvider userDataProvider;
   final CardProvider cardProvider;
 
-  MyApp(
-      {@required this.themeProvider,
-      @required this.authenticationProvider,
-      @required this.userDataProvider,
-      @required this.cardProvider});
+  MyApp({
+    @required this.themeProvider,
+    @required this.authenticationProvider,
+    @required this.userDataProvider,
+    @required this.cardProvider,
+  });
 
   @override
   _MyAppState createState() => _MyAppState();

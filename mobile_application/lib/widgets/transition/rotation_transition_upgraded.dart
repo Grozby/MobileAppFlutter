@@ -2,6 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+///
+/// This animation to correctly work needs to have two widget. The animation
+/// will switch between the two widgets, by a rotation on the Y axis.
+/// The first half rotation will make the front showing widget to rotate. When
+/// the front widget cover half rotation, the widget on the back will appear.
+///
 class RotationTransitionUpgraded extends AnimatedWidget {
   Animation<double> get turns => listenable;
   final Alignment alignment;

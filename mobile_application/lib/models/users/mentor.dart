@@ -14,19 +14,23 @@ class Mentor extends User {
     @required pictureUrl,
     @required location,
     @required bio,
-    @required favoriteLanguages,
+    @required questions,
     @required pastExperiences,
     @required this.company,
     @required this.jobType,
     @required this.workingSpecialization,
     @required this.urlCompanyImage,
-  }) : super(
+  })  : assert(company != null),
+        assert(jobType != null),
+        assert(workingSpecialization != null),
+        assert(urlCompanyImage != null),
+        super(
           name: name,
           surname: surname,
           pictureUrl: pictureUrl,
           location: location,
           bio: bio,
-          favoriteLanguages: favoriteLanguages,
+          questions: questions,
           pastExperiences: pastExperiences,
         );
 }

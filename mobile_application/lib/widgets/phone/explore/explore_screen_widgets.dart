@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_application/providers/explore/card_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:scoped_model/scoped_model.dart';
 
-import '../../models/users/experiences/academic_degree.dart';
-import '../../models/users/mentor.dart';
-import '../../providers/user/user_data_provider.dart';
-import '../../screens/messages_screen.dart';
-import '../../screens/user_profile_screen.dart';
+import '../../../providers/user/user_data_provider.dart';
+import '../../../screens/messages_screen.dart';
+import '../../../screens/user_profile_screen.dart';
 import 'circular_button_info_bar.dart';
 import 'explore_card.dart';
 
@@ -173,7 +172,13 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                   minHeight: constraints.minHeight,
                 ),
                 child: SingleChildScrollView(
-                  child: ExploreCard(indexUser: index),
+                  child: ScopedModel<AvailableSizes>(
+                    model: AvailableSizes(constraints.minHeight),
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: ExploreCard(indexUser: index),
+                    ),
+                  ),
                 ),
               ),
               builder: (_, child) {
@@ -181,13 +186,13 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                   alignment: index > currentIndex
                       ? Alignment.centerLeft
                       : (index < currentIndex
-                      ? Alignment.centerRight
-                      : Alignment.center),
+                          ? Alignment.centerRight
+                          : Alignment.center),
                   scale: index == currentIndex
                       ? (controllerAnimation.isAnimating ? animationValue : 1)
                       : (controllerAnimation.isAnimating
-                      ? 1 + heightFraction - animationValue
-                      : heightFraction),
+                          ? 1 + heightFraction - animationValue
+                          : heightFraction),
                   child: child,
                 );
               },
@@ -197,4 +202,13 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
       );
     });
   }
+}
+
+class AvailableSizes extends Model {
+  double height;
+
+  AvailableSizes(this.height);
+
+  static AvailableSizes of(BuildContext context) =>
+      ScopedModel.of<AvailableSizes>(context);
 }
