@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/providers/should_collapse_provider.dart';
+import 'package:mobile_application/providers/explore/should_collapse_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -16,7 +16,13 @@ import '../../faded_list_view.dart';
 import '../../transition/rotation_transition_upgraded.dart';
 import 'card_container.dart';
 import 'explore_card.dart';
+import 'explore_screen_widgets.dart';
 
+///
+/// Mentor card used in the explored. In order to retrieve the data,
+/// we use a [CardProvider] to fetch the mentor data. Then, we use the
+/// associated [IndexUser] model to know which mentor the card refers to.
+///
 class MentorCard extends StatefulWidget {
   @override
   _MentorCardState createState() => _MentorCardState();
@@ -36,8 +42,12 @@ class _MentorCardState extends State<MentorCard> {
     super.dispose();
   }
 
-  void rotateCard() {
+  void collapseElementInsideCard() {
     Provider.of<ShouldCollapseProvider>(context).shouldCollapseElements();
+  }
+
+  void rotateCard() {
+    collapseElementInsideCard();
     setState(() {
       _isFrontCardShowing = !_isFrontCardShowing;
     });
@@ -96,7 +106,9 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
             children: <Widget>[
               _CompanyInformationBar(),
               const Divider(),
-              _MentorBasicInformation(),
+              _MentorBasicInformation(
+                isVertical: true,
+              ),
               const SizedBox(height: 8),
               _MentorBio(
                 height: 80,
@@ -221,6 +233,82 @@ class _CompanyInformationBar extends StatelessWidget {
 /// its name and working position.
 ///
 class _MentorBasicInformation extends StatelessWidget {
+  final bool isVertical;
+
+  _MentorBasicInformation({@required this.isVertical});
+
+  @override
+  Widget build(BuildContext context) {
+    return isVertical
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              _MentorBasicInformationAvatar(),
+              SizedBox(height: 4),
+              _MentorBasicInformationText(
+                alignment: Alignment.center,
+              ),
+            ],
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              _MentorBasicInformationAvatar(),
+              _MentorBasicInformationText(
+                alignment: Alignment.centerLeft,
+              ),
+            ],
+          );
+  }
+}
+
+class _MentorBasicInformationAvatar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    int index = ScopedModel.of<IndexUser>(context).indexUser;
+    Mentor mentor = Provider.of<CardProvider>(
+      context,
+      listen: false,
+    ).getMentor(index);
+    return Container(
+      alignment: Alignment.center,
+      child: Stack(
+        children: <Widget>[
+          Positioned.fill(
+            child: Material(
+              color: Colors.transparent,
+              elevation: 8,
+              type: MaterialType.circle,
+            ),
+          ),
+          Positioned.fill(
+            child: Material(
+              color: Colors.white,
+              elevation: 0,
+              type: MaterialType.circle,
+            ),
+          ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(100),
+            child: FadeInImage.memoryNetwork(
+              width: 80,
+              height: 80,
+              image: mentor.pictureUrl,
+              placeholder: kTransparentImage,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MentorBasicInformationText extends StatelessWidget {
+  final Alignment alignment;
+
+  _MentorBasicInformationText({@required this.alignment});
+
   @override
   Widget build(BuildContext context) {
     int index = ScopedModel.of<IndexUser>(context).indexUser;
@@ -230,42 +318,10 @@ class _MentorBasicInformation extends StatelessWidget {
     ).getMentor(index);
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
-          alignment: Alignment.center,
-          child: Stack(
-            children: <Widget>[
-              Positioned.fill(
-                child: Material(
-                  color: Colors.transparent,
-                  elevation: 8,
-                  type: MaterialType.circle,
-                ),
-              ),
-              Positioned.fill(
-                child: Material(
-                  color: Colors.white,
-                  elevation: 0,
-                  type: MaterialType.circle,
-                ),
-              ),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(100),
-                child: FadeInImage.memoryNetwork(
-                  width: 80,
-                  height: 80,
-                  image: mentor.pictureUrl,
-                  placeholder: kTransparentImage,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 4),
-        Container(
-          alignment: Alignment.center,
+          alignment: alignment,
           child: Text(
             mentor.completeName,
             style: Theme.of(context).textTheme.title,
@@ -273,7 +329,7 @@ class _MentorBasicInformation extends StatelessWidget {
         ),
         SizedBox(height: 4),
         Container(
-          alignment: Alignment.center,
+          alignment: alignment,
           child: RichText(
             text: TextSpan(
               children: <TextSpan>[
@@ -395,30 +451,65 @@ class _BackCardMentor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    CardProvider cardProvider = Provider.of<CardProvider>(context);
     int index = ScopedModel.of<IndexUser>(context).indexUser;
+    Mentor mentor = Provider.of<CardProvider>(
+      context,
+      listen: false,
+    ).getMentor(index);
 
     return CardContainer(
-      rotateCard: rotateCard,
+      canExpand: false,
+      rotateCard: () {},
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Column(
-            children: <Widget>[
-              _CompanyInformationBar(),
-              const Divider(),
-            ],
+          _CompanyInformationBar(),
+          const Divider(),
+          _MentorBasicInformation(
+            isVertical: false,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 16),
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    width: 1,
+                    color: Colors.grey.withOpacity(0.8),
+                  )),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Send a message to ${mentor.name}',
+                  border: InputBorder.none,
+                ),
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           Container(
             child: ButtonStyled(
               onPressFunction: rotateCard,
               fractionalWidthDimension: 0.99,
-              text: "Contact him!",
+              text: "Send",
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+class HowToContact extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    int index = ScopedModel.of<IndexUser>(context).indexUser;
+    Mentor mentor = Provider.of<CardProvider>(
+      context,
+      listen: false,
+    ).getMentor(index);
+
+    return Container();
   }
 }

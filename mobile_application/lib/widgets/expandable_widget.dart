@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/providers/should_collapse_provider.dart';
+import 'package:mobile_application/providers/explore/should_collapse_provider.dart';
 import 'package:provider/provider.dart';
 
 ///
@@ -34,6 +34,9 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
   GlobalKey _keyFoldChild;
   AnimationController _controller;
   Animation<double> _sizeAnimation;
+
+  //We use these streams in order to listen to external events, given by the
+  //stream inside the ShouldCollapseProvider.
   StreamSubscription streamSubscription;
   Stream shouldCollapseStream;
 

@@ -6,10 +6,13 @@ import 'explore_screen_widgets.dart';
 class CardContainer extends StatelessWidget {
   final Widget child;
   final Function rotateCard;
+  final double padding = 12;
+  final bool canExpand;
 
   CardContainer({
     @required this.child,
     @required this.rotateCard,
+    this.canExpand = true,
   })  : assert(child != null),
         assert(rotateCard != null);
 
@@ -23,9 +26,10 @@ class CardContainer extends StatelessWidget {
       ),
       elevation: 8,
       child: Container(
-        padding: const EdgeInsets.all(10),
+        padding: EdgeInsets.all(padding),
+        height: canExpand ? null : height - padding * 2,
         constraints: BoxConstraints(
-          minHeight: height - 20,
+          minHeight: height - padding * 2,
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24.0),

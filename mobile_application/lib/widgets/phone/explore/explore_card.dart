@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mobile_application/providers/should_collapse_provider.dart';
+import 'package:mobile_application/providers/explore/should_collapse_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -24,6 +24,7 @@ class ExploreCard extends StatelessWidget {
     ).getUser(indexUser);
     switch (user.runtimeType) {
       case Mentee:
+        //TODO
         Mentee m = user as Mentee;
         return Card();
       case Mentor:
