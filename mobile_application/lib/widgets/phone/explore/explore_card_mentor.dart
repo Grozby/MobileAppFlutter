@@ -479,7 +479,7 @@ class _BackCardMentor extends StatelessWidget {
                   )),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: 'Send a message to ${mentor.name}',
+                  hintText: 'Send a message to ${mentor.name}...',
                   border: InputBorder.none,
                 ),
                 keyboardType: TextInputType.multiline,

@@ -37,7 +37,7 @@ class AuthenticationProvider with ChangeNotifier {
       baseUrl: Configuration.serverUrl,
       connectTimeout: 5000,
       receiveTimeout: 5000,
-
+      sendTimeout: 4000,
     );
     _httpManager = new Dio(options);
     (_httpManager.transformer as DefaultTransformer).jsonDecodeCallback =

@@ -26,11 +26,11 @@ class ThemedMaterialApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: FutureBuilder(
         //TODO re-add authentication check
-        //future: authenticationProvider.checkAuthentication(),
-        future: Future.delayed(
-          Duration.zero,
-          () => true,
-        ),
+        future: authenticationProvider.checkAuthentication(),
+//        future: Future.delayed(
+//          Duration.zero,
+//          () => true,
+//        ),
         builder: (BuildContext ctx, AsyncSnapshot snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:

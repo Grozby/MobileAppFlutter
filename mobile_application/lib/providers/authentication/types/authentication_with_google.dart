@@ -40,6 +40,8 @@ class AuthenticationWithGoogle extends AuthenticationMode {
       'openid',
     ]);
 
+    var overlay;
+
     try {
       await googleSignIn.signOut();
       GoogleSignInAccount account = await googleSignIn.signIn();
@@ -49,7 +51,7 @@ class AuthenticationWithGoogle extends AuthenticationMode {
       }
 
       //We add an overlay for aesthetic reasons.
-      var overlay = _createOverlay(data);
+      overlay = _createOverlay(data);
       Overlay.of(data).insert(overlay);
 
       //Then, we check with the backend the obtained token.
@@ -61,7 +63,6 @@ class AuthenticationWithGoogle extends AuthenticationMode {
         throw SomethingWentWrongException();
       } else {
         token = response.data["access_token"];
-        overlay.remove();
         return true;
       }
     } on PlatformException catch (e) {
@@ -90,6 +91,8 @@ class AuthenticationWithGoogle extends AuthenticationMode {
         throw SomethingWentWrongException.message(
             "Couldn't validate the Google account. Try again later.");
       }
+    } finally {
+      overlay.remove();
     }
   }
 
