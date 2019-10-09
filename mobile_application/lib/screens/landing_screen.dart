@@ -56,10 +56,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 child: Container(
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Meet your friend at COMPANY',
-                      style: Theme.of(context).textTheme.title,
-                    ),
+                    child: AnimatedCompanyNames(),
                   ),
                 ),
               ),
@@ -122,6 +119,114 @@ class _LandingScreenState extends State<LandingScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class AnimatedCompanyNames extends StatefulWidget {
+  @override
+  _AnimatedCompanyNamesState createState() => _AnimatedCompanyNamesState();
+}
+
+class _AnimatedCompanyNamesState extends State<AnimatedCompanyNames>
+    with SingleTickerProviderStateMixin {
+  final List<String> companyNames = [
+    "Google",
+    "Apple",
+    "Amazon",
+    "King",
+    "Microsoft"
+  ];
+
+  AnimationController controller;
+  Animation<Offset> slideInAnimation;
+  Animation<double> fadeInAnimation;
+  Animation<Offset> slideOutAnimation;
+  Animation<double> fadeOutAnimation;
+  int currentIndex;
+
+  void restartAnimationAfter(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      Future.delayed(Duration(seconds: 1), () {
+        controller.reset();
+        controller.forward();
+        setState(() {
+          currentIndex = (currentIndex + 1) % companyNames.length;
+        });
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    currentIndex = 0;
+
+    controller = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+
+    //Going in animations
+    slideInAnimation = Tween<Offset>(begin: Offset(0.0, -1.0), end: Offset.zero)
+        .animate(controller)
+          ..addStatusListener(restartAnimationAfter);
+
+    fadeInAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(controller);
+
+    //Going out animations
+    slideOutAnimation = Tween<Offset>(begin: Offset.zero, end: Offset(0.0, 1.0))
+        .animate(controller);
+    fadeOutAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(controller);
+
+    controller.forward();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Text(
+          "Meet your friend at",
+          style: Theme.of(context).textTheme.title,
+          textAlign: TextAlign.right,
+        ),
+        const SizedBox(width: 4),
+        Container(
+          width: 80,
+          child: Stack(
+            children: <Widget>[
+              FadeTransition(
+                opacity: fadeOutAnimation,
+                child: SlideTransition(
+                  position: slideOutAnimation,
+                  child: Text(
+                    companyNames[(currentIndex - 1) % companyNames.length],
+                    style: Theme.of(context).textTheme.title,
+                  ),
+                ),
+              ),
+              FadeTransition(
+                opacity: fadeInAnimation,
+                child: SlideTransition(
+                  position: slideInAnimation,
+                  child: Text(
+                    companyNames[currentIndex],
+                    style: Theme.of(context).textTheme.title,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
