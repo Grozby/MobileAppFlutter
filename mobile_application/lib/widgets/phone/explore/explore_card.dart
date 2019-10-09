@@ -28,6 +28,11 @@ class ExploreCard extends StatelessWidget {
         Mentee m = user as Mentee;
         return Card();
       case Mentor:
+
+        /// The [ScopedModel][IndexUser] is used for determining which user
+        /// we are referring to.
+        /// The [ShouldCollapseProvider] instead is used for aesthetic purposes.
+        /// When we turn the card, we close all the already expanded sections.
         return ScopedModel<IndexUser>(
           model: IndexUser(indexUser),
           child: ChangeNotifierProvider(

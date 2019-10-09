@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/back_button_customized.dart';
+import '../widgets/general/back_button_customized.dart';
 import '../widgets/login_form.dart';
 
 class LoginScreen extends StatelessWidget {

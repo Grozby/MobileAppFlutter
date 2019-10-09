@@ -7,9 +7,9 @@ import '../models/registration/user_registration.dart';
 import '../providers/authentication/authentication_provider.dart';
 import '../providers/theming/theme_provider.dart';
 import '../screens/login_screen.dart';
-import 'custom_alert_dialog.dart';
-import 'button_styled.dart';
-import 'custom_text_form.dart';
+import 'general/button_styled.dart';
+import 'general/custom_alert_dialog.dart';
+import 'general/custom_text_form.dart';
 
 class SignUpForm extends StatefulWidget {
   final UserRegistration userType;

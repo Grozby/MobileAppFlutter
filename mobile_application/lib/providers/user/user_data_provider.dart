@@ -12,6 +12,8 @@ class UserDataProvider with ChangeNotifier {
 
   ///TODO implement load of user data. Fetch from server.
   Future<void> loadUserData() async {
+    //REMOVE
+    await Future.delayed(Duration(seconds: 1));
     behavior = MenteeUIData(
       Mentee(
         name: "Bob",

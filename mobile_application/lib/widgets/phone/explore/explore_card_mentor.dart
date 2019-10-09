@@ -1,8 +1,7 @@
-import 'dart:async';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/providers/explore/should_collapse_provider.dart';
+import '../../../providers/explore/should_collapse_provider.dart';
+import '../../../widgets/general/expandable_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -10,13 +9,11 @@ import 'package:transparent_image/transparent_image.dart';
 import '../../../models/users/experiences/past_experience.dart';
 import '../../../models/users/mentor.dart';
 import '../../../providers/explore/card_provider.dart';
-import '../../button_styled.dart';
-import '../../expandable_widget.dart';
+import '../../general/button_styled.dart';
 import '../../faded_list_view.dart';
 import '../../transition/rotation_transition_upgraded.dart';
 import 'card_container.dart';
 import 'explore_card.dart';
-import 'explore_screen_widgets.dart';
 
 ///
 /// Mentor card used in the explored. In order to retrieve the data,
@@ -210,7 +207,7 @@ class _CompanyInformationBar extends StatelessWidget {
         backgroundColor: Colors.white,
         child: Center(
           child: FadeInImage.memoryNetwork(
-            image: mentor.urlCompanyImage,
+            image: mentor.companyImageUrl,
             placeholder: kTransparentImage,
           ),
         ),

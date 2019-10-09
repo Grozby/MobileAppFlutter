@@ -6,9 +6,9 @@ import '../models/exceptions/login/login_exception.dart';
 import '../models/login/login_form_model.dart';
 import '../providers/authentication/authentication_provider.dart';
 import '../screens/sign_up_screens/sign_up_choice_screen.dart';
-import 'button_styled.dart';
-import 'custom_alert_dialog.dart';
-import 'custom_text_form.dart';
+import 'general/button_styled.dart';
+import 'general/custom_alert_dialog.dart';
+import 'general/custom_text_form.dart';
 
 class LoginForm extends StatefulWidget {
   final ScrollController scrollController;

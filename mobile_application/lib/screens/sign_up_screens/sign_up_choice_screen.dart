@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../models/registration/mentee_registration.dart';
 import '../../models/registration/mentor_registration.dart';
 import '../../providers/theming/theme_provider.dart';
-import '../../widgets/back_button_customized.dart';
-import '../../widgets/button_styled.dart';
+import '../../widgets/general/back_button_customized.dart';
+import '../../widgets/general/button_styled.dart';
 import '../login_screen.dart';
 import 'sign_up_screen.dart';
 

@@ -15,33 +15,13 @@ import '../../models/exceptions/registration/registration_exception.dart';
 import '../../models/exceptions/registration/surname_exception.dart';
 import '../../models/registration/sign_up_form_model.dart';
 import '../../models/registration/user_registration.dart';
-import '../configuration.dart';
 import 'types/authentication_mode.dart';
-
-// Must be top-level function
-_parseAndDecode(String response) {
-  return jsonDecode(response);
-}
-
-parseJson(String text) {
-  return compute(_parseAndDecode, text);
-}
 
 class AuthenticationProvider with ChangeNotifier {
   AuthenticationMode _authenticationMode;
-  Dio _httpManager;
+  final Dio _httpManager;
 
-  AuthenticationProvider() {
-    // Setup of a Dio connection
-    BaseOptions options = new BaseOptions(
-      baseUrl: Configuration.serverUrl,
-      connectTimeout: 5000,
-      receiveTimeout: 5000,
-      sendTimeout: 4000,
-    );
-    _httpManager = new Dio(options);
-    (_httpManager.transformer as DefaultTransformer).jsonDecodeCallback =
-        parseJson;
+  AuthenticationProvider(this._httpManager) {
     _authenticationMode = AuthenticationMode.getAuthenticationMode(
       'credentials',
       _httpManager,

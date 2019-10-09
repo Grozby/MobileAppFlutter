@@ -1,7 +1,11 @@
 import 'package:flutter/foundation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile_application/models/users/experiences/past_experience.dart';
 
-class OldJob implements PastExperience{
+part 'old_job.g.dart';
+
+@JsonSerializable(explicitToJson: true)
+class OldJob implements PastExperience {
   final String company;
   final String workingRole;
 
@@ -18,4 +22,8 @@ class OldJob implements PastExperience{
 
   @override
   String get assetPath => "assets/images/job.png";
+
+  factory OldJob.fromJson(Map json) => _$OldJobFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OldJobToJson(this);
 }

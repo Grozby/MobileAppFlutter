@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 
 import '../providers/authentication/authentication_provider.dart';
 import '../providers/theming/theme_provider.dart';
-import '../widgets/button_styled.dart';
-import '../widgets/custom_alert_dialog.dart';
+import '../widgets/general/button_styled.dart';
+import '../widgets/general/custom_alert_dialog.dart';
 import './../models/exceptions/something_went_wrong_exception.dart';
 import 'login_screen.dart';
 import 'sign_up_screens/sign_up_choice_screen.dart';

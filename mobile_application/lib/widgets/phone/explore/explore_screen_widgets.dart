@@ -101,6 +101,8 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
   @override
   void initState() {
     super.initState();
+
+    /// Animation stuff
     pageController.addListener(updatePage);
     controllerAnimation = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -121,6 +123,7 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
     super.dispose();
   }
 
+  ///Animation methods
   void updatePage() {
     int nextIndex = pageController.page.round();
     if (currentIndex != nextIndex) {
@@ -152,9 +155,9 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
 
   @override
   Widget build(BuildContext context) {
-    CardProvider cardProvider = Provider.of<CardProvider>(context);
-
     return LayoutBuilder(builder: (ctx, constraints) {
+      CardProvider cardProvider = Provider.of<CardProvider>(context);
+
       return Container(
         constraints: BoxConstraints(
           maxHeight: constraints.minHeight,

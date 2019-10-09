@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'expandable_widget.dart';
+import '../general/expandable_widget.dart';
 
 ///
 /// Utility widget that shows a given [list] of type [T] in rows, two by two columns.

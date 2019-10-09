@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../models/registration/user_registration.dart';
-import '../../widgets/back_button_customized.dart';
+import '../../widgets/general/back_button_customized.dart';
 import '../../widgets/sign_up_form.dart';
 
 class SignUpScreen extends StatelessWidget {

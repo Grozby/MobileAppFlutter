@@ -13,9 +13,25 @@ import '../screens/sign_up_screens/sign_up_choice_screen.dart';
 import '../screens/sign_up_screens/sign_up_screen.dart';
 import '../screens/user_profile_screen.dart';
 import '../screens/waiting_screen.dart';
-import 'custom_alert_dialog.dart';
+import 'general/custom_alert_dialog.dart';
 
-class ThemedMaterialApp extends StatelessWidget {
+class ThemedMaterialApp extends StatefulWidget {
+  @override
+  _ThemedMaterialAppState createState() => _ThemedMaterialAppState();
+}
+
+class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
+  Future checkAuth = Future.delayed(
+    Duration.zero,
+        () => true,
+  );
+
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentTheme = Provider.of<ThemeProvider>(context);
@@ -26,11 +42,8 @@ class ThemedMaterialApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: FutureBuilder(
         //TODO re-add authentication check
-        future: authenticationProvider.checkAuthentication(),
-//        future: Future.delayed(
-//          Duration.zero,
-//          () => true,
-//        ),
+        //future: authenticationProvider.checkAuthentication(),
+        future: checkAuth,
         builder: (BuildContext ctx, AsyncSnapshot snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
@@ -40,8 +53,9 @@ class ThemedMaterialApp extends StatelessWidget {
               if (snapshot.hasError) {
                 Future.delayed(
                   Duration.zero,
-                  () => showErrorDialog(ctx,
-                      (snapshot.error as SomethingWentWrongException).text),
+                      () =>
+                      showErrorDialog(ctx,
+                          (snapshot.error as SomethingWentWrongException).text),
                 );
                 return LandingScreen();
               }

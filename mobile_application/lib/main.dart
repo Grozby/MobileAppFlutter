@@ -1,27 +1,53 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/authentication/authentication_provider.dart';
+import 'providers/configuration.dart';
 import 'providers/explore/card_provider.dart';
 import 'providers/theming/theme_provider.dart';
 import 'providers/user/user_data_provider.dart';
 import 'widgets/themed_material_app.dart';
 
+// Must be top-level function
+_parseAndDecode(String response) {
+  return jsonDecode(response);
+}
+
+parseJson(String text) {
+  return compute(_parseAndDecode, text);
+}
+
 void main() async {
+  //Force the app to work only in portrait mode
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
+  // Setup the Http manager
+  Dio _httpManager = Dio(
+    BaseOptions(
+      baseUrl: Configuration.serverUrl,
+      connectTimeout: 5000,
+      receiveTimeout: 5000,
+      sendTimeout: 4000,
+    ),
+  );
+  (_httpManager.transformer as DefaultTransformer).jsonDecodeCallback =
+      parseJson;
+
   var themeProvider = ThemeProvider();
-  var authenticationProvider = AuthenticationProvider();
+  var authenticationProvider = AuthenticationProvider(_httpManager);
   var userDataProvider = UserDataProvider();
-  var cardProvider = CardProvider();
+  var cardProvider = CardProvider(_httpManager);
 
   await themeProvider.loadThemePreference();
   await authenticationProvider.loadAuthentication();
-  await userDataProvider.loadUserData();
 
   return runApp(
     MyApp(
@@ -65,10 +91,7 @@ class _MyAppState extends State<MyApp> {
           value: widget.userDataProvider,
         ),
         ChangeNotifierProvider.value(
-          value: widget.userDataProvider,
-        ),
-        ChangeNotifierProvider(
-          builder: (_) => CardProvider(),
+          value: widget.cardProvider,
         ),
       ],
       child: ThemedMaterialApp(),
