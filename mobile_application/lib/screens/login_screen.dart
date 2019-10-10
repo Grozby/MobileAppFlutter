@@ -27,13 +27,11 @@ class LoginScreen extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Flexible(
+                      const Flexible(
                         fit: FlexFit.loose,
-                        child: Container(
-                          child: Align(
-                            alignment: Alignment.bottomLeft,
-                            child: BackButtonCustomized(),
-                          ),
+                        child: const Align(
+                          alignment: Alignment.bottomLeft,
+                          child: const BackButtonCustomized(),
                         ),
                       ),
                       Flexible(
@@ -41,9 +39,9 @@ class LoginScreen extends StatelessWidget {
                         flex: 10,
                         child: form,
                       ),
-                      Flexible(
+                      const Flexible(
                         fit: FlexFit.loose,
-                        child: Container(),
+                        child: const Center(),
                       ),
                     ],
                   ),

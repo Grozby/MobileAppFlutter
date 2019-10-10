@@ -31,12 +31,12 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
     super.initState();
 
     //TODO re-add authentication check
-    Future.delayed(Duration.zero, () {
-      final authenticationProvider = Provider.of<AuthenticationProvider>(context);
-      setState(() {
-        checkAuth = authenticationProvider.checkAuthentication();
-      });
-    });
+//    Future.delayed(Duration.zero, () {
+//      final authenticationProvider = Provider.of<AuthenticationProvider>(context);
+//      setState(() {
+//        checkAuth = authenticationProvider.checkAuthentication();
+//      });
+//    });
   }
 
   @override
@@ -51,7 +51,7 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
         builder: (BuildContext ctx, AsyncSnapshot snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
-              return WaitingScreen();
+              return const WaitingScreen();
 
             default:
               if (snapshot.hasError) {
@@ -67,7 +67,7 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
 
               if (snapshot.data) {
                 //If true is returned, we are logged in
-                return HomepageScreen();
+                return const HomepageScreen();
               } else {
                 //Otherwise, se show the sign-up screen
                 return LandingScreen();

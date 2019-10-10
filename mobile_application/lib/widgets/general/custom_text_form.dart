@@ -49,13 +49,13 @@ class CustomTextForm extends StatelessWidget {
           onFieldSubmitted: onFieldSubmitted,
           decoration: InputDecoration(
             errorText: errorText,
-            contentPadding: EdgeInsets.all(10),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
+            contentPadding: const EdgeInsets.all(10),
+            border: const OutlineInputBorder(
+              borderRadius: const BorderRadius.all(const Radius.circular(10)),
             ),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: color),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: const BorderRadius.all(const Radius.circular(10)),
             ),
             focusColor: color,
           ),

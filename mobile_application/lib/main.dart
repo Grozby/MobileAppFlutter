@@ -34,7 +34,7 @@ void main() async {
     receiveTimeout: 5000,
     sendTimeout: 4000,
   );
-  options.connectTimeout = 4000;
+  options.connectTimeout = 8000;
   // Setup the Http manager
   Dio _httpManager = Dio(options);
   (_httpManager.transformer as DefaultTransformer).jsonDecodeCallback =

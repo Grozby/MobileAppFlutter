@@ -7,7 +7,7 @@ class ButtonStyled extends StatelessWidget {
   final Function onPressFunction;
   final String text;
 
-  ButtonStyled({
+  const ButtonStyled({
     @required this.fractionalWidthDimension,
     @required this.onPressFunction,
     @required this.text,

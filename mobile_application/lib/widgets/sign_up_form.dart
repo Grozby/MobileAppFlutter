@@ -84,8 +84,8 @@ class _SignUpFormState extends State<SignUpForm> {
       future: _futureBuilder,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
+          return const Center(
+            child: const CircularProgressIndicator(),
           );
         }
 
@@ -118,9 +118,9 @@ class _SignUpFormState extends State<SignUpForm> {
 
         return Column(
           children: <Widget>[
-            Expanded(
+            const Expanded(
               flex: 3,
-              child: Container(),
+              child: const Center(),
             ),
             Expanded(
               child: Container(
@@ -151,9 +151,9 @@ class _SignUpFormState extends State<SignUpForm> {
                 color: ThemeProvider.loginButtonColor,
               ),
             ),
-            Expanded(
+            const Expanded(
               flex: 3,
-              child: Container(),
+              child: const Center(),
             )
           ],
         );
@@ -177,9 +177,7 @@ class _SignUpFormState extends State<SignUpForm> {
           flex: 7,
           child: Row(
             children: <Widget>[
-              Expanded(
-                child: Container(),
-              ),
+              const Expanded(child: const Center()),
               Expanded(
                 flex: 10,
                 child: Form(
@@ -294,13 +292,13 @@ class _SignUpFormState extends State<SignUpForm> {
                               errorText: registrationForm.errorCompany,
                               inputAction: TextInputAction.done,
                             )
-                          : Container(),
+                          : const Center(),
                     ],
                   ),
                 ),
               ),
-              Expanded(
-                child: Container(),
+              const Expanded(
+                child: const Center(),
               ),
             ],
           ),
@@ -324,7 +322,7 @@ class _SignUpFormState extends State<SignUpForm> {
                   ModalRoute.withName(Navigator.defaultRouteName),
                 );
               },
-              child: Text(
+              child: const Text(
                 'Already have an account? Log in',
               ),
             ),

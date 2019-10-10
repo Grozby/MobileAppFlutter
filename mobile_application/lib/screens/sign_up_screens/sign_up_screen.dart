@@ -33,9 +33,9 @@ class SignUpScreen extends StatelessWidget {
                       Flexible(
                         fit: FlexFit.loose,
                         child: Container(
-                          child: Align(
+                          child: const Align(
                             alignment: Alignment.bottomLeft,
-                            child: BackButtonCustomized(),
+                            child: const BackButtonCustomized(),
                           ),
                         ),
                       ),

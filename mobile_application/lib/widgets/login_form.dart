@@ -10,6 +10,8 @@ import 'general/button_styled.dart';
 import 'general/custom_alert_dialog.dart';
 import 'general/custom_text_form.dart';
 
+///TODO may change all on press function and refactor them in separate business
+///component!!
 class LoginForm extends StatefulWidget {
   final ScrollController scrollController;
   bool isSendingRequest = false;
@@ -74,8 +76,8 @@ class _LoginFormState extends State<LoginForm> {
       future: _futureBuilder,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
+          return const Center(
+            child: const CircularProgressIndicator(),
           );
         }
 
@@ -112,6 +114,7 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
+  //TODO may create separate widget
   Widget buildForm() {
     return Column(
       children: <Widget>[
@@ -128,8 +131,8 @@ class _LoginFormState extends State<LoginForm> {
           flex: 7,
           child: Row(
             children: <Widget>[
-              Expanded(
-                child: Container(),
+              const Expanded(
+                child: const Center(),
               ),
               Expanded(
                 flex: 10,
@@ -181,8 +184,8 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ),
               ),
-              Expanded(
-                child: Container(),
+              const Expanded(
+                child: const Center(),
               ),
             ],
           ),
@@ -205,7 +208,7 @@ class _LoginFormState extends State<LoginForm> {
                   ModalRoute.withName(Navigator.defaultRouteName),
                 );
               },
-              child: Text(
+              child: const Text(
                 'Don\'t have an account? Register',
               ),
             ),

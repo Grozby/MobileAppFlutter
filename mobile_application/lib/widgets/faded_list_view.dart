@@ -5,7 +5,7 @@ class FadedListView<T> extends StatefulWidget {
   final Widget Function(T) builder;
   final double height;
 
-  FadedListView({
+  const FadedListView({
     @required this.list,
     @required this.builder,
     @required this.height,

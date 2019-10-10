@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/theming/theme_provider.dart';
 
 class LoadingAnimated extends StatefulWidget {
+  const LoadingAnimated();
+
   @override
   _LoadingAnimatedState createState() => _LoadingAnimatedState();
 }
@@ -53,9 +56,9 @@ class _LoadingAnimatedState extends State<LoadingAnimated>
               begin: Alignment(gradientPosition.value, 0),
               end: Alignment(gradientPosition.value - 2, 0),
               colors: [
-                Theme.of(context).primaryColor.withOpacity(0.3),
-                Theme.of(context).primaryColor.withOpacity(0.8),
-                Theme.of(context).primaryColor.withOpacity(0.3),
+                ThemeProvider.primaryColor.withOpacity(0.3),
+                ThemeProvider.primaryColor.withOpacity(0.8),
+                ThemeProvider.primaryColor.withOpacity(0.3),
               ],
             );
 

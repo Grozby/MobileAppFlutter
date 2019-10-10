@@ -14,7 +14,7 @@ import 'explore_card_mentor.dart';
 class ExploreCard extends StatelessWidget {
   final int indexUser;
 
-  ExploreCard({@required this.indexUser});
+  const ExploreCard({@required this.indexUser});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class ExploreCard extends StatelessWidget {
           model: IndexUser(indexUser),
           child: ChangeNotifierProvider(
             builder: (_) => ShouldCollapseProvider(),
-            child: MentorCard(),
+            child: const MentorCard(),
           ),
         );
       default:
@@ -47,7 +47,7 @@ class ExploreCard extends StatelessWidget {
 }
 
 class IndexUser extends Model {
-  int indexUser;
+  final int indexUser;
 
   IndexUser(this.indexUser);
 

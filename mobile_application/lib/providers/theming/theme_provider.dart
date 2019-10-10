@@ -6,12 +6,12 @@ import '../../helpers/custom_route.dart';
 class ThemeProvider with ChangeNotifier {
   ThemeData _themeData;
   bool _isLight;
-  static Color _mentorColor = Color.fromRGBO(234, 128, 59, 1);
-  static Color _primaryColor = _mentorColor;
-  static Color _menteeColor = Color.fromRGBO(0, 119, 181, 1);
+  static const Color _mentorColor = Color.fromRGBO(234, 128, 59, 1);
+  static const Color _primaryColor = _mentorColor;
+  static const Color _menteeColor = Color.fromRGBO(0, 119, 181, 1);
   static Color _loginButtonColor = Colors.grey.shade200;
-  static Color _textColor = Color.fromRGBO(68, 86, 108, 1);
-  static Color _greyTextColor = Color.fromRGBO(161, 170 ,181, 1);
+  static const Color _textColor = Color.fromRGBO(68, 86, 108, 1);
+  static const Color _greyTextColor = Color.fromRGBO(161, 170 ,181, 1);
 
   ThemeData _lightTheme = ThemeData.light().copyWith(
     pageTransitionsTheme: PageTransitionsTheme(
@@ -76,6 +76,8 @@ class ThemeProvider with ChangeNotifier {
   static Color get menteeColor => _menteeColor;
 
   static Color get loginButtonColor => _loginButtonColor;
+
+  static Color get greyColor => _greyTextColor;
 
   void setTheme(ThemeData newTheme) {
     _themeData = newTheme;

@@ -17,22 +17,22 @@ class CircularButtonInfoBar extends StatelessWidget {
       widthFactor: 0.55,
       child: Stack(
         children: <Widget>[
-          Center(
+          const Center(
             child: Material(
               color: Colors.transparent,
               elevation: 4,
-              shape: CircleBorder(),
-              child: Container(),
+              shape: const CircleBorder(),
+              child: const Center(),
             ),
           ),
           Container(
             alignment: Alignment.center,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.transparent,
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(100),
+              borderRadius: const BorderRadius.all(const Radius.circular(100)),
               child: imageUrl == null
                   ? Image.asset(
                       assetPath,
@@ -47,9 +47,9 @@ class CircularButtonInfoBar extends StatelessWidget {
           ),
           Center(
             child: RawMaterialButton(
-              shape: CircleBorder(),
+              shape: const CircleBorder(),
               onPressed: onPressFunction,
-              child: Container(),
+              child: const Center(),
             ),
           )
         ],

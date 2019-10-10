@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class BackButtonCustomized extends StatelessWidget {
+  const BackButtonCustomized();
+
   @override
   Widget build(BuildContext context) {
     return IconButton(

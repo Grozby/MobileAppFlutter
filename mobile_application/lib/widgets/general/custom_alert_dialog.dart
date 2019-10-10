@@ -12,13 +12,17 @@ class CustomAlertDialog extends StatelessWidget {
       content: Text(text),
       actions: <Widget>[
         FlatButton(
-          child: Text('Okay'),
+          child: const Text('Okay'),
           onPressed: () {
             Navigator.of(context).pop();
           },
         )
       ],
     );
+  }
+
+  void removeOverlay(BuildContext context){
+    Navigator.of(context).pop();
   }
 }
 

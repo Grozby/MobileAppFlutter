@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/theming/theme_provider.dart';
 import '../../../providers/explore/should_collapse_provider.dart';
 import '../../../widgets/general/expandable_widget.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,8 @@ import 'explore_card.dart';
 /// associated [IndexUser] model to know which mentor the card refers to.
 ///
 class MentorCard extends StatefulWidget {
+  const MentorCard();
+
   @override
   _MentorCardState createState() => _MentorCardState();
 }
@@ -53,7 +56,7 @@ class _MentorCardState extends State<MentorCard> {
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       transitionBuilder: (Widget child, Animation<double> animation) {
         bool isShowing = _isFrontCardShowing && child.key == ValueKey(1) ||
             !_isFrontCardShowing && child.key == ValueKey(2);
@@ -64,8 +67,8 @@ class _MentorCardState extends State<MentorCard> {
         );
       },
       child: _isFrontCardShowing
-          ? _FrontCardMentor(key: ValueKey(1), rotateCard: rotateCard)
-          : _BackCardMentor(key: ValueKey(2), rotateCard: rotateCard),
+          ? _FrontCardMentor(key: const ValueKey(1), rotateCard: rotateCard)
+          : _BackCardMentor(key: const ValueKey(2), rotateCard: rotateCard),
     );
   }
 }
@@ -82,7 +85,7 @@ class _MentorCardState extends State<MentorCard> {
 class _FrontCardMentor extends StatefulWidget {
   final Function rotateCard;
 
-  _FrontCardMentor({@required this.rotateCard, key}) : super(key: key);
+  const _FrontCardMentor({@required this.rotateCard, key}) : super(key: key);
 
   @override
   _FrontCardMentorState createState() => _FrontCardMentorState();
@@ -101,13 +104,13 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              _CompanyInformationBar(),
+              const _CompanyInformationBar(),
               const Divider(),
-              _MentorBasicInformation(
+              const _MentorBasicInformation(
                 isVertical: true,
               ),
               const SizedBox(height: 8),
-              _MentorBio(
+              const _MentorBio(
                 height: 80,
               ),
               const Divider(),
@@ -117,7 +120,7 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
                 builder: _workingSpecializationBadge,
               ),
               const Divider(),
-              _FavoriteLanguages(
+              const _FavoriteLanguages(
                 height: 30,
               ),
               const Divider(),
@@ -143,14 +146,14 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
 
   Widget _workingSpecializationBadge(String text) {
     return Container(
-      padding: EdgeInsets.all(4),
+      padding: const EdgeInsets.all(4),
       alignment: Alignment.center,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.red.withOpacity(0.3),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: const BorderRadius.all(const Radius.circular(10)),
         ),
-        padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
         child: AutoSizeText(
           text,
           textAlign: TextAlign.center,
@@ -192,6 +195,8 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
 /// the mentor is currently working.
 ///
 class _CompanyInformationBar extends StatelessWidget {
+  const _CompanyInformationBar();
+
   @override
   Widget build(BuildContext context) {
     int index = ScopedModel.of<IndexUser>(context).indexUser;
@@ -202,7 +207,7 @@ class _CompanyInformationBar extends StatelessWidget {
 
     return ListTile(
       dense: true,
-      contentPadding: EdgeInsets.all(0),
+      contentPadding: const EdgeInsets.all(0),
       leading: CircleAvatar(
         backgroundColor: Colors.white,
         child: Center(
@@ -232,7 +237,7 @@ class _CompanyInformationBar extends StatelessWidget {
 class _MentorBasicInformation extends StatelessWidget {
   final bool isVertical;
 
-  _MentorBasicInformation({@required this.isVertical});
+  const _MentorBasicInformation({@required this.isVertical});
 
   @override
   Widget build(BuildContext context) {
@@ -240,9 +245,9 @@ class _MentorBasicInformation extends StatelessWidget {
         ? Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              _MentorBasicInformationAvatar(),
-              SizedBox(height: 4),
-              _MentorBasicInformationText(
+              const _MentorBasicInformationAvatar(),
+              const SizedBox(height: 4),
+              const _MentorBasicInformationText(
                 alignment: Alignment.center,
               ),
             ],
@@ -250,8 +255,8 @@ class _MentorBasicInformation extends StatelessWidget {
         : Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              _MentorBasicInformationAvatar(),
-              _MentorBasicInformationText(
+              const _MentorBasicInformationAvatar(),
+              const _MentorBasicInformationText(
                 alignment: Alignment.centerLeft,
               ),
             ],
@@ -260,6 +265,8 @@ class _MentorBasicInformation extends StatelessWidget {
 }
 
 class _MentorBasicInformationAvatar extends StatelessWidget {
+  const _MentorBasicInformationAvatar();
+
   @override
   Widget build(BuildContext context) {
     int index = ScopedModel.of<IndexUser>(context).indexUser;
@@ -267,26 +274,27 @@ class _MentorBasicInformationAvatar extends StatelessWidget {
       context,
       listen: false,
     ).getMentor(index);
+
     return Container(
       alignment: Alignment.center,
       child: Stack(
         children: <Widget>[
-          Positioned.fill(
-            child: Material(
+          const Positioned.fill(
+            child: const Material(
               color: Colors.transparent,
               elevation: 8,
               type: MaterialType.circle,
             ),
           ),
-          Positioned.fill(
-            child: Material(
+          const Positioned.fill(
+            child: const Material(
               color: Colors.white,
               elevation: 0,
               type: MaterialType.circle,
             ),
           ),
           ClipRRect(
-            borderRadius: BorderRadius.circular(100),
+            borderRadius: const BorderRadius.all(const Radius.circular(100)),
             child: FadeInImage.memoryNetwork(
               width: 80,
               height: 80,
@@ -304,7 +312,7 @@ class _MentorBasicInformationAvatar extends StatelessWidget {
 class _MentorBasicInformationText extends StatelessWidget {
   final Alignment alignment;
 
-  _MentorBasicInformationText({@required this.alignment});
+  const _MentorBasicInformationText({@required this.alignment});
 
   @override
   Widget build(BuildContext context) {
@@ -324,13 +332,13 @@ class _MentorBasicInformationText extends StatelessWidget {
             style: Theme.of(context).textTheme.title,
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Container(
           alignment: alignment,
           child: RichText(
             text: TextSpan(
               children: <TextSpan>[
-                new TextSpan(
+                TextSpan(
                   text: mentor.jobType + " @ ",
                   style: Theme.of(context).textTheme.overline,
                 ),
@@ -357,7 +365,7 @@ class _MentorBasicInformationText extends StatelessWidget {
 class _MentorBio extends StatelessWidget {
   final double height;
 
-  _MentorBio({@required this.height});
+  const _MentorBio({@required this.height});
 
   @override
   Widget build(BuildContext context) {
@@ -388,7 +396,7 @@ class _MentorBio extends StatelessWidget {
 class _FavoriteLanguages extends StatelessWidget {
   final double height;
 
-  _FavoriteLanguages({@required this.height});
+  const _FavoriteLanguages({@required this.height});
 
   @override
   Widget build(BuildContext context) {
@@ -414,9 +422,7 @@ class _FavoriteLanguages extends StatelessWidget {
                     textAlign: TextAlign.left,
                   ),
                 ),
-                SizedBox(
-                  height: 2,
-                ),
+                const SizedBox(height: 2),
                 Container(
                   width: double.infinity,
                   child: Text(
@@ -456,23 +462,21 @@ class _BackCardMentor extends StatelessWidget {
 
     return CardContainer(
       canExpand: false,
-      rotateCard: () {},
+      rotateCard: rotateCard,
       child: Column(
         children: <Widget>[
-          _CompanyInformationBar(),
+          const _CompanyInformationBar(),
           const Divider(),
-          _MentorBasicInformation(
-            isVertical: false,
-          ),
+          const _MentorBasicInformation(isVertical: false),
           const SizedBox(height: 16),
           Expanded(
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: const BorderRadius.all(const Radius.circular(12)),
                   border: Border.all(
                     width: 1,
-                    color: Colors.grey.withOpacity(0.8),
+                    color: Colors.grey.shade300,
                   )),
               child: TextField(
                 decoration: InputDecoration(

@@ -144,7 +144,7 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
                           )
                         : ShaderMask(
                             shaderCallback: (rect) {
-                              return LinearGradient(
+                              return const LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
@@ -186,13 +186,14 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
               )
             : ClipRect(
                 child: SizedOverflowBox(
-                alignment: Alignment.topCenter,
-                size: Size(
-                  double.infinity,
-                  _sizeAnimation?.value ?? widget.height,
+                  alignment: Alignment.topCenter,
+                  size: Size(
+                    double.infinity,
+                    _sizeAnimation?.value ?? widget.height,
+                  ),
+                  child: child,
                 ),
-                child: child,
-              ));
+              );
       },
       child: Container(
         key: _keyFoldChild,

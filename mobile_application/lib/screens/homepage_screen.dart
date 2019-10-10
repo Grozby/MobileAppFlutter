@@ -13,6 +13,8 @@ import '../widgets/phone/explore/explore_screen_widgets.dart' as phone;
 class HomepageScreen extends StatefulWidget {
   static const routeName = '/home';
 
+  const HomepageScreen();
+
   @override
   _HomepageScreenState createState() => _HomepageScreenState();
 }
@@ -133,8 +135,8 @@ class _HomepageWidgetState extends State<HomepageWidget>
       future: _loadExploreSection,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: LoadingAnimated(),
+          return const Center(
+            child: const LoadingAnimated(),
           );
         }
 
@@ -144,14 +146,14 @@ class _HomepageWidgetState extends State<HomepageWidget>
               Duration.zero,
                   () => showErrorDialog(context, "Something went wrong..."),
             );
-            return NoInternetConnection();
+            return const NoInternetConnection();
           }
 
           Future.delayed(
             Duration.zero,
             () => showErrorDialog(context, "Something went wrong..."),
           );
-          return Center();
+          return const Center();
         }
 
         controller.forward();

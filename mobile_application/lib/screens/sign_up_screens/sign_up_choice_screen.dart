@@ -21,9 +21,9 @@ class SignUpChoiceScreen extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: Container(
-                  child: Align(
+                  child: const Align(
                     alignment: Alignment.bottomLeft,
-                    child: BackButtonCustomized(),
+                    child: const BackButtonCustomized(),
                   ),
                 ),
               ),

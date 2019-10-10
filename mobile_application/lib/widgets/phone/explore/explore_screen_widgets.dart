@@ -14,8 +14,8 @@ class InfoBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Flexible(
-          child: Container(),
+        const Flexible(
+          child: const Center(),
           flex: 2,
         ),
         Flexible(
@@ -140,9 +140,7 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
     } else {
       controllerAnimation.forward();
     }
-    setState(() {
-      _isForward = !_isForward;
-    });
+    _isForward = !_isForward;
   }
 
   double get animationValue {

@@ -39,9 +39,7 @@ class _LandingScreenState extends State<LandingScreen> {
         child: Container(
           child: Column(
             children: <Widget>[
-              Expanded(
-                child: Container(),
-              ),
+              const Expanded(child: const Center()),
               Expanded(
                 flex: 1,
                 child: Container(
@@ -51,18 +49,16 @@ class _LandingScreenState extends State<LandingScreen> {
                   ),
                 ),
               ),
-              Expanded(
+              const Expanded(
                 flex: 1,
-                child: Container(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: AnimatedCompanyNames(),
-                  ),
+                child: const Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: const AnimatedCompanyNames(),
                 ),
               ),
-              Expanded(
+              const Expanded(
                 flex: 4,
-                child: Container(),
+                child: const Center(),
               ),
               Expanded(
                 child: ButtonStyled(
@@ -81,10 +77,10 @@ class _LandingScreenState extends State<LandingScreen> {
                   fractionalWidthDimension: 0.833,
                   text: 'Login with Google',
                   onPressFunction: () async {
+                    //TODO may move code into business component
                     try {
                       await _authenticationProvider
                           .authenticateWithGoogle(context);
-                      print("");
                     } on SomethingWentWrongException catch (e) {
                       showErrorDialog(context, e.getMessage());
                     }
@@ -112,9 +108,7 @@ class _LandingScreenState extends State<LandingScreen> {
                   color: ThemeProvider.loginButtonColor,
                 ),
               ),
-              Expanded(
-                child: Container(),
-              ),
+              const Expanded(child: const Center()),
             ],
           ),
         ),
@@ -124,6 +118,8 @@ class _LandingScreenState extends State<LandingScreen> {
 }
 
 class AnimatedCompanyNames extends StatefulWidget {
+  const AnimatedCompanyNames();
+
   @override
   _AnimatedCompanyNamesState createState() => _AnimatedCompanyNamesState();
 }
