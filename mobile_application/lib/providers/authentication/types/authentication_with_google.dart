@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
+import 'package:mobile_application/widgets/general/no_internet_connection.dart';
 
 import '../../../models/exceptions/login/login_exception.dart';
 import '../../../models/exceptions/something_went_wrong_exception.dart';
@@ -86,7 +88,7 @@ class AuthenticationWithGoogle extends AuthenticationMode {
               "Couldn't connect with the RyFy server. Try again later.";
         }
 
-        throw LoginException(errorMessage);
+        throw NoInternetException(errorMessage);
       } else {
         throw SomethingWentWrongException.message(
             "Couldn't validate the Google account. Try again later.");

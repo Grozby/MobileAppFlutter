@@ -20,7 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   meta: ^1.1.6
-  dio: ^3.0.1
+  dio: ^3.0.3
   http: ^0.12.0+2
   shared_preferences: ^0.5.3+4
   provider: ^3.0.0+1

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
 import 'package:mobile_application/providers/explore/card_provider.dart';
 import 'package:mobile_application/providers/user/user_data_provider.dart';
+import 'package:mobile_application/widgets/general/button_styled.dart';
 import 'package:mobile_application/widgets/general/custom_alert_dialog.dart';
+import 'package:mobile_application/widgets/general/no_internet_connection.dart';
 import 'package:mobile_application/widgets/transition/loading_animated.dart';
 import 'package:provider/provider.dart';
 
@@ -110,7 +113,6 @@ class _HomepageWidgetState extends State<HomepageWidget>
       );
 
       setState(() {
-        print("Mattialo");
         _loadExploreSection = Future.wait([
           userDataProvider.loadUserData(),
           cardProvider.loadCardProvider(),
@@ -137,10 +139,19 @@ class _HomepageWidgetState extends State<HomepageWidget>
         }
 
         if (snapshot.hasError) {
+          if(snapshot.error is NoInternetException){
+            Future.delayed(
+              Duration.zero,
+                  () => showErrorDialog(context, "Something went wrong..."),
+            );
+            return NoInternetConnection();
+          }
+
           Future.delayed(
             Duration.zero,
             () => showErrorDialog(context, "Something went wrong..."),
           );
+          return Center();
         }
 
         controller.forward();

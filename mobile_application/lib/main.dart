@@ -29,15 +29,14 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // Setup the Http manager
-  Dio _httpManager = Dio(
-    BaseOptions(
-      baseUrl: Configuration.serverUrl,
-      connectTimeout: 5000,
-      receiveTimeout: 5000,
-      sendTimeout: 4000,
-    ),
+  var options = BaseOptions(
+    baseUrl: Configuration.serverUrl,
+    receiveTimeout: 5000,
+    sendTimeout: 4000,
   );
+  options.connectTimeout = 4000;
+  // Setup the Http manager
+  Dio _httpManager = Dio(options);
   (_httpManager.transformer as DefaultTransformer).jsonDecodeCallback =
       parseJson;
 

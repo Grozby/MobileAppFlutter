@@ -1,14 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mobile_application/models/exceptions/something_went_wrong_exception.dart';
-import 'package:mobile_application/providers/configuration.dart';
 
-import '../../models/users/experiences/academic_degree.dart';
-import '../../models/users/experiences/old_job.dart';
+import '../../models/exceptions/no_internet_exception.dart';
+import '../../models/exceptions/something_went_wrong_exception.dart';
 import '../../models/users/mentee.dart';
 import '../../models/users/mentor.dart';
-import '../../models/users/question.dart';
 import '../../models/users/user.dart';
+import '../../providers/configuration.dart';
 
 class CardProvider with ChangeNotifier {
   List<User> availableUsers;
@@ -28,7 +26,7 @@ class CardProvider with ChangeNotifier {
   Mentee getMentee(int index) => getUser(index) as Mentee;
 
   Future<void> loadCardProvider() async {
-
+    ///TODO check all possible errors!!!!
     try {
       final response = await _httpManager.get(exploreUrl);
 
@@ -46,12 +44,9 @@ class CardProvider with ChangeNotifier {
       }
     } on DioError catch (error) {
       if (error.type != DioErrorType.RESPONSE) {
-
+        throw NoInternetException("Couldn't connect to the server. Retry later.");
       }
-    } catch(error) {
-      print(error);
     }
-
 
 //    availableUsers = [
 //      Mentor(
@@ -176,7 +171,5 @@ class CardProvider with ChangeNotifier {
 //        ],
 //      ),
 //    ];
-
-
   }
 }

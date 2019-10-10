@@ -23,26 +23,30 @@ class ThemedMaterialApp extends StatefulWidget {
 class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
   Future checkAuth = Future.delayed(
     Duration.zero,
-        () => true,
+    () => true,
   );
-
 
   @override
   void initState() {
     super.initState();
+
+    //TODO re-add authentication check
+    Future.delayed(Duration.zero, () {
+      final authenticationProvider = Provider.of<AuthenticationProvider>(context);
+      setState(() {
+        checkAuth = authenticationProvider.checkAuthentication();
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final currentTheme = Provider.of<ThemeProvider>(context);
-    final authenticationProvider = Provider.of<AuthenticationProvider>(context);
 
     return MaterialApp(
       theme: currentTheme.getTheme(),
       debugShowCheckedModeBanner: false,
       home: FutureBuilder(
-        //TODO re-add authentication check
-        //future: authenticationProvider.checkAuthentication(),
         future: checkAuth,
         builder: (BuildContext ctx, AsyncSnapshot snapshot) {
           switch (snapshot.connectionState) {
@@ -53,9 +57,10 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
               if (snapshot.hasError) {
                 Future.delayed(
                   Duration.zero,
-                      () =>
-                      showErrorDialog(ctx,
-                          (snapshot.error as SomethingWentWrongException).text),
+                  () => showErrorDialog(
+                    ctx,
+                    (snapshot.error as SomethingWentWrongException).text,
+                  ),
                 );
                 return LandingScreen();
               }
