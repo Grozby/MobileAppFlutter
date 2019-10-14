@@ -105,21 +105,25 @@ class _HomepageWidgetState extends State<HomepageWidget>
 
     ///Initialization of the future for [FutureBuilder]
     Future.delayed(Duration.zero, () {
-      UserDataProvider userDataProvider = Provider.of<UserDataProvider>(
-        context,
-        listen: false,
-      );
-      CardProvider cardProvider = Provider.of<CardProvider>(
-        context,
-        listen: false,
-      );
+      loadExploreSection();
+    });
+  }
 
-      setState(() {
-        _loadExploreSection = Future.wait([
-          userDataProvider.loadUserData(),
-          cardProvider.loadCardProvider(),
-        ]);
-      });
+  void loadExploreSection() {
+    UserDataProvider userDataProvider = Provider.of<UserDataProvider>(
+      context,
+      listen: false,
+    );
+    CardProvider cardProvider = Provider.of<CardProvider>(
+      context,
+      listen: false,
+    );
+
+    setState(() {
+      _loadExploreSection = Future.wait([
+        userDataProvider.loadUserData(),
+        cardProvider.loadCardProvider(),
+      ]);
     });
   }
 
@@ -141,12 +145,18 @@ class _HomepageWidgetState extends State<HomepageWidget>
         }
 
         if (snapshot.hasError) {
-          if(snapshot.error is NoInternetException){
+          if (snapshot.error is NoInternetException) {
             Future.delayed(
               Duration.zero,
-                  () => showErrorDialog(context, "Something went wrong..."),
+              () => showErrorDialog(
+                context,
+                (snapshot.error as NoInternetException).getMessage(),
+              ),
             );
-            return const NoInternetConnection();
+            return NoInternetConnection(
+              retryToConnect: () => setState(() => loadExploreSection()),
+              errorText: (snapshot.error as NoInternetException).getMessage(),
+            );
           }
 
           Future.delayed(
