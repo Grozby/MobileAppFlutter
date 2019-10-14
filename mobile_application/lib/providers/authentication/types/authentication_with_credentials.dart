@@ -30,6 +30,7 @@ class AuthenticationWithCredentials extends AuthenticationMode {
 
       if (response.statusCode == 200) {
         token = response.data["access_token"];
+        authenticationProvider.saveAuthenticationData();
         return true;
       } else {
         throw LoginException(
@@ -56,7 +57,10 @@ class AuthenticationWithCredentials extends AuthenticationMode {
     }
 
     //If some data has been found, we proceed in make an authenticated request.
-    //TODO
+    //TODO implement check with server
     return true;
   }
+
+  @override
+  String get nameAuthMode => "credentials";
 }

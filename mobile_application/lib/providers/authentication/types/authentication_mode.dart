@@ -6,7 +6,6 @@ import 'authentication_with_credentials.dart';
 import 'authentication_with_google.dart';
 
 abstract class AuthenticationMode {
-  @protected
   String token;
   @protected
   Dio httpManager;
@@ -49,9 +48,7 @@ abstract class AuthenticationMode {
     }
   }
 
-  String get authenticationToken => token;
-
-  set authenticationToken(String token) => this.token = token;
+  String get nameAuthMode;
 
   bool gotAToken() => token?.isNotEmpty ?? false;
 

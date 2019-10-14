@@ -26,11 +26,11 @@ class AuthenticationWithGoogle extends AuthenticationMode {
   AuthenticationWithGoogle.load({
     httpManager,
     authenticationProvider,
-    token,
+    authenticationToken,
   }) : super.load(
           httpManager: httpManager,
           authenticationProvider: authenticationProvider,
-          token: authenticationProvider,
+          token: authenticationToken,
         );
 
   ///The function authenticate accepts a BuildContext, used for aesthetic reasons.
@@ -65,6 +65,7 @@ class AuthenticationWithGoogle extends AuthenticationMode {
         throw SomethingWentWrongException();
       } else {
         token = response.data["access_token"];
+        authenticationProvider.saveAuthenticationData();
         return true;
       }
     } on PlatformException catch (e) {
@@ -102,7 +103,7 @@ class AuthenticationWithGoogle extends AuthenticationMode {
   ///completed the registration process, by selecting if is a mentee or a mentor.
   @override
   Future<bool> checkAuthentication() async {
-    //TODO
+    //TODO load the data, then we check
     if (!gotAToken()) {
       return false;
     }
@@ -128,4 +129,7 @@ class AuthenticationWithGoogle extends AuthenticationMode {
       ),
     );
   }
+
+  @override
+  String get nameAuthMode => "google";
 }

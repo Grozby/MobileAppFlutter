@@ -48,14 +48,25 @@ class AuthenticationProvider with ChangeNotifier {
         _httpManager,
         this,
       );
-      _authenticationMode.authenticationToken = loginData.tokenCount;
+      _authenticationMode.token = loginData.authenticationToken;
     }
+  }
+
+  Future<void> saveAuthenticationData() async {
+    final storedData = await SharedPreferences.getInstance();
+
+    var loginData = {
+      "type": _authenticationMode.nameAuthMode,
+      "token": _authenticationMode.token,
+    };
+
+    await storedData.setString("loginData", json.encode(loginData));
   }
 
   Map<String, String> get _authenticatedHeader {
     return {
       HttpHeaders.authorizationHeader:
-          "Bearer " + _authenticationMode.authenticationToken
+          "Bearer " + _authenticationMode.token
     };
   }
 
@@ -138,9 +149,9 @@ class AuthenticationProvider with ChangeNotifier {
   }
 
   Future<void> authenticate(dynamic data) async {
-    bool result = await _authenticationMode.authenticate(data);
+    bool isAuthenticated = await _authenticationMode.authenticate(data);
 
-    if (result) {
+    if (isAuthenticated) {
       notifyListeners();
     }
   }
