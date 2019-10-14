@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/explore/questions_provider.dart';
 import 'package:mobile_application/providers/explore/should_collapse_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -35,8 +36,17 @@ class ExploreCard extends StatelessWidget {
         /// When we turn the card, we close all the already expanded sections.
         return ScopedModel<IndexUser>(
           model: IndexUser(indexUser),
-          child: ChangeNotifierProvider(
-            builder: (_) => ShouldCollapseProvider(),
+          child: MultiProvider(
+            providers: [
+              ChangeNotifierProvider(
+                builder: (_) => ShouldCollapseProvider(),
+              ),
+              ChangeNotifierProvider(
+                builder: (_) => QuestionsProvider(
+                  numberOfQuestions: (user as Mentor).howManyQuestionsToAnswer,
+                ),
+              ),
+            ],
             child: const MentorCard(),
           ),
         );

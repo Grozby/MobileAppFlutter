@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/explore/questions_provider.dart';
 import 'package:mobile_application/providers/theming/theme_provider.dart';
+import 'package:mobile_application/widgets/general/custom_alert_dialog.dart';
 import '../../../providers/explore/should_collapse_provider.dart';
 import '../../../widgets/general/expandable_widget.dart';
 import 'package:provider/provider.dart';
@@ -447,54 +451,39 @@ class _FavoriteLanguages extends StatelessWidget {
 ///                                                                         ///
 /// /////////////////////////////////////////////////////////////////////// ///
 
-class _BackCardMentor extends StatelessWidget {
+class _BackCardMentor extends StatefulWidget {
   final Function rotateCard;
 
   _BackCardMentor({@required this.rotateCard, key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    int index = ScopedModel.of<IndexUser>(context).indexUser;
-    Mentor mentor = Provider.of<CardProvider>(
-      context,
-      listen: false,
-    ).getMentor(index);
+  __BackCardMentorState createState() => __BackCardMentorState();
+}
 
+class __BackCardMentorState extends State<_BackCardMentor> {
+  int questionIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return CardContainer(
       canExpand: false,
-      rotateCard: rotateCard,
+      rotateCard: widget.rotateCard,
       child: Column(
         children: <Widget>[
           const _CompanyInformationBar(),
           const Divider(),
-          const _MentorBasicInformation(isVertical: false),
-          const SizedBox(height: 16),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(const Radius.circular(12)),
-                  border: Border.all(
-                    width: 1,
-                    color: Colors.grey.shade300,
-                  )),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Send a message to ${mentor.name}...',
-                  border: InputBorder.none,
-                ),
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            child: ButtonStyled(
-              onPressFunction: rotateCard,
-              fractionalWidthDimension: 0.99,
-              text: "Send",
-            ),
+          Selector<QuestionsProvider, bool>(
+            selector: (_, qProvider) => qProvider.noMoreQuestions,
+            builder: (ctx, noMoreQuestions, child) {
+              return noMoreQuestions
+                  ? const Expanded(child: const ContactMentor())
+                  : const Expanded(child: const QuestionsWidget());
+            },
           ),
         ],
       ),
@@ -502,7 +491,82 @@ class _BackCardMentor extends StatelessWidget {
   }
 }
 
-class HowToContact extends StatelessWidget {
+class QuestionsWidget extends StatefulWidget {
+  const QuestionsWidget();
+
+  @override
+  _QuestionsWidgetState createState() => _QuestionsWidgetState();
+}
+
+class _QuestionsWidgetState extends State<QuestionsWidget> {
+  StreamController timeStreamNotifier;
+  final textController = TextEditingController();
+  bool canWriteAnswer = true;
+  bool hasStartedAnswering = false;
+  int startingCounter = 120;
+
+  @override
+  void initState() {
+    super.initState();
+    timeStreamNotifier = StreamController.broadcast();
+    Future.delayed(Duration.zero, () {
+      int index = ScopedModel.of<IndexUser>(context).indexUser;
+      Mentor mentor = Provider.of<CardProvider>(
+        context,
+        listen: false,
+      ).getMentor(index);
+      startingCounter = mentor
+          .getMentorQuestionAt(
+            Provider.of<QuestionsProvider>(context).currentIndex,
+          )
+          .availableTime;
+    });
+  }
+
+  @override
+  void dispose() {
+    timeStreamNotifier.close();
+    textController.dispose();
+    super.dispose();
+  }
+
+  void startAnswering() {
+    setState(() {
+      hasStartedAnswering = true;
+    });
+  }
+
+  void notifyMeToStopAnswering() {
+    setState(() => canWriteAnswer = false);
+  }
+
+  void notifyMeAndContinue() {
+    Provider.of<QuestionsProvider>(context).insertAnswer(textController.text);
+
+    setState(() {
+      canWriteAnswer = true;
+      hasStartedAnswering = false;
+      textController.clear();
+    });
+  }
+
+  String getRemainingQuestionsText(int numberQuestionAnswered, Mentor mentor) {
+    if (numberQuestionAnswered == 0) {
+      return "To contact ${mentor.name} you have to answer "
+          "${mentor.howManyQuestionsToAnswer} "
+          "question${mentor.howManyQuestionsToAnswer > 1 ? "s" : ""}."
+          "Answer the first question in:";
+    } else if (mentor.howManyQuestionsToAnswer - numberQuestionAnswered == 1) {
+      return "Last question to answer for contactacting ${mentor.name}!"
+          "You have to answer it in:";
+    } else {
+      return "To contact ${mentor.name} you need to answer other "
+          "${mentor.howManyQuestionsToAnswer} "
+          "question${mentor.howManyQuestionsToAnswer > 1 ? "s" : ""}"
+          "Answer the next question in:";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     int index = ScopedModel.of<IndexUser>(context).indexUser;
@@ -511,6 +575,283 @@ class HowToContact extends StatelessWidget {
       listen: false,
     ).getMentor(index);
 
-    return Container();
+    //Send an event into the timeStreamNotifier, in order to start the
+    //timer. We delay it in order to first build the widgets, then call the
+    //stream.
+    Future.delayed(Duration.zero, () => timeStreamNotifier.sink.add(null));
+
+    return hasStartedAnswering
+
+        /// This is the section in which the user can answer to the question
+        /// of the mentor.
+        ? Column(
+            children: <Widget>[
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "${mentor.completeName} is asking you:",
+                  style: Theme.of(context).textTheme.title,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Consumer<QuestionsProvider>(
+                  builder: (ctx, provider, child) {
+                    return Text(
+                      mentor
+                          .getMentorQuestionAt(provider.currentIndex)
+                          .question,
+                      style: Theme.of(context).textTheme.body1,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 8),
+              TimeCounter(
+                startingCounter: startingCounter,
+                startCounterStream: timeStreamNotifier.stream,
+                notifyParent: notifyMeToStopAnswering,
+              ),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    borderRadius:
+                        const BorderRadius.all(const Radius.circular(12)),
+                    border: Border.all(
+                      width: 1,
+                      color: Colors.grey.shade300,
+                    ),
+                  ),
+                  child: TextField(
+                    controller: textController,
+                    decoration: InputDecoration(
+                      hintText: 'Answer here...',
+                      border: InputBorder.none,
+                    ),
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    enabled: canWriteAnswer,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                child: ButtonStyled(
+                  onPressFunction: notifyMeAndContinue,
+                  fractionalWidthDimension: 0.99,
+                  text: "Continue",
+                ),
+              ),
+            ],
+          )
+
+        /// This instead is the section where the user can answer to the
+        /// question
+        : Column(
+            children: <Widget>[
+              const _MentorBasicInformation(isVertical: false),
+              const SizedBox(height: 16),
+              Consumer<QuestionsProvider>(
+                builder: (ctx, qProvider, child) {
+                  return Container(
+                    child: Text(
+                      "To contact ${mentor.name} you have to answer "
+                      "${mentor.howManyQuestionsToAnswer} "
+                      "${mentor.howManyQuestionsToAnswer > 1 ? "questions" : "question"}."
+                      "",
+                      style: Theme.of(context).textTheme.body1,
+                    ),
+                  );
+                },
+              ),
+              Expanded(
+                flex: 4,
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "${(startingCounter / 60).floor()} minutes",
+                    style: Theme.of(context).textTheme.display3.copyWith(
+                          color: ThemeProvider.primaryColor,
+                        ),
+                  ),
+                ),
+              ),
+              const Expanded(
+                flex: 1,
+                child: const Text("Start when you are ready!"),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                child: ButtonStyled(
+                  onPressFunction: startAnswering,
+                  fractionalWidthDimension: 0.99,
+                  text: "Start",
+                ),
+              ),
+            ],
+          );
+  }
+}
+
+///
+/// Widget that shows a countdown. The number of seconds for the countdown is
+/// given by the [startingCounter] parameter. [startCounterStream] is the stream
+/// that dictates when the counter should start. [notifyParent] on the other
+/// end is the callback function that notifies the parent that the countdown as
+/// ended.
+///
+class TimeCounter extends StatefulWidget {
+  final int startingCounter;
+  final Stream startCounterStream;
+  final Function notifyParent;
+
+  const TimeCounter({
+    @required this.startingCounter,
+    @required this.startCounterStream,
+    @required this.notifyParent,
+  }) : assert(startCounterStream != null);
+
+  @override
+  _TimeCounterState createState() => _TimeCounterState();
+}
+
+class _TimeCounterState extends State<TimeCounter> {
+  int startingCounter = 120;
+  bool isCountDownActive = false;
+  StreamSubscription streamSubscription;
+  Stream startCounterStream;
+  Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    startingCounter = widget.startingCounter;
+    startCounterStream = widget.startCounterStream;
+    streamSubscription = startCounterStream.listen((_) => startCounter());
+  }
+
+  @override
+  void dispose() {
+    streamSubscription.cancel();
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void startCounter() async {
+    if (isCountDownActive) return;
+
+    isCountDownActive = true;
+
+    _timer = Timer.periodic(
+      Duration(seconds: 1),
+      (timer) {
+        if (startingCounter > 0) {
+          setState(() {
+            startingCounter--;
+          });
+        } else {
+          timer.cancel();
+          widget.notifyParent();
+        }
+      },
+    );
+  }
+
+  int get minutes => (startingCounter / 60).floor();
+
+  int get seconds => startingCounter % 60;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        Container(
+          child: Text(
+            "Answer in:",
+            style: Theme.of(context)
+                .textTheme
+                .display1
+                .copyWith(color: ThemeProvider.primaryColor),
+          ),
+        ),
+        Container(
+          child: Text(
+            startingCounter != 0
+                ? "$minutes:${seconds.toString().padLeft(2, '0')}"
+                : "Time's up!",
+            style: Theme.of(context)
+                .textTheme
+                .display3
+                .copyWith(color: ThemeProvider.primaryColor),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+///
+///
+/// Widget in which the mentee can write the message for the mentor.
+/// This widget will be the one that will send the request to the server.
+///
+class ContactMentor extends StatelessWidget {
+  const ContactMentor();
+
+  void sendRequestToMentor(BuildContext context) async {
+    //TODO complete exception
+    try {
+      await Provider.of<CardProvider>(context).sendRequestToMentor(
+        Provider.of<QuestionsProvider>(context).answers
+      );
+    } on Exception catch (e) {
+      showErrorDialog(context, "Something went wrong!");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int index = ScopedModel.of<IndexUser>(context).indexUser;
+    Mentor mentor = Provider.of<CardProvider>(
+      context,
+      listen: false,
+    ).getMentor(index);
+
+    return Column(
+      children: <Widget>[
+        const _MentorBasicInformation(isVertical: false),
+        const SizedBox(height: 16),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(const Radius.circular(12)),
+              border: Border.all(
+                width: 1,
+                color: Colors.grey.shade300,
+              ),
+            ),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Send a message to ${mentor.name}...',
+                border: InputBorder.none,
+              ),
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          child: ButtonStyled(
+            onPressFunction: () => sendRequestToMentor(context),
+            fractionalWidthDimension: 0.99,
+            text: "Send",
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -8,7 +8,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 ///
 ///
-/// USE flutter pub run build_runner watch to update the Json serializer utility!!!
+/// USE 'flutter pub run build_runner watch' to update the Json serializer utility!!!
 ///
 ///
 abstract class User {
