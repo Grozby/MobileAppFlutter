@@ -657,10 +657,10 @@ class _QuestionsWidgetState extends State<QuestionsWidget> {
                 builder: (ctx, qProvider, child) {
                   return Container(
                     child: Text(
-                      "To contact ${mentor.name} you have to answer "
-                      "${mentor.howManyQuestionsToAnswer} "
-                      "${mentor.howManyQuestionsToAnswer > 1 ? "questions" : "question"}."
-                      "",
+                      getRemainingQuestionsText(
+                        qProvider.currentIndex,
+                        mentor,
+                      ),
                       style: Theme.of(context).textTheme.body1,
                     ),
                   );
@@ -797,14 +797,28 @@ class _TimeCounterState extends State<TimeCounter> {
 /// Widget in which the mentee can write the message for the mentor.
 /// This widget will be the one that will send the request to the server.
 ///
-class ContactMentor extends StatelessWidget {
+class ContactMentor extends StatefulWidget {
   const ContactMentor();
+
+  @override
+  _ContactMentorState createState() => _ContactMentorState();
+}
+
+class _ContactMentorState extends State<ContactMentor> {
+  final TextEditingController messageController = TextEditingController();
+
+  @override
+  void dispose() {
+    messageController.dispose();
+    super.dispose();
+  }
 
   void sendRequestToMentor(BuildContext context) async {
     //TODO complete exception
     try {
       await Provider.of<CardProvider>(context).sendRequestToMentor(
-        Provider.of<QuestionsProvider>(context).answers
+        Provider.of<QuestionsProvider>(context).answers,
+        messageController.text,
       );
     } on Exception catch (e) {
       showErrorDialog(context, "Something went wrong!");
