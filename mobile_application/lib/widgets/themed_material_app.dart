@@ -21,33 +21,16 @@ class ThemedMaterialApp extends StatefulWidget {
 }
 
 class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
-  Future checkAuth = Future.delayed(
-    Duration.zero,
-    () => true,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-
-    //TODO re-add authentication check
-//    Future.delayed(Duration.zero, () {
-//      final authenticationProvider = Provider.of<AuthenticationProvider>(context);
-//      setState(() {
-//        checkAuth = authenticationProvider.checkAuthentication();
-//      });
-//    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final currentTheme = Provider.of<ThemeProvider>(context);
+    final authenticationProvider = Provider.of<AuthenticationProvider>(context);
 
     return MaterialApp(
       theme: currentTheme.getTheme(),
       debugShowCheckedModeBanner: false,
       home: FutureBuilder(
-        future: checkAuth,
+        future: authenticationProvider.checkAuthentication() ?? null,
         builder: (BuildContext ctx, AsyncSnapshot snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:

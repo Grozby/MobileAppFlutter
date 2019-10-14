@@ -100,11 +100,12 @@ class _SignUpFormState extends State<SignUpForm> {
           if (snapshot.error.runtimeType == RegistrationException) {
             Future.delayed(
               Duration.zero,
-              () => showErrorDialog(
-                context,
-                exception.getMessage(),
-              ),
+              () => setState(() {
+                _futureBuilder = null;
+              }),
             );
+
+            return Center();
           } else {
             exception.updateRegistrationForm(registrationForm);
           }

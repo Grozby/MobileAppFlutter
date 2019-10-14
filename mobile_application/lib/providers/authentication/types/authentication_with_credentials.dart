@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mobile_application/models/exceptions/something_went_wrong_exception.dart';
 
 import '../../../models/exceptions/login/incorrect_email_or_password_exception.dart';
 import '../../../models/exceptions/login/login_exception.dart';
@@ -57,8 +58,18 @@ class AuthenticationWithCredentials extends AuthenticationMode {
     }
 
     //If some data has been found, we proceed in make an authenticated request.
-    //TODO implement check with server
-    return true;
+    try {
+      final response = await httpManager.get("/checkauth");
+
+      if (response.statusCode != 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } on DioError catch (_) {
+      ///SHOULD NOT FALL IN THERE
+      return false;
+    }
   }
 
   @override

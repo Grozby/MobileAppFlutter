@@ -27,6 +27,28 @@ class AuthenticationProvider with ChangeNotifier {
       _httpManager,
       this,
     );
+
+    ///Adding interceptor to manage the authenticated requests.
+    _httpManager.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (RequestOptions options) async {
+          if (gotAToken()) {
+            return options.headers.putIfAbsent(
+              HttpHeaders.authorizationHeader,
+                  () => "Bearer " + _authenticationMode.token,
+            );
+          }
+          return options;
+        },
+        onError: (DioError error) async {
+          if (error.response?.statusCode == 401) {
+            await removeAuthenticationData();
+          }
+
+          return error; //continue
+        },
+      ),
+    );
   }
 
   /*----------
@@ -42,13 +64,12 @@ class AuthenticationProvider with ChangeNotifier {
     //If we have some saved data, we proceed in loading them.
     if (storedData.containsKey('loginData')) {
       var loginData = json.decode(storedData.getString('loginData'));
-
       _authenticationMode = AuthenticationMode.getAuthenticationMode(
-        loginData.type,
+        loginData["type"],
         _httpManager,
         this,
       );
-      _authenticationMode.token = loginData.authenticationToken;
+      _authenticationMode.token = loginData["token"];
     }
   }
 
@@ -63,15 +84,26 @@ class AuthenticationProvider with ChangeNotifier {
     await storedData.setString("loginData", json.encode(loginData));
   }
 
-  Map<String, String> get _authenticatedHeader {
-    return {
-      HttpHeaders.authorizationHeader:
-          "Bearer " + _authenticationMode.token
-    };
+  Future<void> removeAuthenticationData() async {
+    final storedData = await SharedPreferences.getInstance();
+    await storedData.remove("loginData");
+    _authenticationMode = _authenticationMode = AuthenticationMode.getAuthenticationMode(
+      'credentials',
+      _httpManager,
+      this,
+    );
+    notifyListeners();
   }
 
-  Future<bool> checkAuthentication() async =>
-      _authenticationMode.checkAuthentication();
+  Future<bool> checkAuthentication() async {
+    bool isAuthenticated = await _authenticationMode.checkAuthentication();
+    if(!isAuthenticated){
+      await removeAuthenticationData();
+    }
+
+    return isAuthenticated;
+  }
+
 
   ///
   /// Registration function that throws an RegistrationException if
