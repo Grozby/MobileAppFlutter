@@ -52,8 +52,6 @@ abstract class AuthenticationMode {
 
   bool gotAToken() => token?.isNotEmpty ?? false;
 
-  Future<bool> checkAuthentication();
-
   ///We return a boolean to decide whether we need to broadcast the notifyUpdates().
   Future<bool> authenticate(dynamic data);
 }

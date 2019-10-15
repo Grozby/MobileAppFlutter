@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
-import 'package:mobile_application/providers/explore/card_provider.dart';
-import 'package:mobile_application/providers/user/user_data_provider.dart';
-import 'package:mobile_application/widgets/general/button_styled.dart';
-import 'package:mobile_application/widgets/general/custom_alert_dialog.dart';
-import 'package:mobile_application/widgets/general/no_internet_connection.dart';
-import 'package:mobile_application/widgets/transition/loading_animated.dart';
 import 'package:provider/provider.dart';
 
+import '../models/exceptions/no_internet_exception.dart';
+import '../providers/explore/card_provider.dart';
+import '../providers/user/user_data_provider.dart';
+import '../widgets/general/custom_alert_dialog.dart';
+import '../widgets/general/no_internet_connection.dart';
 import '../widgets/phone/explore/explore_screen_widgets.dart' as phone;
+import '../widgets/transition/loading_animated.dart';
 
 class HomepageScreen extends StatefulWidget {
   static const routeName = '/home';

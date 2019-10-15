@@ -6,10 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
-import 'package:mobile_application/widgets/general/no_internet_connection.dart';
 
-import '../../../models/exceptions/login/login_exception.dart';
+import '../../../helpers/utilities.dart';
+import '../../../models/exceptions/no_internet_exception.dart';
 import '../../../models/exceptions/something_went_wrong_exception.dart';
 import 'authentication_mode.dart';
 
@@ -48,7 +47,7 @@ class AuthenticationWithGoogle extends AuthenticationMode {
       await googleSignIn.signOut();
       GoogleSignInAccount account = await googleSignIn.signIn();
 
-      if(account == null){
+      if (account == null) {
         return false;
       }
 
@@ -80,16 +79,7 @@ class AuthenticationWithGoogle extends AuthenticationMode {
     } on DioError catch (error) {
       //Check if something went wrong with the http request
       if (error.type != DioErrorType.RESPONSE) {
-        String errorMessage;
-
-        if (error.type == DioErrorType.DEFAULT) {
-          errorMessage = "Activate the internet connection to connect to RyFy.";
-        } else {
-          errorMessage =
-              "Couldn't connect with the RyFy server. Try again later.";
-        }
-
-        throw NoInternetException(errorMessage);
+        throw NoInternetException(getWhatConnectionError(error));
       } else {
         throw SomethingWentWrongException.message(
             "Couldn't validate the Google account. Try again later.");
@@ -97,18 +87,6 @@ class AuthenticationWithGoogle extends AuthenticationMode {
     } finally {
       overlay.remove();
     }
-  }
-
-  ///When we check for the authentication we can have that the user has not
-  ///completed the registration process, by selecting if is a mentee or a mentor.
-  @override
-  Future<bool> checkAuthentication() async {
-    //TODO load the data, then we check
-    if (!gotAToken()) {
-      return false;
-    }
-
-    return true;
   }
 
   OverlayEntry _createOverlay(BuildContext context) {

@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mobile_application/models/exceptions/something_went_wrong_exception.dart';
 
+import '../../../helpers/utilities.dart';
 import '../../../models/exceptions/login/incorrect_email_or_password_exception.dart';
 import '../../../models/exceptions/login/login_exception.dart';
+import '../../../models/exceptions/no_internet_exception.dart';
 import '../../../providers/authentication/types/authentication_mode.dart';
 
 class AuthenticationWithCredentials extends AuthenticationMode {
@@ -31,7 +32,7 @@ class AuthenticationWithCredentials extends AuthenticationMode {
 
       if (response.statusCode == 200) {
         token = response.data["access_token"];
-        authenticationProvider.saveAuthenticationData();
+        await authenticationProvider.saveAuthenticationData();
         return true;
       } else {
         throw LoginException(
@@ -40,35 +41,10 @@ class AuthenticationWithCredentials extends AuthenticationMode {
       }
     } on DioError catch (error) {
       if (error.type != DioErrorType.RESPONSE) {
-        throw LoginException(
-          'Something went wrong. The internet connection seems to be down.',
-        );
+        throw NoInternetException(getWhatConnectionError(error));
       } else {
         throw IncorrectEmailOrPasswordException();
       }
-    }
-  }
-
-  ///When we register with email and password we already know if the user is
-  ///a mentor or mentee.
-  @override
-  Future<bool> checkAuthentication() async {
-    if (!gotAToken()) {
-      return false;
-    }
-
-    //If some data has been found, we proceed in make an authenticated request.
-    try {
-      final response = await httpManager.get("/checkauth");
-
-      if (response.statusCode != 200) {
-        return true;
-      } else {
-        return false;
-      }
-    } on DioError catch (_) {
-      ///SHOULD NOT FALL IN THERE
-      return false;
     }
   }
 

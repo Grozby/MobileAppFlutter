@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
 import 'package:provider/provider.dart';
 
 import '../models/exceptions/something_went_wrong_exception.dart';
@@ -14,6 +15,7 @@ import '../screens/sign_up_screens/sign_up_screen.dart';
 import '../screens/user_profile_screen.dart';
 import '../screens/waiting_screen.dart';
 import 'general/custom_alert_dialog.dart';
+import 'general/no_internet_connection.dart';
 
 class ThemedMaterialApp extends StatefulWidget {
   @override
@@ -38,14 +40,30 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
 
             default:
               if (snapshot.hasError) {
-                Future.delayed(
-                  Duration.zero,
-                  () => showErrorDialog(
-                    ctx,
-                    (snapshot.error as SomethingWentWrongException).text,
-                  ),
-                );
-                return LandingScreen();
+                if(snapshot.error is NoInternetException){
+                  Future.delayed(
+                    Duration.zero,
+                        () => showErrorDialog(
+                      context,
+                      (snapshot.error as NoInternetException).getMessage(),
+                    ),
+                  );
+                  return Scaffold(
+                    body: NoInternetConnection(
+                      retryToConnect: () => setState(() {}),
+                      errorText: (snapshot.error as NoInternetException).getMessage(),
+                    ),
+                  );
+                } else {
+                  Future.delayed(
+                    Duration.zero,
+                        () => showErrorDialog(
+                      ctx,
+                      (snapshot.error as SomethingWentWrongException).text,
+                    ),
+                  );
+                  return LandingScreen();
+                }
               }
 
               if (snapshot.data) {

@@ -6,6 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../helpers/utilities.dart';
+import '../../models/exceptions/no_internet_exception.dart';
 import '../../models/exceptions/registration/already_used_email_exception.dart';
 import '../../models/exceptions/registration/company_exception.dart';
 import '../../models/exceptions/registration/email_exception.dart';
@@ -28,21 +30,26 @@ class AuthenticationProvider with ChangeNotifier {
       this,
     );
 
-    ///Adding interceptor to manage the authenticated requests.
+    /// Adding interceptor to manage the authenticated requests.
+    /// Every 401 error means we have some problems in the authentication.
+    /// Therefore, every 401 causes the app to remove its authentication
+    /// and rebuild.
     _httpManager.interceptors.add(
       InterceptorsWrapper(
         onRequest: (RequestOptions options) async {
           if (gotAToken()) {
-            return options.headers.putIfAbsent(
+            options.headers.putIfAbsent(
               HttpHeaders.authorizationHeader,
-                  () => "Bearer " + _authenticationMode.token,
+              () => "Bearer " + _authenticationMode.token,
             );
+            return options;
           }
           return options;
         },
         onError: (DioError error) async {
           if (error.response?.statusCode == 401) {
             await removeAuthenticationData();
+            //TODO
           }
 
           return error; //continue
@@ -86,24 +93,37 @@ class AuthenticationProvider with ChangeNotifier {
 
   Future<void> removeAuthenticationData() async {
     final storedData = await SharedPreferences.getInstance();
-    await storedData.remove("loginData");
-    _authenticationMode = _authenticationMode = AuthenticationMode.getAuthenticationMode(
-      'credentials',
-      _httpManager,
-      this,
-    );
-    notifyListeners();
+
+    if (storedData.containsKey("loginData")) {
+      await storedData.remove("loginData");
+      _authenticationMode =
+          _authenticationMode = AuthenticationMode.getAuthenticationMode(
+        'credentials',
+        _httpManager,
+        this,
+      );
+      notifyListeners();
+    }
   }
 
   Future<bool> checkAuthentication() async {
-    bool isAuthenticated = await _authenticationMode.checkAuthentication();
-    if(!isAuthenticated){
-      await removeAuthenticationData();
+    if (!gotAToken()) {
+      return false;
     }
 
-    return isAuthenticated;
-  }
+    //If some data has been found, we proceed in make an authenticated request.
+    try {
+      final response = await _httpManager.get("/auth/checkauth");
 
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } on DioError catch (error) {
+      throw NoInternetException(getWhatConnectionError(error));
+    }
+  }
 
   ///
   /// Registration function that throws an RegistrationException if
