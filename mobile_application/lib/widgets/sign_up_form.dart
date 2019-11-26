@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
 import 'package:provider/provider.dart';
 
 import '../models/exceptions/registration/registration_exception.dart';
@@ -96,19 +97,30 @@ class _SignUpFormState extends State<SignUpForm> {
 
         //If some errors has been found, we display them.
         if (snapshot.hasError) {
-          final exception = snapshot.error as RegistrationException;
-          if (snapshot.error.runtimeType == RegistrationException) {
+          if (snapshot.error.runtimeType == NoInternetException) {
             Future.delayed(
               Duration.zero,
-              () => setState(() {
-                _futureBuilder = null;
-              }),
+                  () => showErrorDialog(
+                context,
+                (snapshot.error as NoInternetException).getMessage(),
+              ),
             );
-
-            return Center();
           } else {
-            exception.updateRegistrationForm(registrationForm);
+            final exception = snapshot.error as RegistrationException;
+            if (snapshot.error.runtimeType == RegistrationException) {
+              Future.delayed(
+                Duration.zero,
+                () => setState(() {
+                  _futureBuilder = null;
+                }),
+              );
+
+              return Center();
+            } else {
+              exception.updateRegistrationForm(registrationForm);
+            }
           }
+
           widget.isSendingRequest = false;
           return buildForm();
         }

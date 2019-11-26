@@ -6,8 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../helpers/utilities.dart';
-import '../../models/exceptions/no_internet_exception.dart';
+import '../../helpers/http_request_wrapper.dart';
 import '../../models/exceptions/registration/already_used_email_exception.dart';
 import '../../models/exceptions/registration/company_exception.dart';
 import '../../models/exceptions/registration/email_exception.dart';
@@ -22,6 +21,7 @@ import 'types/authentication_mode.dart';
 class AuthenticationProvider with ChangeNotifier {
   AuthenticationMode _authenticationMode;
   final Dio _httpManager;
+  HttpRequestWrapper httpRequestWrapper;
 
   AuthenticationProvider(this._httpManager) {
     _authenticationMode = AuthenticationMode.getAuthenticationMode(
@@ -29,6 +29,8 @@ class AuthenticationProvider with ChangeNotifier {
       _httpManager,
       this,
     );
+
+    httpRequestWrapper = HttpRequestWrapper(httpManager: _httpManager);
 
     /// Adding interceptor to manage the authenticated requests.
     /// Every 401 error means we have some problems in the authentication.
@@ -111,18 +113,18 @@ class AuthenticationProvider with ChangeNotifier {
       return false;
     }
 
-    //If some data has been found, we proceed in make an authenticated request.
-    try {
-      final response = await _httpManager.get("/auth/checkauth");
+    final bool isLogged = await httpRequestWrapper.request<bool>(
+      url: "/auth/checkauth",
+      correctStatusCode: 200,
+      onCorrectStatusCode: (_) async => true,
+      onIncorrectStatusCode: (_) async => false,
+    );
 
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        return false;
-      }
-    } on DioError catch (error) {
-      throw NoInternetException(getWhatConnectionError(error));
+    if (!isLogged) {
+      removeAuthenticationData();
     }
+
+    return isLogged;
   }
 
   ///
@@ -131,73 +133,67 @@ class AuthenticationProvider with ChangeNotifier {
   ///
   Future<void> registration(
       UserRegistration userType, SignUpFormModel registrationForm) async {
-    void throwErrorKey(String key) {
-      switch (key) {
-        case 'name':
-          throw NameException();
-        case 'surname':
-          throw SurnameException();
-        case 'email':
-          throw EmailException();
-        case 'password':
-          throw PasswordException();
-        case 'company':
-          throw CompanyException();
-      }
-    }
-
     final body = userType.getBodyRegistration(registrationForm);
 
-    try {
-      final response =
-          await _httpManager.post(userType.registrationUrl, data: body);
-      //If we have a 201, we are all set
-      if (response.statusCode == 201) {
-        return;
-      }
-      //Otherwise we received something not expected. We throw an error.
-      else {
+    return await httpRequestWrapper.request<void>(
+      url: userType.registrationUrl,
+      typeHttpRequest: TypeHttpRequest.post,
+      postBody: body,
+      correctStatusCode: 201,
+      onCorrectStatusCode: (_) {},
+      onIncorrectStatusCode: (_) {
         throw RegistrationException(
             'Something went wrong. We couldn\'t validate the response.');
-      }
-    } on DioError catch (error) {
-      if (error.type != DioErrorType.RESPONSE) {
-        throw RegistrationException(
-          'Something went wrong. The internet connection seems to be down.',
-        );
-      }
-
-      if (error.response.data.containsKey('error')) {
-        switch (error.response.data['error']) {
-          case 'EMAIL_ALREADY_USED':
-            throw AlreadyUsedEmailException();
-          default:
-            throw RegistrationException(
-              'Something went wrong. We couldn\'t validate the response.',
-            );
+      },
+      onUnknownDioError: (error) {
+        void throwErrorKey(String key) {
+          switch (key) {
+            case 'name':
+              throw NameException();
+            case 'surname':
+              throw SurnameException();
+            case 'email':
+              throw EmailException();
+            case 'password':
+              throw PasswordException();
+            case 'company':
+              throw CompanyException();
+          }
         }
-      }
 
-      if (error.response.data.containsKey('errors')) {
-        if ((error.response.data['errors'][0]).containsKey('param')) {
+        if (error.response.data.containsKey('error')) {
+          switch (error.response.data['error']) {
+            case 'EMAIL_ALREADY_USED':
+              throw AlreadyUsedEmailException();
+            default:
+              throw RegistrationException(
+                'Something went wrong. We couldn\'t validate the response.',
+              );
+          }
+        }
+
+        if (error.response.data.containsKey('errors')) {
+          if ((error.response.data['errors'][0]).containsKey('param')) {
+            body.forEach((key, _) {
+              if (error.response.data['errors'][0]['param'] == key) {
+                throwErrorKey(key);
+              }
+            });
+          }
+
           body.forEach((key, _) {
-            if (error.response.data['errors'][0]['param'] == key) {
+            if (error.response.data['error'].containsKey(key)) {
               throwErrorKey(key);
             }
           });
         }
 
-        body.forEach((key, _) {
-          if (error.response.data['error'].containsKey(key)) {
-            throwErrorKey(key);
-          }
-        });
-      }
+        throw RegistrationException(
+          'Something went wrong. We couldn\'t validate the response.',
+        );
+      },
+    );
 
-      throw RegistrationException(
-        'Something went wrong. We couldn\'t validate the response.',
-      );
-    }
   }
 
   Future<void> authenticate(dynamic data) async {
@@ -232,6 +228,7 @@ class AuthenticationProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
+    await removeAuthenticationData();
     _authenticationMode = AuthenticationMode.getAuthenticationMode(
       'credentials',
       _httpManager,

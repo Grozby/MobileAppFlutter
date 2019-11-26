@@ -40,10 +40,10 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
 
             default:
               if (snapshot.hasError) {
-                if(snapshot.error is NoInternetException){
+                if (snapshot.error is NoInternetException) {
                   Future.delayed(
                     Duration.zero,
-                        () => showErrorDialog(
+                    () => showErrorDialog(
                       context,
                       (snapshot.error as NoInternetException).getMessage(),
                     ),
@@ -51,15 +51,18 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
                   return Scaffold(
                     body: NoInternetConnection(
                       retryToConnect: () => setState(() {}),
-                      errorText: (snapshot.error as NoInternetException).getMessage(),
+                      errorText:
+                          (snapshot.error as NoInternetException).getMessage(),
                     ),
                   );
                 } else {
                   Future.delayed(
                     Duration.zero,
-                        () => showErrorDialog(
+                    () => showErrorDialog(
                       ctx,
-                      (snapshot.error as SomethingWentWrongException).text,
+                      snapshot.error is SomethingWentWrongException
+                          ? (snapshot.error as SomethingWentWrongException).text
+                          : "Got some error.",
                     ),
                   );
                   return LandingScreen();

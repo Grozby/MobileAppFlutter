@@ -1,10 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mobile_application/helpers/http_request_wrapper.dart';
 
-import '../../../helpers/utilities.dart';
 import '../../../models/exceptions/login/incorrect_email_or_password_exception.dart';
 import '../../../models/exceptions/login/login_exception.dart';
-import '../../../models/exceptions/no_internet_exception.dart';
 import '../../../providers/authentication/types/authentication_mode.dart';
 
 class AuthenticationWithCredentials extends AuthenticationMode {
@@ -17,35 +16,31 @@ class AuthenticationWithCredentials extends AuthenticationMode {
 
   @override
   Future<bool> authenticate(dynamic data) async {
-    try {
-      final response = await httpManager.post(
-        "/auth/login",
-        data: {
+    return await authenticationProvider.httpRequestWrapper.request<bool>(
+        url: "/auth/login",
+        typeHttpRequest: TypeHttpRequest.post,
+        postBody: {
           "username": data['email'],
           "password": data['password'],
           "grant_type": "password",
         },
-        options: Options(
+        dioOptions: Options(
           contentType: Headers.formUrlEncodedContentType,
         ),
-      );
-
-      if (response.statusCode == 200) {
-        token = response.data["access_token"];
-        await authenticationProvider.saveAuthenticationData();
-        return true;
-      } else {
-        throw LoginException(
-          'Something went wrong. We couldn\'t validate the account. Try again later.',
-        );
-      }
-    } on DioError catch (error) {
-      if (error.type != DioErrorType.RESPONSE) {
-        throw NoInternetException(getWhatConnectionError(error));
-      } else {
-        throw IncorrectEmailOrPasswordException();
-      }
-    }
+        correctStatusCode: 200,
+        onCorrectStatusCode: (response) async {
+          token = response.data["access_token"];
+          await authenticationProvider.saveAuthenticationData();
+          return true;
+        },
+        onIncorrectStatusCode: (_) {
+          throw LoginException(
+            'Something went wrong. We couldn\'t validate the account. Try again later.',
+          );
+        },
+        onUnknownDioError: (_) {
+          throw IncorrectEmailOrPasswordException();
+        });
   }
 
   @override

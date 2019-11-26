@@ -21,7 +21,7 @@ class SignUpFormModel {
 
     name.text = 'a';
     surname.text = 'a';
-    email.text = 'a@a.a';
+    email.text = 'a@a.aaaa';
     password.text = 'aaaaaaaaa';
     company.text = 'a';
   }

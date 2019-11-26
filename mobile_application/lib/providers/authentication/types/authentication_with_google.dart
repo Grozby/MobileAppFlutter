@@ -1,14 +1,10 @@
 import 'dart:ui';
 
-import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../../../helpers/utilities.dart';
-import '../../../models/exceptions/no_internet_exception.dart';
 import '../../../models/exceptions/something_went_wrong_exception.dart';
 import 'authentication_mode.dart';
 
@@ -42,6 +38,7 @@ class AuthenticationWithGoogle extends AuthenticationMode {
     ]);
 
     var overlay;
+    var response;
 
     try {
       await googleSignIn.signOut();
@@ -56,17 +53,19 @@ class AuthenticationWithGoogle extends AuthenticationMode {
       Overlay.of(data).insert(overlay);
 
       //Then, we check with the backend the obtained token.
-      final response = await httpManager
-          .get(authenticationUrl + (await account.authentication).idToken);
+      response =  await authenticationProvider.httpRequestWrapper.request<bool>(
+          url: authenticationUrl + (await account.authentication).idToken,
+          correctStatusCode: 200,
+          onCorrectStatusCode: (response) async {
+            token = response.data["access_token"];
+            await authenticationProvider.saveAuthenticationData();
+            return true;
+          },
+          onIncorrectStatusCode: (_) {
+            throw SomethingWentWrongException();
+          }
+      );
 
-      //We check whether the request went smoothly or not.
-      if (response.statusCode != 200) {
-        throw SomethingWentWrongException();
-      } else {
-        token = response.data["access_token"];
-        authenticationProvider.saveAuthenticationData();
-        return true;
-      }
     } on PlatformException catch (e) {
       //Check if something went wrong with the GoogleSignIn plugin
       int errorCode = int.parse(e.message
@@ -76,17 +75,12 @@ class AuthenticationWithGoogle extends AuthenticationMode {
             "Activate the internet connection to connect to RyFy.");
       }
       throw SomethingWentWrongException();
-    } on DioError catch (error) {
-      //Check if something went wrong with the http request
-      if (error.type != DioErrorType.RESPONSE) {
-        throw NoInternetException(getWhatConnectionError(error));
-      } else {
-        throw SomethingWentWrongException.message(
-            "Couldn't validate the Google account. Try again later.");
-      }
     } finally {
-      overlay.remove();
+      if(overlay != null)
+        overlay.remove();
     }
+
+    return response;
   }
 
   OverlayEntry _createOverlay(BuildContext context) {

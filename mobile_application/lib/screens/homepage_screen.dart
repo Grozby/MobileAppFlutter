@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/screens/settings_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../models/exceptions/no_internet_exception.dart';
@@ -27,17 +28,17 @@ class _HomepageScreenState extends State<HomepageScreen> {
 
     return Scaffold(
       //TODO remove appbar!
-//      appBar: AppBar(
-//        centerTitle: true,
-//        title: Text('Ryfy'),
-//        actions: <Widget>[
-//          IconButton(
-//            icon: Icon(Icons.settings),
-//            onPressed: () =>
-//                Navigator.of(context).pushNamed(SettingsScreen.routeName),
-//          ),
-//        ],
-//      ),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('Ryfy'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () =>
+                Navigator.of(context).pushNamed(SettingsScreen.routeName),
+          ),
+        ],
+      ),
       body: isSmartPhone
           ? HomepageWidget<phone.InfoBarWidget, phone.ExploreBodyWidget>(
               infoWidgetCreator: () => phone.InfoBarWidget(),
