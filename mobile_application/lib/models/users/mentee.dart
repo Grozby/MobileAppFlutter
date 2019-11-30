@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
+import 'package:mobile_application/providers/theming/theme_provider.dart';
 
 import 'user.dart';
 
@@ -13,6 +16,7 @@ class Mentee extends User {
     @required bio,
     @required questions,
     @required pastExperiences,
+    @required currentJob,
     @required this.tokenCount,
   })  : assert(tokenCount != null),
         super(
@@ -23,5 +27,12 @@ class Mentee extends User {
           bio: bio,
           questions: questions,
           pastExperiences: pastExperiences,
+          currentJob: currentJob,
         );
+
+  @override
+  Color get color => ThemeProvider.menteeColor;
+
+  @override
+  Color get cardColor => ThemeProvider.menteeCardColor;
 }

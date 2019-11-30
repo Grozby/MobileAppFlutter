@@ -10,11 +10,13 @@ class AcademicDegree implements PastExperience {
   String university;
   String degreeLevel;
   String fieldOfStudy;
+  String universityPictureUrl;
 
   AcademicDegree({
     @required this.university,
     @required this.degreeLevel,
     @required this.fieldOfStudy,
+    this.universityPictureUrl,
   });
 
   @override
@@ -25,6 +27,9 @@ class AcademicDegree implements PastExperience {
 
   @override
   String get assetPath => "assets/images/degree.png";
+
+  @override
+  String get pictureUrl => universityPictureUrl;
 
   factory AcademicDegree.fromJson(Map json) => _$AcademicDegreeFromJson(json);
 

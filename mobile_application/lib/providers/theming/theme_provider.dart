@@ -7,11 +7,14 @@ class ThemeProvider with ChangeNotifier {
   ThemeData _themeData;
   bool _isLight;
   static const Color _mentorColor = Color.fromRGBO(234, 128, 59, 1);
-  static const Color _primaryColor = _mentorColor;
+  static const Color _mentorCardColor = Color.fromRGBO(234, 128, 59, 1);
   static const Color _menteeColor = Color.fromRGBO(0, 119, 181, 1);
+  static const Color _menteeCardColor = Color(0x6CD1F4);
+
+  static const Color _primaryColor = _mentorColor;
   static Color _loginButtonColor = Colors.grey.shade200;
   static const Color _textColor = Color.fromRGBO(68, 86, 108, 1);
-  static const Color _greyTextColor = Color.fromRGBO(161, 170 ,181, 1);
+  static const Color _greyTextColor = Color.fromRGBO(161, 170, 181, 1);
 
   ThemeData _lightTheme = ThemeData.light().copyWith(
     pageTransitionsTheme: PageTransitionsTheme(
@@ -27,40 +30,39 @@ class ThemeProvider with ChangeNotifier {
     ),
     cursorColor: Colors.grey,
     textTheme: ThemeData.light().textTheme.copyWith(
-          display3: TextStyle(
-            fontSize: 32.0,
-            fontWeight: FontWeight.bold,
-            color: _textColor,
-          ),
-          display2: TextStyle(
-            fontSize: 24.0,
-            color: _textColor,
-            fontWeight: FontWeight.w700,
-          ),
-          display1: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.w600,
-          ),
-          subhead: TextStyle(
-            fontSize: 16,
-            color: _greyTextColor,
-          ),
-          title: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: _textColor,
-          ),
-          overline: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: _greyTextColor,
-            letterSpacing: 0,
-          ),
-          body1: TextStyle(
-            fontSize: 16,
-            color: Color.fromRGBO(105, 120, 137, 1),
-          )
+        display3: TextStyle(
+          fontSize: 32.0,
+          fontWeight: FontWeight.bold,
+          color: _textColor,
         ),
+        display2: TextStyle(
+          fontSize: 24.0,
+          color: _textColor,
+          fontWeight: FontWeight.w700,
+        ),
+        display1: TextStyle(
+          fontSize: 18.0,
+          fontWeight: FontWeight.w600,
+        ),
+        subhead: TextStyle(
+          fontSize: 16,
+          color: _greyTextColor,
+        ),
+        title: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: _textColor,
+        ),
+        overline: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: _greyTextColor,
+          letterSpacing: 0,
+        ),
+        body1: TextStyle(
+          fontSize: 16,
+          color: Color.fromRGBO(105, 120, 137, 1),
+        )),
   );
 
   /*----------
@@ -72,8 +74,10 @@ class ThemeProvider with ChangeNotifier {
   static Color get primaryColor => _primaryColor;
 
   static Color get mentorColor => _mentorColor;
+  static Color get mentorCardColor => _mentorCardColor.withOpacity(0.1);
 
   static Color get menteeColor => _menteeColor;
+  static Color get menteeCardColor => _menteeCardColor.withOpacity(0.1);
 
   static Color get loginButtonColor => _loginButtonColor;
 

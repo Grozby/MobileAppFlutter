@@ -2,12 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobile_application/models/users/answer.dart';
 import 'package:mobile_application/models/users/experiences/academic_degree.dart';
-import 'package:mobile_application/models/users/experiences/old_job.dart';
+import 'package:mobile_application/models/users/experiences/job.dart';
 import 'package:mobile_application/models/users/mentor_question/mentor_question.dart';
 import 'package:mobile_application/models/users/question.dart';
 
-import '../../models/exceptions/no_internet_exception.dart';
-import '../../models/exceptions/something_went_wrong_exception.dart';
 import '../../models/users/mentee.dart';
 import '../../models/users/mentor.dart';
 import '../../models/users/user.dart';
@@ -71,11 +69,13 @@ class CardProvider with ChangeNotifier {
         bio:
             "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\"",
         location: "Mountain View, US",
-        company: "Google",
         workingSpecialization: ["Software Engineer", "Front End", "Backend"],
-        companyImageUrl:
-            "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
-        jobType: "Software Engineer",
+        currentJob: Job(
+          company: "Google",
+          companyImageUrl:
+              "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
+          workingRole: "Software Engineer",
+        ),
         questions: [
           Question(
             question: "Favorite programming languages...",
@@ -104,7 +104,7 @@ class CardProvider with ChangeNotifier {
             fieldOfStudy: "Computer Science",
             university: "Stanford University",
           ),
-          OldJob(
+          Job(
             company: "Apple",
             workingRole: "Software engineer",
           ),
@@ -116,8 +116,7 @@ class CardProvider with ChangeNotifier {
             availableTime: 120,
           ),
           MentorQuestion(
-            question:
-            "Ma sei megaminchia?",
+            question: "Ma sei megaminchia?",
             availableTime: 60,
           ),
         ],
@@ -128,14 +127,16 @@ class CardProvider with ChangeNotifier {
           bio:
               "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\"",
           location: "Mountain View, US",
-          company: "Googlerino",
+          currentJob: Job(
+            company: "Googlerino",
+            companyImageUrl:
+                "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
+            workingRole: "Software Engineer",
+          ),
           workingSpecialization: [
             "Software Engineer",
             "Front End",
           ],
-          companyImageUrl:
-              "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
-          jobType: "Software Engineer",
           questions: [
             Question(
               question: "Favorite programming languages...",
@@ -163,15 +164,16 @@ class CardProvider with ChangeNotifier {
           bio:
               "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\"",
           location: "Mountain View, US",
-          company: "Google",
           workingSpecialization: [
             "Software Engineer",
             "Front End",
             "backend",
           ],
-          companyImageUrl:
-              "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
-          jobType: "Software Engineer",
+          currentJob: Job(
+              company: "Google",
+              companyImageUrl:
+                  "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
+              workingRole: "Software Engineer"),
           questions: [
             Question(
               question: "Favorite programming languages...",

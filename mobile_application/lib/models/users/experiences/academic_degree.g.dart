@@ -11,6 +11,7 @@ AcademicDegree _$AcademicDegreeFromJson(Map json) {
     university: json['university'] as String,
     degreeLevel: json['degreeLevel'] as String,
     fieldOfStudy: json['fieldOfStudy'] as String,
+    universityPictureUrl: json['universityPictureUrl'] as String,
   );
 }
 
@@ -19,4 +20,5 @@ Map<String, dynamic> _$AcademicDegreeToJson(AcademicDegree instance) =>
       'university': instance.university,
       'degreeLevel': instance.degreeLevel,
       'fieldOfStudy': instance.fieldOfStudy,
+      'universityPictureUrl': instance.universityPictureUrl,
     };

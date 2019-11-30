@@ -2,16 +2,18 @@ import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobile_application/models/users/experiences/past_experience.dart';
 
-part 'old_job.g.dart';
+part 'job.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class OldJob implements PastExperience {
+class Job implements PastExperience {
   final String company;
   final String workingRole;
+  final String companyImageUrl;
 
-  OldJob({
+  Job({
     @required this.company,
     @required this.workingRole,
+    this.companyImageUrl,
   });
 
   @override
@@ -21,9 +23,13 @@ class OldJob implements PastExperience {
   String get haveDone => workingRole;
 
   @override
-  String get assetPath => "assets/images/job.png";
+  String get pictureUrl => companyImageUrl;
 
-  factory OldJob.fromJson(Map json) => _$OldJobFromJson(json);
+  //TODO Change how we manage this on the widget!!
+  @override
+  String get assetPath =>  "assets/images/job.png";
 
-  Map<String, dynamic> toJson() => _$OldJobToJson(this);
+  factory Job.fromJson(Map json) => _$JobFromJson(json);
+
+  Map<String, dynamic> toJson() => _$JobToJson(this);
 }

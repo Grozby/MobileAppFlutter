@@ -1,6 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:mobile_application/models/users/experiences/academic_degree.dart';
-import 'package:mobile_application/models/users/experiences/old_job.dart';
+import 'package:mobile_application/models/users/experiences/job.dart';
 import '../../models/users/experiences/past_experience.dart';
 import '../../models/users/question.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -17,6 +19,7 @@ abstract class User {
   String pictureUrl;
   String location;
   String bio;
+  Job currentJob;
   @JsonKey(fromJson: getQuestion)
   List<Question> questions;
   @JsonKey(
@@ -34,15 +37,19 @@ abstract class User {
     @required this.bio,
     @required this.questions,
     @required this.pastExperiences,
+    @required this.currentJob,
   })  : assert(name != null),
         assert(surname != null),
         assert(pictureUrl != null),
         assert(location != null),
         assert(bio != null),
         assert(questions != null),
-        assert(pastExperiences != null);
+        assert(currentJob != null);
 
   String get completeName => name + " " + surname;
+
+  Color get color;
+  Color get cardColor;
 
   static List<Question> getQuestion(questionsJson) {
     return questionsJson.map<Question>((q) => Question.fromJson(q)).toList();
@@ -52,7 +59,7 @@ abstract class User {
     return experiencesJson.map<PastExperience>((e) {
       switch (e["type"]) {
         case "OldJob":
-          return OldJob.fromJson(e);
+          return Job.fromJson(e);
         case "AcademicDegree":
           return AcademicDegree.fromJson(e);
         default:
@@ -64,7 +71,7 @@ abstract class User {
   static List<Map<String, dynamic>> getJsonExperiences(
       List<PastExperience> experiences) {
     return experiences.map<Map<String, dynamic>>((e) {
-      if (e is OldJob) {
+      if (e is Job) {
         var map = e.toJson();
         map["type"] = "OldJob";
         return map;

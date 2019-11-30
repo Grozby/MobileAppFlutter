@@ -15,12 +15,10 @@ Mentor _$MentorFromJson(Map json) {
     bio: json['bio'],
     questions: User.getQuestion(json['questions']),
     pastExperiences: User.getExperiences(json['pastExperiences']),
-    company: json['company'] as String,
-    jobType: json['jobType'] as String,
+    currentJob: json['currentJob'],
     workingSpecialization: (json['workingSpecialization'] as List)
         ?.map((e) => e as String)
         ?.toList(),
-    companyImageUrl: json['companyImageUrl'] as String,
     questionsForAcceptingRequest: (json['questionsForAcceptingRequest'] as List)
         ?.map((e) => e == null ? null : MentorQuestion.fromJson(e as Map))
         ?.toList(),
@@ -33,12 +31,10 @@ Map<String, dynamic> _$MentorToJson(Mentor instance) => <String, dynamic>{
       'pictureUrl': instance.pictureUrl,
       'location': instance.location,
       'bio': instance.bio,
+      'currentJob': instance.currentJob?.toJson(),
       'questions': instance.questions?.map((e) => e?.toJson())?.toList(),
       'pastExperiences': User.getJsonExperiences(instance.pastExperiences),
-      'company': instance.company,
-      'jobType': instance.jobType,
       'workingSpecialization': instance.workingSpecialization,
-      'companyImageUrl': instance.companyImageUrl,
       'questionsForAcceptingRequest': instance.questionsForAcceptingRequest
           ?.map((e) => e?.toJson())
           ?.toList(),
