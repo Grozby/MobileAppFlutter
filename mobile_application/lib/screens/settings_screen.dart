@@ -10,32 +10,39 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ryfy'),
-      ),
-      body: Column(
-        children: [
-          Center(
-            child: RaisedButton(
-              onPressed: () {
-                Provider.of<ThemeProvider>(context).switchTheme();
-              },
-              child: const Text('Switch theme'),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Center(
+              child: RaisedButton(
+                onPressed: () {
+                  Provider.of<ThemeProvider>(context).switchTheme();
+                },
+                child: const Text('Switch theme'),
+              ),
             ),
-          ),
-          Center(
-            child: RaisedButton(
-              onPressed: () async {
-                await Provider.of<AuthenticationProvider>(context).logout();
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  Navigator.defaultRouteName,
-                  ModalRoute.withName(""),
-                );
-              },
-              child: const Text('Logout'),
+            Center(
+              child: RaisedButton(
+                onPressed: () async {
+                  await Provider.of<AuthenticationProvider>(context).logout();
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    Navigator.defaultRouteName,
+                    ModalRoute.withName(""),
+                  );
+                },
+                child: const Text('Logout'),
+              ),
             ),
-          ),
-        ],
+            Center(
+              child: RaisedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Go back'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

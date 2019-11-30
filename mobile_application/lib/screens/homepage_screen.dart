@@ -27,18 +27,6 @@ class _HomepageScreenState extends State<HomepageScreen> {
     var keyboardHeight = mediaQuery.viewInsets.bottom;
 
     return Scaffold(
-      //TODO remove appbar!
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('Ryfy'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () =>
-                Navigator.of(context).pushNamed(SettingsScreen.routeName),
-          ),
-        ],
-      ),
       body: isSmartPhone
           ? HomepageWidget<phone.InfoBarWidget, phone.ExploreBodyWidget>(
               infoWidgetCreator: () => phone.InfoBarWidget(),

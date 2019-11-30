@@ -48,7 +48,7 @@ class InfoBarWidget extends StatelessWidget {
               ),
               Expanded(
                 child: CircularButtonInfoBar(
-                  assetPath: "assets/images/message.png",
+                  assetPath: "message.png",
                   onPressFunction: () {
                     Navigator.of(context).pushNamed(
                       MessagesScreen.routeName,
