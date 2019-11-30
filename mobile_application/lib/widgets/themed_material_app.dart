@@ -49,7 +49,7 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
                     ),
                   );
                   return Scaffold(
-                    body: NoInternetConnection(
+                    body: NoInternetConnectionWidget(
                       retryToConnect: () => setState(() {}),
                       errorText:
                           (snapshot.error as NoInternetException).getMessage(),

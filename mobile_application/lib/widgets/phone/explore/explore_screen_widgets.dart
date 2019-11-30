@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/providers/explore/card_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
+import '../../../models/utility/available_sizes.dart';
+import '../../../providers/explore/card_provider.dart';
 import '../../../providers/user/user_data_provider.dart';
 import '../../../screens/messages_screen.dart';
 import '../../../screens/user_profile_screen.dart';
@@ -205,11 +206,3 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
   }
 }
 
-class AvailableSizes extends Model {
-  double height;
-
-  AvailableSizes(this.height);
-
-  static AvailableSizes of(BuildContext context) =>
-      ScopedModel.of<AvailableSizes>(context);
-}

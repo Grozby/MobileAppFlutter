@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/widgets/general/image_wrapper.dart';
 
 class CircularButtonInfoBar extends StatelessWidget {
   final String assetPath;
@@ -33,17 +34,11 @@ class CircularButtonInfoBar extends StatelessWidget {
             ),
             child: ClipRRect(
               borderRadius: const BorderRadius.all(const Radius.circular(100)),
-              child: imageUrl == null
-                  ? Image.asset(
-                      assetPath,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                    ),
+              child: ImageWrapper(
+                imageUrl: imageUrl,
+                assetPath: assetPath,
+              ),
             ),
-//
           ),
           Center(
             child: RawMaterialButton(

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'button_styled.dart';
 
-class NoInternetConnection extends StatelessWidget {
+class NoInternetConnectionWidget extends StatelessWidget {
   final Function retryToConnect;
   final String errorText;
 
-  const NoInternetConnection({
+  const NoInternetConnectionWidget({
     @required this.retryToConnect,
     @required this.errorText,
   });

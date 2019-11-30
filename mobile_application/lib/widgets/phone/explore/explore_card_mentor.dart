@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_application/providers/explore/questions_provider.dart';
 import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'package:mobile_application/widgets/general/custom_alert_dialog.dart';
+import 'package:mobile_application/widgets/general/image_wrapper.dart';
 import '../../../providers/explore/should_collapse_provider.dart';
 import '../../../widgets/general/expandable_widget.dart';
 import 'package:provider/provider.dart';
@@ -103,6 +104,7 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
 
     return CardContainer(
       rotateCard: widget.rotateCard,
+      startingColor: mentor.cardColor,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -215,14 +217,14 @@ class _CompanyInformationBar extends StatelessWidget {
       leading: CircleAvatar(
         backgroundColor: Colors.white,
         child: Center(
-          child: FadeInImage.memoryNetwork(
-            image: mentor.companyImageUrl,
-            placeholder: kTransparentImage,
+          child: ImageWrapper(
+            imageUrl: mentor.currentJob.companyImageUrl,
+            assetPath: "message.png",
           ),
         ),
       ),
       title: AutoSizeText(
-        mentor.company,
+        mentor.currentJob.company,
         maxLines: 1,
         style: Theme.of(context).textTheme.display2,
       ),
@@ -299,12 +301,13 @@ class _MentorBasicInformationAvatar extends StatelessWidget {
           ),
           ClipRRect(
             borderRadius: const BorderRadius.all(const Radius.circular(100)),
-            child: FadeInImage.memoryNetwork(
+            child: Container(
               width: 80,
               height: 80,
-              image: mentor.pictureUrl,
-              placeholder: kTransparentImage,
-              fit: BoxFit.cover,
+              child: ImageWrapper(
+                assetPath: "user.png",
+                imageUrl: mentor.pictureUrl,
+              ),
             ),
           ),
         ],
@@ -343,11 +346,11 @@ class _MentorBasicInformationText extends StatelessWidget {
             text: TextSpan(
               children: <TextSpan>[
                 TextSpan(
-                  text: mentor.jobType + " @ ",
+                  text: mentor.currentJob.workingRole + " @ ",
                   style: Theme.of(context).textTheme.overline,
                 ),
                 TextSpan(
-                  text: mentor.company,
+                  text: mentor.currentJob.company,
                   style: Theme.of(context).textTheme.overline.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -462,10 +465,19 @@ class _BackCardMentor extends StatefulWidget {
 
 class __BackCardMentorState extends State<_BackCardMentor> {
   int questionIndex = 0;
+  Color color;
 
   @override
   void initState() {
     super.initState();
+
+    Future.delayed(Duration.zero, () {
+      int index = ScopedModel.of<IndexUser>(context).indexUser;
+      color = Provider.of<CardProvider>(
+        context,
+        listen: false,
+      ).getMentor(index).cardColor;
+    });
   }
 
   @override
@@ -473,6 +485,7 @@ class __BackCardMentorState extends State<_BackCardMentor> {
     return CardContainer(
       canExpand: false,
       rotateCard: widget.rotateCard,
+      startingColor: color,
       child: Column(
         children: <Widget>[
           const _CompanyInformationBar(),

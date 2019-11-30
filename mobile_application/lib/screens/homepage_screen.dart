@@ -153,7 +153,7 @@ class _HomepageWidgetState extends State<HomepageWidget>
                 (snapshot.error as NoInternetException).getMessage(),
               ),
             );
-            return NoInternetConnection(
+            return NoInternetConnectionWidget(
               retryToConnect: () => setState(() => loadExploreSection()),
               errorText: (snapshot.error as NoInternetException).getMessage(),
             );

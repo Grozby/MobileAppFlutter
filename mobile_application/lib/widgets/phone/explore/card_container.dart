@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-import 'explore_screen_widgets.dart';
+import '../../../models/utility/available_sizes.dart';
+import '../../../providers/theming/theme_provider.dart';
 
 class CardContainer extends StatelessWidget {
   final Widget child;
   final Function rotateCard;
   static const double padding = 12;
   final bool canExpand;
+  final Color startingColor;
 
   CardContainer({
     @required this.child,
     @required this.rotateCard,
     this.canExpand = true,
+    startingColor,
   })  : assert(child != null),
-        assert(rotateCard != null);
+        assert(rotateCard != null),
+        this.startingColor = startingColor != null
+            ? startingColor
+            : ThemeProvider.primaryColor.withOpacity(0.10);
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +44,7 @@ class CardContainer extends StatelessWidget {
             end: Alignment.bottomCenter,
             stops: [0, 0.4],
             colors: [
-              ThemeProvider.primaryColor.withOpacity(0.10),
+              startingColor,
               const Color(0xFFFFFF),
             ],
           ),
