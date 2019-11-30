@@ -54,12 +54,14 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
     Future.delayed(Duration.zero, () {
       //If we have a stream, we subscribe to it. Whenever we have a
       //a change, we collapse the widget.
-      shouldCollapseStream =
-          Provider.of<ShouldCollapseProvider>(context).changeNotifier.stream;
+      try {
+        var shouldCollapseProvider = Provider.of<ShouldCollapseProvider>(context);
+        if (shouldCollapseProvider != null) {
+          shouldCollapseStream = shouldCollapseProvider.changeNotifier.stream;
+          shouldCollapseStream.listen((_) => collapse());
+        }
+      } catch (e){}
 
-      if (shouldCollapseStream != null) {
-        shouldCollapseStream.listen((_) => collapse());
-      }
     });
   }
 
@@ -67,14 +69,17 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
   void didUpdateWidget(ExpandableWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // in case the stream instance changed, subscribe to the new one
-    final Stream newShouldCollapseStream =
-        Provider.of<ShouldCollapseProvider>(context).changeNotifier.stream;
-    if (newShouldCollapseStream != shouldCollapseStream) {
-      streamSubscription.cancel();
-      shouldCollapseStream = newShouldCollapseStream;
-      streamSubscription = shouldCollapseStream.listen((_) => collapse());
-    }
+    try {
+      final Stream newShouldCollapseStream =
+          Provider.of<ShouldCollapseProvider>(context).changeNotifier.stream;
+      // in case the stream instance changed, subscribe to the new one
+      if (newShouldCollapseStream != shouldCollapseStream) {
+        streamSubscription.cancel();
+        shouldCollapseStream = newShouldCollapseStream;
+        streamSubscription = shouldCollapseStream.listen((_) => collapse());
+      }
+    } catch (e) {}
+
   }
 
   @override
@@ -130,7 +135,6 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
                   children: <Widget>[
                     _isExpanded
                         ? Container(
-                            color: Colors.white,
                             child: ClipRect(
                               child: SizedOverflowBox(
                                 alignment: Alignment.topCenter,
@@ -158,7 +162,6 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
                             },
                             blendMode: BlendMode.dstIn,
                             child: Container(
-                              color: Colors.white,
                               child: ClipRect(
                                 child: SizedOverflowBox(
                                   alignment: Alignment.topCenter,
