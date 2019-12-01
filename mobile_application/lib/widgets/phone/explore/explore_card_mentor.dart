@@ -216,10 +216,18 @@ class _CompanyInformationBar extends StatelessWidget {
       contentPadding: const EdgeInsets.all(0),
       leading: CircleAvatar(
         backgroundColor: Colors.white,
-        child: Center(
-          child: ImageWrapper(
-            imageUrl: mentor.currentJob.companyImageUrl,
-            assetPath: "message.png",
+        child: Container(
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.transparent,
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(const Radius.circular(100)),
+            child: ImageWrapper(
+              imageUrl: mentor.currentJob.companyImageUrl,
+              assetPath: "message.png",
+            ),
           ),
         ),
       ),
