@@ -7,77 +7,86 @@ import '../../../providers/explore/card_provider.dart';
 import '../../../providers/user/user_data_provider.dart';
 import '../../../screens/messages_screen.dart';
 import '../../../screens/user_profile_screen.dart';
-import 'circular_button_info_bar.dart';
+import 'circular_button.dart';
 import 'explore_card.dart';
 
 class InfoBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        const Flexible(
-          child: const Center(),
-          flex: 2,
-        ),
-        Flexible(
-          child: Row(
+    return LayoutBuilder(
+      builder: (ctx, constraints) {
+        return Container(
+          width: constraints.maxWidth * 0.85,
+          child: Column(
             children: <Widget>[
-              Expanded(
-                child: Consumer<UserDataProvider>(
-                  builder: (context, userProvider, child) {
-                    return CircularButtonInfoBar(
-                      assetPath: "user.png",
-                      imageUrl: userProvider.user.pictureUrl,
-                      onPressFunction: () {
-                        Navigator.of(context).pushNamed(
-                          UserProfileScreen.routeName,
-                        );
-                      },
-                    );
-                  },
-                ),
+              const Flexible(
+                flex: 2,
+                child: const Center(),
               ),
-              Expanded(
-                child: Center(
-                  child: Text(
-                    "Explore",
-                    style: Theme.of(context).textTheme.display3,
-                  ),
-                ),
+              Flexible(
                 flex: 3,
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Consumer<UserDataProvider>(
+                        builder: (context, userProvider, child) {
+                          return CircularButton(
+                            assetPath: "user.png",
+                            imageUrl: userProvider.user.pictureUrl,
+                            alignment: Alignment.centerLeft,
+                            onPressFunction: () => goToProfilePage(context),
+                          );
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          "Explore",
+                          style: Theme.of(context).textTheme.display3,
+                        ),
+                      ),
+                      flex: 2,
+                    ),
+                    Expanded(
+                      child: CircularButton(
+                        assetPath: "message.png",
+                        alignment: Alignment.centerRight,
+                        onPressFunction: () => goToMessages(context),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              Expanded(
-                child: CircularButtonInfoBar(
-                  assetPath: "message.png",
-                  onPressFunction: () {
-                    Navigator.of(context).pushNamed(
-                      MessagesScreen.routeName,
-                    );
-                  },
+              Flexible(
+                flex: 2,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Consumer<UserDataProvider>(
+                    builder: (context, userData, child) {
+                      return Text(
+                        userData.behavior.remainingTokensString,
+                        style: Theme.of(context).textTheme.display1.copyWith(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
           ),
-          flex: 3,
-        ),
-        Flexible(
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: Consumer<UserDataProvider>(
-              builder: (context, userData, child) {
-                return Text(
-                  userData.behavior.remainingTokensString,
-                  style: Theme.of(context).textTheme.display1.copyWith(
-                        color: Theme.of(context).primaryColor,
-                      ),
-                );
-              },
-            ),
-          ),
-          flex: 2,
-        ),
-      ],
+        );
+      },
     );
+  }
+
+  void goToProfilePage(BuildContext context) {
+    Navigator.of(context).pushNamed(UserProfileScreen.routeName);
+  }
+
+  void goToMessages(BuildContext context) {
+    Navigator.of(context).pushNamed(MessagesScreen.routeName);
   }
 }
 
@@ -205,4 +214,3 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
     });
   }
 }
-

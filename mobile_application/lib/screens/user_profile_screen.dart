@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/widgets/phone/explore/circular_button.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -51,9 +52,10 @@ class UserProfileScreen extends StatelessWidget {
                         ),
                         AutoSizeText(
                           user.currentJob.company,
-                          style: Theme.of(context).textTheme.overline.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.overline.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(height: 16),
                         ExpandableWidget(
@@ -68,6 +70,40 @@ class UserProfileScreen extends StatelessWidget {
                           ),
                         ),
                         Divider(),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 40,
+                  width: constraints.maxWidth * 0.85,
+                  child: Center(
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: CircularButton(
+                            assetPath: "back_arrow.png",
+                            alignment: Alignment.centerLeft,
+                            width: 40,
+                            height: 40,
+                            applyElevation: false,
+                            onPressFunction: () => backButton(context),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: const Center(),
+                        ),
+                        Expanded(
+                          child: CircularButton(
+                            assetPath: "settings.png",
+                            alignment: Alignment.centerRight,
+                            width: 40,
+                            height: 40,
+                            applyElevation: false,
+                            onPressFunction: () => goToSettingPage(context),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -92,41 +128,6 @@ class UserProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 40,
-                  right: 40,
-                  child: InkWell(
-                    onTap: () => goToSettingPage(context),
-                    child: Container(
-                      alignment: Alignment.center,
-                      height: 30,
-                      width: 30,
-                      child: ImageWrapper(
-                        assetPath: "settings.png",
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 40,
-                  left: 40,
-                  child: InkWell(
-                    onTap: () => backButton(context),
-                    child: Container(
-                      height: 30,
-                      width: 30,
-                      alignment: Alignment.center,
-                      child: Container(
-                        height: 20,
-                        width: 20,
-                        alignment: Alignment.center,
-                        child: ImageWrapper(
-                          assetPath: "back_arrow.png",
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           );
@@ -139,7 +140,7 @@ class UserProfileScreen extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-  void goToSettingPage(BuildContext context){
+  void goToSettingPage(BuildContext context) {
     Navigator.of(context).pushNamed(SettingsScreen.routeName);
   }
 }
