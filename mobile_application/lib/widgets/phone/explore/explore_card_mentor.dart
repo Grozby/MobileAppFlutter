@@ -131,7 +131,7 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
               ),
               const Divider(),
               FadedListView<PastExperience>(
-                list: mentor.pastExperiences,
+                list: mentor.experiences,
                 height: 73,
                 builder: _pastExperienceBadge,
               ),
@@ -225,7 +225,7 @@ class _CompanyInformationBar extends StatelessWidget {
           child: ClipRRect(
             borderRadius: const BorderRadius.all(const Radius.circular(100)),
             child: ImageWrapper(
-              imageUrl: mentor.currentJob.companyImageUrl,
+              imageUrl: mentor.currentJob.pictureUrl,
               assetPath: "message.png",
             ),
           ),

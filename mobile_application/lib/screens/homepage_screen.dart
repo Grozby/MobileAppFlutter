@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/screens/settings_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../models/exceptions/no_internet_exception.dart';

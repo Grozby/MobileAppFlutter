@@ -6,18 +6,23 @@ import 'package:json_annotation/json_annotation.dart';
 part 'academic_degree.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class AcademicDegree implements PastExperience {
+class AcademicDegree extends PastExperience {
   String university;
   String degreeLevel;
   String fieldOfStudy;
-  String universityPictureUrl;
 
   AcademicDegree({
     @required this.university,
     @required this.degreeLevel,
     @required this.fieldOfStudy,
-    this.universityPictureUrl,
-  });
+    universityPictureUrl,
+    @required startingTime,
+    endingTime,
+  }) : super(
+          pictureUrl: universityPictureUrl,
+          startingTime: startingTime,
+          endingTime: endingTime,
+        );
 
   @override
   String get at => university;
@@ -26,10 +31,7 @@ class AcademicDegree implements PastExperience {
   String get haveDone => degreeLevel + " in " + fieldOfStudy;
 
   @override
-  String get assetPath => "assets/images/degree.png";
-
-  @override
-  String get pictureUrl => universityPictureUrl;
+  String get assetPath => "degree_128.png";
 
   factory AcademicDegree.fromJson(Map json) => _$AcademicDegreeFromJson(json);
 

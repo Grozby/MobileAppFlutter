@@ -7,7 +7,6 @@ import '../../models/users/experiences/past_experience.dart';
 import '../../models/users/question.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-
 ///
 ///
 /// USE 'flutter pub run build_runner watch' to update the Json serializer utility!!!
@@ -27,7 +26,7 @@ abstract class User {
     fromJson: getExperiences,
     toJson: getJsonExperiences,
   )
-  List<PastExperience> pastExperiences;
+  List<PastExperience> experiences;
 
   User({
     @required this.name,
@@ -36,7 +35,7 @@ abstract class User {
     @required this.location,
     @required this.bio,
     @required this.questions,
-    @required this.pastExperiences,
+    @required this.experiences,
     @required this.currentJob,
   })  : assert(name != null),
         assert(surname != null),
@@ -49,7 +48,16 @@ abstract class User {
   String get completeName => name + " " + surname;
 
   Color get color;
+
   Color get cardColor;
+
+  List<Job> get jobExperiences =>
+      experiences.where((e) => e is Job).map((j) => j as Job).toList();
+
+  List<AcademicDegree> get academicExperiences => experiences
+      .where((p) => p is AcademicDegree)
+      .map((j) => j as AcademicDegree)
+      .toList();
 
   static List<Question> getQuestion(questionsJson) {
     return questionsJson.map<Question>((q) => Question.fromJson(q)).toList();

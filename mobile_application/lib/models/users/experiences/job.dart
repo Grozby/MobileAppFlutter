@@ -5,16 +5,21 @@ import 'package:mobile_application/models/users/experiences/past_experience.dart
 part 'job.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class Job implements PastExperience {
+class Job extends PastExperience {
   final String company;
   final String workingRole;
-  final String companyImageUrl;
 
   Job({
     @required this.company,
     @required this.workingRole,
-    this.companyImageUrl,
-  });
+    companyImageUrl,
+    @required startingTime,
+    endingTime,
+  }) : super(
+          pictureUrl: companyImageUrl,
+          startingTime: startingTime,
+          endingTime: endingTime,
+        );
 
   @override
   String get at => company;
@@ -22,12 +27,9 @@ class Job implements PastExperience {
   @override
   String get haveDone => workingRole;
 
-  @override
-  String get pictureUrl => companyImageUrl;
-
   //TODO Change how we manage this on the widget!!
   @override
-  String get assetPath =>  "assets/images/job.png";
+  String get assetPath => "job_128.png";
 
   factory Job.fromJson(Map json) => _$JobFromJson(json);
 

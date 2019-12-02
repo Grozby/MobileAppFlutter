@@ -75,6 +75,7 @@ class CardProvider with ChangeNotifier {
           companyImageUrl:
               "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
           workingRole: "Software Engineer",
+          startingTime: DateTime(2019, 3)
         ),
         questions: [
           Question(
@@ -88,25 +89,32 @@ class CardProvider with ChangeNotifier {
         ],
         pictureUrl:
             "https://images.csmonitor.com/csm/2015/06/913184_1_0610-larry_standard.jpg?alias=standard_900x600",
-        pastExperiences: [
+        experiences: [
           AcademicDegree(
             degreeLevel: "Ph.D",
             fieldOfStudy: "Computer Science",
             university: "Stanford University",
+            startingTime: DateTime(2015, 9),
+            endingTime: DateTime(2018, 7),
           ),
           AcademicDegree(
             degreeLevel: "Ph.D",
             fieldOfStudy: "Computer Science",
             university: "Stanford University",
+            startingTime: DateTime(2015, 9),
+            endingTime: DateTime(2018, 7),
           ),
           AcademicDegree(
             degreeLevel: "Ph.D",
             fieldOfStudy: "Computer Science",
             university: "Stanford University",
+            startingTime: DateTime(2015, 9),
+            endingTime: DateTime(2018, 7),
           ),
           Job(
             company: "Apple",
             workingRole: "Software engineer",
+            startingTime: DateTime(2019, 12),
           ),
         ],
         questionsForAcceptingRequest: [
@@ -132,6 +140,7 @@ class CardProvider with ChangeNotifier {
             companyImageUrl:
                 "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
             workingRole: "Software Engineer",
+            startingTime: DateTime(2002, 1),
           ),
           workingSpecialization: [
             "Software Engineer",
@@ -145,16 +154,20 @@ class CardProvider with ChangeNotifier {
           ],
           pictureUrl:
               "https://b.thumbs.redditmedia.com/7Zlnm0CUqYG2VIdqpc8QA08cvoINPKTvOZDL2kjfmsI.png",
-          pastExperiences: [
+          experiences: [
             AcademicDegree(
               degreeLevel: "Ph.D",
               fieldOfStudy: "Computer Science",
               university: "Stanford University",
+              startingTime: DateTime(2015, 9),
+              endingTime: DateTime(2018, 7),
             ),
             AcademicDegree(
               degreeLevel: "Ph.D",
               fieldOfStudy: "Computer Science",
               university: "Stanford University",
+              startingTime: DateTime(2015, 9),
+              endingTime: DateTime(2018, 7),
             ),
           ],
           questionsForAcceptingRequest: []),
@@ -170,10 +183,12 @@ class CardProvider with ChangeNotifier {
             "backend",
           ],
           currentJob: Job(
-              company: "Google",
-              companyImageUrl:
-                  "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
-              workingRole: "Software Engineer"),
+            company: "Google",
+            companyImageUrl:
+                "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
+            workingRole: "Software Engineer",
+            startingTime: DateTime(2015, 9),
+          ),
           questions: [
             Question(
               question: "Favorite programming languages...",
@@ -182,21 +197,27 @@ class CardProvider with ChangeNotifier {
           ],
           pictureUrl:
               "https://images.csmonitor.com/csm/2015/06/913184_1_0610-larry_standard.jpg?alias=standard_900x600",
-          pastExperiences: [
+          experiences: [
             AcademicDegree(
               degreeLevel: "Ph.D",
               fieldOfStudy: "Computer Science",
               university: "Stanford University",
+              startingTime: DateTime(2015, 9),
+              endingTime: DateTime(2018, 7),
             ),
             AcademicDegree(
               degreeLevel: "Ph.D",
               fieldOfStudy: "Computer Science",
               university: "Stanford University",
+              startingTime: DateTime(2015, 9),
+              endingTime: DateTime(2018, 7),
             ),
             AcademicDegree(
               degreeLevel: "Ph.D",
               fieldOfStudy: "Computer Science",
               university: "Stanford University",
+              startingTime: DateTime(2015, 9),
+              endingTime: DateTime(2018, 7),
             ),
           ],
           questionsForAcceptingRequest: []),

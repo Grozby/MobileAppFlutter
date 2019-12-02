@@ -19,26 +19,35 @@ class UserDataProvider with ChangeNotifier {
       Mentee(
         name: "Bob",
         surname: "Ross",
-        bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+        bio:
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
         location: "US",
         pictureUrl:
             "https://pbs.twimg.com/profile_images/739783454070431744/f4X-wIsf_400x400.jpg",
         tokenCount: 6,
         currentJob: Job(
-          workingRole: "Reseach Assistant",
-          company: "University of Illinois at Chicago",
-        ),
+            workingRole: "Reseach Assistant",
+            company: "University of Illinois at Chicago",
+            startingTime: DateTime(2018, 8)),
         questions: [
           Question(
             question: "Favorite programming languages...",
             answer: "Java, Python, C++",
           )
         ],
-        pastExperiences: [
+        experiences: [
+          Job(
+            company: "Google",
+            workingRole: "Backend Developer",
+            startingTime: DateTime(2016, 3),
+            endingTime: DateTime(2017, 10),
+          ),
           AcademicDegree(
             degreeLevel: "Ph.D",
             fieldOfStudy: "Computer Science",
             university: "Stanford University",
+            startingTime: DateTime(2015, 9),
+            endingTime: DateTime(2018, 7),
           )
         ],
       ),

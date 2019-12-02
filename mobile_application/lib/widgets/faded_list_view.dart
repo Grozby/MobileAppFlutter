@@ -8,7 +8,7 @@ class FadedListView<T> extends StatefulWidget {
   const FadedListView({
     @required this.list,
     @required this.builder,
-    @required this.height,
+    this.height,
   });
 
   @override
