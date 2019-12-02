@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:mobile_application/models/users/experiences/past_experience.dart';
-
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../../helpers/asset_images.dart';
+import '../../../models/users/experiences/past_experience.dart';
 
 part 'academic_degree.g.dart';
 
@@ -31,7 +32,7 @@ class AcademicDegree extends PastExperience {
   String get haveDone => degreeLevel + " in " + fieldOfStudy;
 
   @override
-  String get assetPath => "degree_128.png";
+  String get assetPath => AssetImages.EDUCATION;
 
   factory AcademicDegree.fromJson(Map json) => _$AcademicDegreeFromJson(json);
 

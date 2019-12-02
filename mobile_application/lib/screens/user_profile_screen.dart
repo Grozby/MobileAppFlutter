@@ -1,10 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/models/users/experiences/past_experience.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
+import '../helpers/asset_images.dart';
+import '../models/users/experiences/past_experience.dart';
 import '../models/users/user.dart';
 import '../models/utility/available_sizes.dart';
 import '../providers/user/user_data_provider.dart';
@@ -62,7 +63,7 @@ class TopButtons extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: CircularButton(
-                assetPath: "back_arrow.png",
+                assetPath: AssetImages.BACK_ARROW,
                 alignment: Alignment.centerLeft,
                 width: 30,
                 height: 30,
@@ -76,7 +77,7 @@ class TopButtons extends StatelessWidget {
             ),
             Expanded(
               child: CircularButton(
-                assetPath: "settings.png",
+                assetPath: AssetImages.SETTINGS,
                 alignment: Alignment.centerRight,
                 width: 30,
                 height: 30,
@@ -119,7 +120,7 @@ class UserImage extends StatelessWidget {
         child: ClipRRect(
           borderRadius: const BorderRadius.all(const Radius.circular(1000)),
           child: ImageWrapper(
-            assetPath: "user.png",
+            assetPath: AssetImages.USER,
             imageUrl: userPictureUrl,
           ),
         ),
@@ -250,6 +251,8 @@ class ExperienceElement extends StatelessWidget {
           child: ImageWrapper(
             imageUrl: experience.pictureUrl,
             assetPath: experience.assetPath,
+            boxFit:
+                experience.pictureUrl != null ? BoxFit.contain : BoxFit.cover,
           ),
         ),
         const SizedBox(width: 16),

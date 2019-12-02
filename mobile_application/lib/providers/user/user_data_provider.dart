@@ -46,6 +46,7 @@ class UserDataProvider with ChangeNotifier {
             degreeLevel: "Ph.D",
             fieldOfStudy: "Computer Science",
             university: "Stanford University",
+            universityPictureUrl: "https://identity.stanford.edu/img/block-s-2color.png",
             startingTime: DateTime(2015, 9),
             endingTime: DateTime(2018, 7),
           )

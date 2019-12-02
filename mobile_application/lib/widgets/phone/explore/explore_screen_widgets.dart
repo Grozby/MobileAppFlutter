@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
+import '../../../helpers/asset_images.dart';
 import '../../../models/utility/available_sizes.dart';
 import '../../../providers/explore/card_provider.dart';
 import '../../../providers/user/user_data_provider.dart';
@@ -31,7 +32,7 @@ class InfoBarWidget extends StatelessWidget {
                       child: Consumer<UserDataProvider>(
                         builder: (context, userProvider, child) {
                           return CircularButton(
-                            assetPath: "user.png",
+                            assetPath: AssetImages.USER,
                             imageUrl: userProvider.user.pictureUrl,
                             alignment: Alignment.centerLeft,
                             onPressFunction: () => goToProfilePage(context),
@@ -50,7 +51,7 @@ class InfoBarWidget extends StatelessWidget {
                     ),
                     Expanded(
                       child: CircularButton(
-                        assetPath: "message.png",
+                        assetPath: AssetImages.MESSAGE,
                         alignment: Alignment.centerRight,
                         onPressFunction: () => goToMessages(context),
                       ),

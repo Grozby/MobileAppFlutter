@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/helpers/asset_images.dart';
 import 'package:mobile_application/providers/explore/questions_provider.dart';
 import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'package:mobile_application/widgets/general/custom_alert_dialog.dart';
@@ -172,10 +173,10 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Image.asset(
-          experience.assetPath,
+        Container(
           height: 25,
           width: 40,
+          child: ImageWrapper(assetPath: experience.assetPath),
         ),
         AutoSizeText(
           experience.haveDone + " @",
@@ -226,7 +227,7 @@ class _CompanyInformationBar extends StatelessWidget {
             borderRadius: const BorderRadius.all(const Radius.circular(100)),
             child: ImageWrapper(
               imageUrl: mentor.currentJob.pictureUrl,
-              assetPath: "message.png",
+              assetPath: AssetImages.MESSAGE,
             ),
           ),
         ),

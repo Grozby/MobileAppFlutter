@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 class ImageWrapper extends StatelessWidget {
   final String imageUrl;
   final String assetPath;
+  final BoxFit boxFit;
 
   ImageWrapper({
     @required this.assetPath,
     this.imageUrl,
+    this.boxFit = BoxFit.cover,
   });
 
   @override
@@ -15,12 +17,12 @@ class ImageWrapper extends StatelessWidget {
     return imageUrl == null
         ? Image.asset(
             "assets/images/" + assetPath,
-            fit: BoxFit.cover,
+            fit: boxFit,
           )
         : CachedNetworkImage(
             imageUrl: imageUrl,
             fadeInDuration: const Duration(milliseconds: 500),
-            fit: BoxFit.cover,
+            fit: boxFit,
             placeholder: (context, url) => Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -28,7 +30,7 @@ class ImageWrapper extends StatelessWidget {
             ),
             errorWidget: (context, url, error) => Image.asset(
               "assets/images/" + assetPath,
-              fit: BoxFit.cover,
+              fit: boxFit,
             ),
           );
   }
