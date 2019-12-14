@@ -1,6 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/models/users/question.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -33,13 +33,26 @@ class UserProfileScreen extends StatelessWidget {
         child: LayoutBuilder(builder: (ctx, constraints) {
           return ScopedModel<AvailableSizes>(
             model: AvailableSizes(constraints.maxHeight),
-            child: Stack(
-              alignment: Alignment.topCenter,
-              children: <Widget>[
-                CardContent(user: user, width: constraints.maxWidth * 0.9),
-                TopButtons(width: constraints.maxWidth * 0.85),
-                UserImage(userPictureUrl: user.pictureUrl),
-              ],
+            child: SingleChildScrollView(
+              child: Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  Column(
+                    children: <Widget>[
+                      Container(
+                        height: 100,
+                        alignment: Alignment.bottomCenter,
+                        child: TopButtons(width: constraints.maxWidth * 0.85),
+                      ),
+                      CardContent(
+                        user: user,
+                        width: constraints.maxWidth * 0.9,
+                      ),
+                    ],
+                  ),
+                  UserImage(userPictureUrl: user.pictureUrl),
+                ],
+              ),
             ),
           );
         }),
@@ -55,9 +68,9 @@ class TopButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      top: 40,
+    return Container(
       width: width,
+      height: 60,
       child: Center(
         child: Row(
           children: <Widget>[
@@ -137,14 +150,14 @@ class CardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      top: 100,
+    return Container(
       width: width,
       child: CardContainer(
         rotateCard: () {},
         canExpand: true,
         startingColor: user.cardColor,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             const SizedBox(height: 60),
             Container(
@@ -187,7 +200,36 @@ class CardContent extends StatelessWidget {
                 title: "Education",
                 experience: user.academicExperiences,
                 width: width * 0.9,
-              )
+              ),
+            if (user.questions.isNotEmpty)
+              QuestionSection(questions: user.questions),
+            if (user.questions.isNotEmpty)
+              QuestionSection(questions: user.questions),
+            if (user.questions.isNotEmpty)
+              QuestionSection(questions: user.questions),
+            if (user.location != null) ...[
+              Divider(),
+              Container(
+                width: double.infinity,
+                child: Text(
+                  "Location",
+                  style: Theme.of(context).textTheme.overline,
+                  textAlign: TextAlign.left,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                width: double.infinity,
+                child: Text(
+                  user.location,
+                  style: Theme.of(context)
+                      .textTheme
+                      .body1
+                      .copyWith(fontWeight: FontWeight.w700),
+                  textAlign: TextAlign.right,
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -276,6 +318,47 @@ class ExperienceElement extends StatelessWidget {
             ],
           ),
         ),
+      ],
+    );
+  }
+}
+
+class QuestionSection extends StatelessWidget {
+  final List<Question> questions;
+
+  QuestionSection({@required this.questions});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Divider(),
+        ...questions
+            .map((question) => [
+                  Container(
+                    width: double.infinity,
+                    child: Text(
+                      question.question,
+                      style: Theme.of(context).textTheme.overline,
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    width: double.infinity,
+                    child: Text(
+                      question.answer,
+                      style: Theme.of(context)
+                          .textTheme
+                          .body1
+                          .copyWith(fontWeight: FontWeight.w700),
+                      textAlign: TextAlign.right,
+                    ),
+                  )
+                ])
+            .expand((i) => i)
+            .toList()
       ],
     );
   }

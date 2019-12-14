@@ -2,22 +2,21 @@ import 'dart:async';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/helpers/asset_images.dart';
-import 'package:mobile_application/providers/explore/questions_provider.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
-import 'package:mobile_application/widgets/general/custom_alert_dialog.dart';
-import 'package:mobile_application/widgets/general/image_wrapper.dart';
-import '../../../providers/explore/should_collapse_provider.dart';
-import '../../../widgets/general/expandable_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:transparent_image/transparent_image.dart';
 
+import '../../../helpers/asset_images.dart';
 import '../../../models/users/experiences/past_experience.dart';
 import '../../../models/users/mentor.dart';
 import '../../../providers/explore/card_provider.dart';
-import '../../general/button_styled.dart';
+import '../../../providers/explore/questions_provider.dart';
+import '../../../providers/explore/should_collapse_provider.dart';
+import '../../../providers/theming/theme_provider.dart';
+import '../../../widgets/general/custom_alert_dialog.dart';
+import '../../../widgets/general/expandable_widget.dart';
+import '../../../widgets/general/image_wrapper.dart';
 import '../../faded_list_view.dart';
+import '../../general/button_styled.dart';
 import '../../transition/rotation_transition_upgraded.dart';
 import 'card_container.dart';
 import 'explore_card.dart';
@@ -127,9 +126,7 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
                 builder: _workingSpecializationBadge,
               ),
               const Divider(),
-              const _FavoriteLanguages(
-                height: 30,
-              ),
+              const _FavoriteLanguages(height: 30),
               const Divider(),
               FadedListView<PastExperience>(
                 list: mentor.experiences,

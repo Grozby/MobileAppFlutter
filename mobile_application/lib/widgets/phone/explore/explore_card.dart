@@ -39,10 +39,10 @@ class ExploreCard extends StatelessWidget {
           child: MultiProvider(
             providers: [
               ChangeNotifierProvider(
-                builder: (_) => ShouldCollapseProvider(),
+                create: (_) => ShouldCollapseProvider(),
               ),
               ChangeNotifierProvider(
-                builder: (_) => QuestionsProvider(
+                create: (_) => QuestionsProvider(
                   numberOfQuestions: (user as Mentor).howManyQuestionsToAnswer,
                 ),
               ),
