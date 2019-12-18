@@ -23,6 +23,7 @@ parseJson(String text) {
 }
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   //Force the app to work only in portrait mode
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -43,12 +44,12 @@ void main() async {
   var themeProvider = ThemeProvider();
   var authenticationProvider = AuthenticationProvider(_httpManager);
   var userDataProvider = UserDataProvider();
-  var cardProvider = CardProvider(_httpManager);
+  var cardProvider = CardProvider();
 
   await themeProvider.loadThemePreference();
   await authenticationProvider.loadAuthentication();
 
-  return runApp(
+  runApp(
     MyApp(
       themeProvider: themeProvider,
       authenticationProvider: authenticationProvider,

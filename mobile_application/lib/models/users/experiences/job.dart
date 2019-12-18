@@ -7,23 +7,18 @@ part 'job.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Job extends PastExperience {
-  final String company;
   final String workingRole;
 
   Job({
-    @required this.company,
     @required this.workingRole,
-    companyImageUrl,
-    @required startingTime,
-    endingTime,
+    @required institution,
+    @required fromDate,
+    toDate,
   }) : super(
-          pictureUrl: companyImageUrl,
-          startingTime: startingTime,
-          endingTime: endingTime,
+          institution: institution,
+          fromDate: fromDate,
+          toDate: toDate,
         );
-
-  @override
-  String get at => company;
 
   @override
   String get haveDone => workingRole;

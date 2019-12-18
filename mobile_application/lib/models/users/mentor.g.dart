@@ -15,6 +15,7 @@ Mentor _$MentorFromJson(Map json) {
     bio: json['bio'],
     questions: User.getQuestion(json['questions']),
     experiences: User.getExperiences(json['pastExperiences']),
+    socialAccounts: User.getSocialAccounts(json['socialAccounts']),
     currentJob: json['currentJob'],
     workingSpecialization: (json['workingSpecialization'] as List)
         ?.map((e) => e as String)
@@ -34,6 +35,7 @@ Map<String, dynamic> _$MentorToJson(Mentor instance) => <String, dynamic>{
       'currentJob': instance.currentJob?.toJson(),
       'questions': instance.questions?.map((e) => e?.toJson())?.toList(),
       'pastExperiences': User.getJsonExperiences(instance.experiences),
+      'socialAccounts': User.getJsonSocialAccounts(instance.socialAccounts),
       'workingSpecialization': instance.workingSpecialization,
       'questionsForAcceptingRequest': instance.questionsForAcceptingRequest
           ?.map((e) => e?.toJson())

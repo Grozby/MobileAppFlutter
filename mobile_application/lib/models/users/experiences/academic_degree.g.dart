@@ -8,20 +8,19 @@ part of 'academic_degree.dart';
 
 AcademicDegree _$AcademicDegreeFromJson(Map json) {
   return AcademicDegree(
-    university: json['university'] as String,
+    institution: json['institution'],
     degreeLevel: json['degreeLevel'] as String,
     fieldOfStudy: json['fieldOfStudy'] as String,
-    startingTime: json['startingTime'],
-    endingTime: json['endingTime'],
-  )..pictureUrl = json['pictureUrl'] as String;
+    fromDate: json['fromDate'],
+    toDate: json['toDate'],
+  );
 }
 
 Map<String, dynamic> _$AcademicDegreeToJson(AcademicDegree instance) =>
     <String, dynamic>{
-      'pictureUrl': instance.pictureUrl,
-      'startingTime': instance.startingTime?.toIso8601String(),
-      'endingTime': instance.endingTime?.toIso8601String(),
-      'university': instance.university,
+      'institution': instance.institution?.toJson(),
+      'fromDate': instance.fromDate?.toIso8601String(),
+      'toDate': instance.toDate?.toIso8601String(),
       'degreeLevel': instance.degreeLevel,
       'fieldOfStudy': instance.fieldOfStudy,
     };

@@ -1,24 +1,29 @@
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_application/models/users/experiences/institution.dart';
 
 abstract class PastExperience {
-  String pictureUrl;
-  DateTime startingTime;
-  DateTime endingTime;
+  Institution institution;
+  DateTime fromDate;
+  DateTime toDate;
 
   String get assetPath;
 
-  String get at;
+  String get at => institution.name;
+
+  String get pictureUrl => institution.pictureUrl;
 
   String get haveDone;
 
   String get durationExperience =>
-      DateFormat.yMMMd().format(startingTime) +
+      DateFormat.yMMMd().format(fromDate) +
       " - " +
-      DateFormat.yMMMd().format(endingTime);
+      DateFormat.yMMMd().format(toDate);
 
   PastExperience({
-    this.pictureUrl,
-    this.startingTime,
-    this.endingTime,
-  }) : assert(startingTime != null);
+    @required this.institution,
+    @required this.fromDate,
+    this.toDate,
+  })  : assert(fromDate != null),
+        assert(institution != null);
 }

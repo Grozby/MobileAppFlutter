@@ -230,7 +230,7 @@ class _CompanyInformationBar extends StatelessWidget {
         ),
       ),
       title: AutoSizeText(
-        mentor.currentJob.company,
+        mentor.currentJob.at,
         maxLines: 1,
         style: Theme.of(context).textTheme.display2,
       ),
@@ -356,7 +356,7 @@ class _MentorBasicInformationText extends StatelessWidget {
                   style: Theme.of(context).textTheme.overline,
                 ),
                 TextSpan(
-                  text: mentor.currentJob.company,
+                  text: mentor.currentJob.at,
                   style: Theme.of(context).textTheme.overline.copyWith(
                         fontWeight: FontWeight.bold,
                       ),

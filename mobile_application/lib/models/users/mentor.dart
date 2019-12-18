@@ -23,6 +23,7 @@ class Mentor extends User {
     @required bio,
     @required questions,
     @required experiences,
+    @required socialAccounts,
     @required currentJob,
     @required this.workingSpecialization,
     @required this.questionsForAcceptingRequest,
@@ -37,6 +38,7 @@ class Mentor extends User {
             bio: bio,
             questions: questions,
             experiences: experiences ?? [],
+            socialAccounts: socialAccounts,
             currentJob: currentJob);
 
   bool get needsToAnswerQuestions => questionsForAcceptingRequest.length != 0;

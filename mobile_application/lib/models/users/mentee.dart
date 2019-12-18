@@ -16,6 +16,7 @@ class Mentee extends User {
     @required bio,
     @required questions,
     @required experiences,
+    @required socialAccounts,
     @required currentJob,
     @required this.tokenCount,
   })  : assert(tokenCount != null),
@@ -27,6 +28,7 @@ class Mentee extends User {
           bio: bio,
           questions: questions,
           experiences: experiences,
+          socialAccounts: socialAccounts,
           currentJob: currentJob,
         );
 

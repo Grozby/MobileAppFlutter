@@ -8,25 +8,20 @@ part 'academic_degree.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class AcademicDegree extends PastExperience {
-  String university;
   String degreeLevel;
   String fieldOfStudy;
 
   AcademicDegree({
-    @required this.university,
+    @required institution,
     @required this.degreeLevel,
     @required this.fieldOfStudy,
-    universityPictureUrl,
-    @required startingTime,
-    endingTime,
+    @required fromDate,
+    toDate,
   }) : super(
-          pictureUrl: universityPictureUrl,
-          startingTime: startingTime,
-          endingTime: endingTime,
+          institution: institution,
+          fromDate: fromDate,
+          toDate: toDate,
         );
-
-  @override
-  String get at => university;
 
   @override
   String get haveDone => degreeLevel + " in " + fieldOfStudy;

@@ -1,6 +1,5 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+
 import '../../models/users/answer.dart';
 
 ///
@@ -18,7 +17,7 @@ class QuestionsProvider with ChangeNotifier {
     currentIndex = 0;
     answers = [];
 
-    if(numberOfQuestions == 0){
+    if (numberOfQuestions == 0) {
       noMoreQuestions = true;
     }
   }
@@ -31,7 +30,7 @@ class QuestionsProvider with ChangeNotifier {
 
     currentIndex++;
 
-    if(numberOfQuestions == currentIndex){
+    if (numberOfQuestions == currentIndex) {
       noMoreQuestions = true;
     }
 

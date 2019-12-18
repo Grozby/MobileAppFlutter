@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:mobile_application/providers/explore/questions_provider.dart';
 import 'package:mobile_application/providers/explore/should_collapse_provider.dart';

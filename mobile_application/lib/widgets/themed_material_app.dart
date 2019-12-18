@@ -73,7 +73,7 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
                 //If true is returned, we are logged in
                 return const HomepageScreen();
               } else {
-                //Otherwise, se show the sign-up screen
+                //Otherwise, we show the sign-up screen
                 return LandingScreen();
               }
           }

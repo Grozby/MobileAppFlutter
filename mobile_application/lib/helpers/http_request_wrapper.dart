@@ -19,6 +19,7 @@ class HttpRequestWrapper {
     dynamic postBody,
   ) async {
     Response response;
+
     switch (typeHttpRequest) {
       case TypeHttpRequest.post:
         response =

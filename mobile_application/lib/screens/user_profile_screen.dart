@@ -41,7 +41,7 @@ class UserProfileScreen extends StatelessWidget {
                     children: <Widget>[
                       Container(
                         height: 100,
-                        alignment: Alignment.bottomCenter,
+                        alignment: Alignment.center,
                         child: TopButtons(width: constraints.maxWidth * 0.85),
                       ),
                       CardContent(
@@ -152,6 +152,7 @@ class CardContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: width,
+      padding: EdgeInsets.only(bottom: 12.0),
       child: CardContainer(
         rotateCard: () {},
         canExpand: true,
@@ -172,7 +173,7 @@ class CardContent extends StatelessWidget {
               style: Theme.of(context).textTheme.overline,
             ),
             AutoSizeText(
-              user.currentJob.company,
+              user.currentJob.at,
               style: Theme.of(context).textTheme.overline.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

@@ -1,6 +1,10 @@
+import 'dart:collection';
+
 import 'package:flutter/foundation.dart';
 import 'package:mobile_application/models/users/experiences/academic_degree.dart';
+import 'package:mobile_application/models/users/experiences/institution.dart';
 import 'package:mobile_application/models/users/experiences/job.dart';
+import 'package:mobile_application/models/users/socials/social_account.dart';
 
 import '../../models/users/mentee.dart';
 import '../../models/users/question.dart';
@@ -27,8 +31,10 @@ class UserDataProvider with ChangeNotifier {
         tokenCount: 6,
         currentJob: Job(
             workingRole: "Reseach Assistant",
-            company: "University of Illinois at Chicago",
-            startingTime: DateTime(2018, 8)),
+            institution: Institution(
+              name: "University of Illinois at Chicago",
+            ),
+            fromDate: DateTime(2018, 8)),
         questions: [
           Question(
             question: "Favorite programming languages...",
@@ -37,20 +43,25 @@ class UserDataProvider with ChangeNotifier {
         ],
         experiences: [
           Job(
-            company: "Google",
+            institution: Institution(
+              name: "Google",
+            ),
             workingRole: "Backend Developer",
-            startingTime: DateTime(2016, 3),
-            endingTime: DateTime(2017, 10),
+            fromDate: DateTime(2016, 3),
+            toDate: DateTime(2017, 10),
           ),
           AcademicDegree(
             degreeLevel: "Ph.D",
             fieldOfStudy: "Computer Science",
-            university: "Stanford University",
-            universityPictureUrl: "https://identity.stanford.edu/img/block-s-2color.png",
-            startingTime: DateTime(2015, 9),
-            endingTime: DateTime(2018, 7),
+            institution: Institution(
+              name: "Stanford University",
+              pictureUrl: "https://identity.stanford.edu/img/block-s-2color.png",
+            ),
+            fromDate: DateTime(2015, 9),
+            toDate: DateTime(2018, 7),
           )
         ],
+        socialAccounts: HashMap<String, SocialAccount>(),
       ),
     );
 
