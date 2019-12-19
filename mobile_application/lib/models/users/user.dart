@@ -2,17 +2,18 @@ import 'dart:collection';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:mobile_application/models/users/experiences/academic_degree.dart';
-import 'package:mobile_application/models/users/experiences/job.dart';
-import 'package:mobile_application/models/users/socials/facebook_account.dart';
-import 'package:mobile_application/models/users/socials/github_account.dart';
-import 'package:mobile_application/models/users/socials/instagram_account.dart';
-import 'package:mobile_application/models/users/socials/linkedin_account.dart';
-import 'package:mobile_application/models/users/socials/social_account.dart';
-import 'package:mobile_application/models/users/socials/twitter_account.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+import '../../models/users/experiences/academic_degree.dart';
+import '../../models/users/experiences/job.dart';
 import '../../models/users/experiences/past_experience.dart';
 import '../../models/users/question.dart';
-import 'package:json_annotation/json_annotation.dart';
+import '../../models/users/socials/facebook_account.dart';
+import '../../models/users/socials/github_account.dart';
+import '../../models/users/socials/instagram_account.dart';
+import '../../models/users/socials/linkedin_account.dart';
+import '../../models/users/socials/social_account.dart';
+import '../../models/users/socials/twitter_account.dart';
 
 ///
 ///
@@ -25,18 +26,22 @@ abstract class User {
   String pictureUrl;
   String location;
   String bio;
+
+  @JsonKey(fromJson: getCurrentJobFromJson)
   Job currentJob;
-  @JsonKey(fromJson: getQuestion)
+
+  @JsonKey(fromJson: getQuestionFromJson)
   List<Question> questions;
+
   @JsonKey(
     name: "pastExperiences",
-    fromJson: getExperiences,
+    fromJson: getExperiencesFromJson,
     toJson: getJsonExperiences,
   )
   List<PastExperience> experiences;
 
   @JsonKey(
-    fromJson: getSocialAccounts,
+    fromJson: getSocialAccountsFromJson,
     toJson: getJsonSocialAccounts,
   )
   HashMap<String, SocialAccount> socialAccounts;
@@ -75,11 +80,15 @@ abstract class User {
       .map((j) => j as AcademicDegree)
       .toList();
 
-  static List<Question> getQuestion(questionsJson) {
+  static Job getCurrentJobFromJson(Map<String, dynamic> json) {
+    return Job.fromJson(json);
+  }
+
+  static List<Question> getQuestionFromJson(questionsJson) {
     return questionsJson.map<Question>((q) => Question.fromJson(q)).toList();
   }
 
-  static SocialAccount getSocialAccount(element) {
+  static SocialAccount getSocialAccountFromJson(element) {
     switch (element["type"]) {
       case "Twitter":
         return TwitterAccount.fromJson(element["content"]);
@@ -96,27 +105,33 @@ abstract class User {
     }
   }
 
-  static HashMap<String, SocialAccount> getSocialAccounts(socialAccountsJson) {
+  static HashMap<String, SocialAccount> getSocialAccountsFromJson(
+      socialAccountsJson) {
     HashMap<String, SocialAccount> hashMap = HashMap();
-    socialAccountsJson.forEach((e) => hashMap[e["type"]] = getSocialAccount(e));
+    if(socialAccountsJson != null){
+      socialAccountsJson
+          .forEach((e) => hashMap[e["type"]] = getSocialAccountFromJson(e));
+    }
+
     return hashMap;
   }
 
   static List<Map<String, dynamic>> getJsonSocialAccounts(
       HashMap<String, SocialAccount> socialAccount) {
     List<Map<String, dynamic>> list = List();
-
-    socialAccount.forEach((key, socialAccount) {
-      var map = socialAccount.toJson();
-      map["type"] = socialAccount.typeAccount;
-      list.add(map);
-    });
+    if(socialAccount != null){
+      socialAccount.forEach((key, socialAccount) {
+        var map = socialAccount.toJson();
+        map["type"] = socialAccount.typeAccount;
+        list.add(map);
+      });
+    }
 
     return list;
   }
 
-  static List<PastExperience> getExperiences(experiencesJson) {
-    return experiencesJson.map<PastExperience>((e) {
+  static List<PastExperience> getExperiencesFromJson(experiencesJson) {
+    return experiencesJson?.map<PastExperience>((e) {
       switch (e["kind"]) {
         case "Job": // Selector decided by the backend
           return Job.fromJson(e);
@@ -125,12 +140,12 @@ abstract class User {
         default:
           throw Exception();
       }
-    }).toList();
+    })?.toList();
   }
 
   static List<Map<String, dynamic>> getJsonExperiences(
       List<PastExperience> experiences) {
-    return experiences.map<Map<String, dynamic>>((e) {
+    return experiences?.map<Map<String, dynamic>>((e) {
       if (e is Job) {
         var map = e.toJson();
         map["type"] = "OldJob";
@@ -143,11 +158,6 @@ abstract class User {
       }
 
       throw Exception("Not a past experience!!");
-    }).toList();
+    })?.toList();
   }
-
-  Map<String, dynamic> _$QuestionToJson(Question instance) => <String, dynamic>{
-        'question': instance.question,
-        'answer': instance.answer,
-      };
 }

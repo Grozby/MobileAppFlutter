@@ -8,11 +8,12 @@ part of 'academic_degree.dart';
 
 AcademicDegree _$AcademicDegreeFromJson(Map json) {
   return AcademicDegree(
-    institution: json['institution'],
+    institution: PastExperience.getInstitutionFromJson(
+        json['institution'] as Map<String, dynamic>),
     degreeLevel: json['degreeLevel'] as String,
     fieldOfStudy: json['fieldOfStudy'] as String,
-    fromDate: json['fromDate'],
-    toDate: json['toDate'],
+    fromDate: PastExperience.getDateTimeFromString(json['fromDate'] as String),
+    toDate: PastExperience.getDateTimeFromString(json['toDate'] as String),
   );
 }
 

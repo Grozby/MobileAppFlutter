@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'mentor.dart';
+part of 'mentee.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Mentor _$MentorFromJson(Map json) {
-  return Mentor(
+Mentee _$MenteeFromJson(Map json) {
+  return Mentee(
     name: json['name'],
     surname: json['surname'],
     pictureUrl: json['pictureUrl'],
@@ -18,16 +18,11 @@ Mentor _$MentorFromJson(Map json) {
     socialAccounts: User.getSocialAccountsFromJson(json['socialAccounts']),
     currentJob:
         User.getCurrentJobFromJson(json['currentJob'] as Map<String, dynamic>),
-    workingSpecialization: (json['workingSpecialization'] as List)
-        ?.map((e) => e as String)
-        ?.toList(),
-    questionsForAcceptingRequest: (json['questionsForAcceptingRequest'] as List)
-        ?.map((e) => e == null ? null : MentorQuestion.fromJson(e as Map))
-        ?.toList(),
+    tokenWallet: json['tokenWallet'] as int,
   );
 }
 
-Map<String, dynamic> _$MentorToJson(Mentor instance) => <String, dynamic>{
+Map<String, dynamic> _$MenteeToJson(Mentee instance) => <String, dynamic>{
       'name': instance.name,
       'surname': instance.surname,
       'pictureUrl': instance.pictureUrl,
@@ -37,8 +32,5 @@ Map<String, dynamic> _$MentorToJson(Mentor instance) => <String, dynamic>{
       'questions': instance.questions?.map((e) => e?.toJson())?.toList(),
       'pastExperiences': User.getJsonExperiences(instance.experiences),
       'socialAccounts': User.getJsonSocialAccounts(instance.socialAccounts),
-      'workingSpecialization': instance.workingSpecialization,
-      'questionsForAcceptingRequest': instance.questionsForAcceptingRequest
-          ?.map((e) => e?.toJson())
-          ?.toList(),
+      'tokenWallet': instance.tokenWallet,
     };

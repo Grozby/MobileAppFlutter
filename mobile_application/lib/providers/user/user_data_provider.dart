@@ -1,22 +1,57 @@
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
-import 'package:mobile_application/models/users/experiences/academic_degree.dart';
-import 'package:mobile_application/models/users/experiences/institution.dart';
-import 'package:mobile_application/models/users/experiences/job.dart';
-import 'package:mobile_application/models/users/socials/social_account.dart';
 
+import '../../helpers/http_request_wrapper.dart';
+import '../../models/exceptions/something_went_wrong_exception.dart';
+import '../../models/users/experiences/academic_degree.dart';
+import '../../models/users/experiences/institution.dart';
+import '../../models/users/experiences/job.dart';
 import '../../models/users/mentee.dart';
 import '../../models/users/question.dart';
+import '../../models/users/socials/social_account.dart';
 import '../../models/users/user.dart';
 import '../../providers/user/mentee_ui_data.dart';
 import '../../providers/user/user_ui_data.dart';
 
 class UserDataProvider with ChangeNotifier {
   UserUIData behavior;
+  HttpRequestWrapper httpRequestWrapper;
+
+  UserDataProvider(this.httpRequestWrapper);
+
+  Future<void> loadMinimalUserData() async {
+
+  }
 
   ///TODO implement load of user data. Fetch from server.
   Future<void> loadUserData() async {
+    return await httpRequestWrapper.request<bool>(
+        url: "/users/profile",
+        typeHttpRequest: TypeHttpRequest.get,
+        correctStatusCode: 200,
+        onCorrectStatusCode: (response) async {
+          switch (response.data["kind"]) {
+            case "Mentee":
+              this.behavior = MenteeUIData(Mentee.fromJson(response.data));
+              break;
+            case "Mentor":
+              this.behavior = MenteeUIData(Mentee.fromJson(response.data));
+              break;
+            default:
+              throw SomethingWentWrongException.message(
+                  "Some error happened on the server side.");
+          }
+        },
+        onIncorrectStatusCode: (_) {
+          throw SomethingWentWrongException.message(
+            "Couldn't load the explore section. Try again later.",
+          );
+        },
+        onUnknownDioError: (_) {
+          throw SomethingWentWrongException();
+        });
+
     //REMOVE
     await Future.delayed(Duration(seconds: 1));
     behavior = MenteeUIData(
@@ -28,7 +63,7 @@ class UserDataProvider with ChangeNotifier {
         location: "Chicago, USA",
         pictureUrl:
             "https://pbs.twimg.com/profile_images/739783454070431744/f4X-wIsf_400x400.jpg",
-        tokenCount: 6,
+        tokenWallet: 6,
         currentJob: Job(
             workingRole: "Reseach Assistant",
             institution: Institution(
@@ -55,7 +90,8 @@ class UserDataProvider with ChangeNotifier {
             fieldOfStudy: "Computer Science",
             institution: Institution(
               name: "Stanford University",
-              pictureUrl: "https://identity.stanford.edu/img/block-s-2color.png",
+              pictureUrl:
+                  "https://identity.stanford.edu/img/block-s-2color.png",
             ),
             fromDate: DateTime(2015, 9),
             toDate: DateTime(2018, 7),

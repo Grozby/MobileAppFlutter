@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../../helpers/asset_images.dart';
 import '../../../models/users/experiences/past_experience.dart';
 

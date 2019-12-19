@@ -1,12 +1,17 @@
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import '../../providers/theming/theme_provider.dart';
 import 'user.dart';
 
+part 'mentee.g.dart';
+
+@JsonSerializable(explicitToJson: true, anyMap: true)
 class Mentee extends User {
-  int tokenCount;
+
+  int tokenWallet;
 
   Mentee({
     @required name,
@@ -18,8 +23,8 @@ class Mentee extends User {
     @required experiences,
     @required socialAccounts,
     @required currentJob,
-    @required this.tokenCount,
-  })  : assert(tokenCount != null),
+    @required this.tokenWallet,
+  })  : assert(tokenWallet != null),
         super(
           name: name,
           surname: surname,
@@ -31,6 +36,10 @@ class Mentee extends User {
           socialAccounts: socialAccounts,
           currentJob: currentJob,
         );
+
+  factory Mentee.fromJson(Map<String, dynamic> json) => _$MenteeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MenteeToJson(this);
 
   @override
   Color get color => ThemeProvider.menteeColor;

@@ -4,13 +4,13 @@ import '../../models/users/user.dart';
 import 'user_ui_data.dart';
 
 class MenteeUIData extends UserUIData {
-  MenteeUIData(User user) : super(user: user);
+  MenteeUIData(Mentee user) : super(user: user);
 
   Mentee get user => super.user as Mentee;
 
   @override
-  String get remainingTokensString => "You have ${user.tokenCount} tokens left.";
+  String get remainingTokensString => "You have ${user.tokenWallet} tokens left.";
 
   @override
-  int get tokenCount => user.tokenCount;
+  int get tokenCount => user.tokenWallet;
 }

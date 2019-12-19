@@ -9,9 +9,10 @@ part of 'job.dart';
 Job _$JobFromJson(Map json) {
   return Job(
     workingRole: json['workingRole'] as String,
-    institution: json['institution'],
-    fromDate: json['fromDate'],
-    toDate: json['toDate'],
+    institution: PastExperience.getInstitutionFromJson(
+        json['institution'] as Map<String, dynamic>),
+    fromDate: PastExperience.getDateTimeFromString(json['fromDate'] as String),
+    toDate: PastExperience.getDateTimeFromString(json['toDate'] as String),
   );
 }
 

@@ -43,7 +43,8 @@ void main() async {
 
   var themeProvider = ThemeProvider();
   var authenticationProvider = AuthenticationProvider(_httpManager);
-  var userDataProvider = UserDataProvider();
+  var userDataProvider =
+      UserDataProvider(authenticationProvider.httpRequestWrapper);
   var cardProvider = CardProvider();
 
   await themeProvider.loadThemePreference();

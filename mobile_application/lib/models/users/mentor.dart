@@ -2,8 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
 
+import '../../providers/theming/theme_provider.dart';
 import 'mentor_question/mentor_question.dart';
 import 'user.dart';
 

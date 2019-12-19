@@ -1,11 +1,23 @@
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile_application/models/users/experiences/institution.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+import '../../../models/users/experiences/institution.dart';
 
 abstract class PastExperience {
+  @JsonKey(fromJson: getInstitutionFromJson)
   Institution institution;
+  @JsonKey(fromJson: getDateTimeFromString)
   DateTime fromDate;
+  @JsonKey(fromJson: getDateTimeFromString)
   DateTime toDate;
+
+  PastExperience({
+    @required this.institution,
+    @required this.fromDate,
+    this.toDate,
+  })  : assert(fromDate != null),
+        assert(institution != null);
 
   String get assetPath;
 
@@ -20,10 +32,13 @@ abstract class PastExperience {
       " - " +
       DateFormat.yMMMd().format(toDate);
 
-  PastExperience({
-    @required this.institution,
-    @required this.fromDate,
-    this.toDate,
-  })  : assert(fromDate != null),
-        assert(institution != null);
+  static Institution getInstitutionFromJson(Map<String, dynamic> json) {
+      return Institution.fromJson(json);
+  }
+
+  static DateTime getDateTimeFromString(String string) {
+    return string == null
+        ? null
+        : DateTime.parse(string);
+  }
 }
