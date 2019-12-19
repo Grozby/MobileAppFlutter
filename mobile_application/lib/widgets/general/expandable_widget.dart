@@ -55,13 +55,13 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
       //If we have a stream, we subscribe to it. Whenever we have a
       //a change, we collapse the widget.
       try {
-        var shouldCollapseProvider = Provider.of<ShouldCollapseProvider>(context);
+        var shouldCollapseProvider =
+            Provider.of<ShouldCollapseProvider>(context);
         if (shouldCollapseProvider != null) {
           shouldCollapseStream = shouldCollapseProvider.changeNotifier.stream;
           shouldCollapseStream.listen((_) => collapse());
         }
-      } catch (e){}
-
+      } catch (e) {}
     });
   }
 
@@ -79,7 +79,6 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
         streamSubscription = shouldCollapseStream.listen((_) => collapse());
       }
     } catch (e) {}
-
   }
 
   @override
@@ -110,7 +109,9 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
     });
 
     _sizeAnimation = Tween<double>(
-      begin: widget.height,
+      begin: widget.height < actualWidgetHeight
+          ? widget.height
+          : actualWidgetHeight,
       end: actualWidgetHeight,
     ).animate(_controller);
   }
@@ -192,7 +193,9 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
                   alignment: Alignment.topCenter,
                   size: Size(
                     double.infinity,
-                    _sizeAnimation?.value ?? widget.height,
+                    _sizeAnimation?.value ??
+                        actualWidgetHeight ??
+                        widget.height,
                   ),
                   child: child,
                 ),
