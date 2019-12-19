@@ -32,7 +32,7 @@ class UserProfileScreen extends StatelessWidget {
       body: SafeArea(
         child: LayoutBuilder(builder: (ctx, constraints) {
           return ScopedModel<AvailableSizes>(
-            model: AvailableSizes(constraints.maxHeight),
+            model: AvailableSizes(constraints.maxHeight - 100),
             child: SingleChildScrollView(
               child: Stack(
                 alignment: Alignment.topCenter,
@@ -190,6 +190,7 @@ class CardContent extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
             if (user.jobExperiences.isNotEmpty)
               PastExperiencesSection(
                 title: "Experience",
@@ -202,10 +203,6 @@ class CardContent extends StatelessWidget {
                 experience: user.academicExperiences,
                 width: width * 0.9,
               ),
-            if (user.questions.isNotEmpty)
-              QuestionSection(questions: user.questions),
-            if (user.questions.isNotEmpty)
-              QuestionSection(questions: user.questions),
             if (user.questions.isNotEmpty)
               QuestionSection(questions: user.questions),
             if (user.location != null) ...[
@@ -356,10 +353,12 @@ class QuestionSection extends StatelessWidget {
                           .copyWith(fontWeight: FontWeight.w700),
                       textAlign: TextAlign.right,
                     ),
-                  )
+                  ),
+                  const SizedBox(height: 4),
                 ])
             .expand((i) => i)
             .toList()
+              ..removeLast()
       ],
     );
   }

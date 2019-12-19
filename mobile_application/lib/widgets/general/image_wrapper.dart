@@ -20,6 +20,8 @@ class ImageWrapper extends StatelessWidget {
             fit: boxFit,
           )
         : CachedNetworkImage(
+            width: double.infinity,
+            height: double.infinity,
             imageUrl: imageUrl,
             fadeInDuration: const Duration(milliseconds: 500),
             fit: boxFit,
