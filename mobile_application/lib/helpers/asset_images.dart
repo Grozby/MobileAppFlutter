@@ -6,4 +6,6 @@ class AssetImages {
   static const String BACK_ARROW = "back_arrow.png";
   static const String MESSAGE = "message.png";
   static const String SETTINGS = "settings.png";
+
+  static String socialAssets(String social) => social + ".png";
 }

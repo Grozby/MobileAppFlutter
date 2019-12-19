@@ -1,11 +1,13 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/models/users/question.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../helpers/asset_images.dart';
 import '../models/users/experiences/past_experience.dart';
+import '../models/users/question.dart';
+import '../models/users/socials/social_account.dart';
 import '../models/users/user.dart';
 import '../models/utility/available_sizes.dart';
 import '../providers/user/user_data_provider.dart';
@@ -205,29 +207,10 @@ class CardContent extends StatelessWidget {
               ),
             if (user.questions.isNotEmpty)
               QuestionSection(questions: user.questions),
-            if (user.location != null) ...[
-              Divider(),
-              Container(
-                width: double.infinity,
-                child: Text(
-                  "Location",
-                  style: Theme.of(context).textTheme.overline,
-                  textAlign: TextAlign.left,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Container(
-                width: double.infinity,
-                child: Text(
-                  user.location,
-                  style: Theme.of(context)
-                      .textTheme
-                      .body1
-                      .copyWith(fontWeight: FontWeight.w700),
-                  textAlign: TextAlign.right,
-                ),
-              ),
-            ],
+            if (user.location != null) Location(location: user.location),
+            const SizedBox(height: 16),
+            if (user.socialAccounts.isNotEmpty)
+              SocialIcons(socialAccounts: user.socialAccounts)
           ],
         ),
       ),
@@ -361,5 +344,74 @@ class QuestionSection extends StatelessWidget {
               ..removeLast()
       ],
     );
+  }
+}
+
+class Location extends StatelessWidget {
+  final String location;
+
+  Location({@required this.location});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        Divider(),
+        Container(
+          width: double.infinity,
+          child: Text(
+            "Location",
+            style: Theme.of(context).textTheme.overline,
+            textAlign: TextAlign.left,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          width: double.infinity,
+          child: Text(
+            location,
+            style: Theme.of(context)
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700),
+            textAlign: TextAlign.right,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class SocialIcons extends StatelessWidget {
+  final Map<String, SocialAccount> socialAccounts;
+
+  SocialIcons({@required this.socialAccounts});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: socialAccounts.entries
+          .map(
+            (e) =>
+                CircularButton(
+                  assetPath: AssetImages.socialAssets(e.key),
+                  alignment: Alignment.center,
+                  width: 40,
+                  height: 40,
+                  applyElevation: false,
+                  onPressFunction: () => _launchURL(e.value.urlAccount),
+                )
+          )
+          .toList(),
+    );
+  }
+
+  void _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

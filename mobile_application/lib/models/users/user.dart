@@ -90,16 +90,16 @@ abstract class User {
 
   static SocialAccount getSocialAccountFromJson(element) {
     switch (element["type"]) {
-      case "Twitter":
-        return TwitterAccount.fromJson(element["content"]);
-      case "Facebook":
-        return FacebookAccount.fromJson(element["content"]);
-      case "Github":
-        return GithubAccount.fromJson(element["content"]);
-      case "Linkedin":
-        return LinkedInAccount.fromJson(element["content"]);
-      case "Instagram":
-        return InstagramAccount.fromJson(element["content"]);
+      case "twitter":
+        return TwitterAccount.fromJson(element);
+      case "facebook":
+        return FacebookAccount.fromJson(element);
+      case "github":
+        return GithubAccount.fromJson(element);
+      case "linkedin":
+        return LinkedInAccount.fromJson(element);
+      case "instagram":
+        return InstagramAccount.fromJson(element);
       default:
         throw Exception();
     }
