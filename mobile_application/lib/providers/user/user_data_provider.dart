@@ -1,18 +1,13 @@
-import 'dart:collection';
-
 import 'package:flutter/foundation.dart';
+import 'package:mobile_application/models/users/mentor.dart';
 
 import '../../helpers/http_request_wrapper.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
-import '../../models/users/experiences/academic_degree.dart';
-import '../../models/users/experiences/institution.dart';
-import '../../models/users/experiences/job.dart';
 import '../../models/users/mentee.dart';
-import '../../models/users/question.dart';
-import '../../models/users/socials/social_account.dart';
 import '../../models/users/user.dart';
 import '../../providers/user/mentee_ui_data.dart';
 import '../../providers/user/user_ui_data.dart';
+import 'mentor_ui_data.dart';
 
 class UserDataProvider with ChangeNotifier {
   UserUIData behavior;
@@ -32,7 +27,7 @@ class UserDataProvider with ChangeNotifier {
               this.behavior = MenteeUIData(Mentee.fromJson(response.data));
               break;
             case "Mentor":
-              this.behavior = MenteeUIData(Mentee.fromJson(response.data));
+              this.behavior = MentorUIData(Mentor.fromJson(response.data));
               break;
             default:
               throw SomethingWentWrongException.message(
@@ -42,6 +37,34 @@ class UserDataProvider with ChangeNotifier {
         onIncorrectStatusCode: (_) {
           throw SomethingWentWrongException.message(
             "Couldn't load the explore section. Try again later.",
+          );
+        },
+        onUnknownDioError: (_) {
+          throw SomethingWentWrongException();
+        });
+  }
+
+  Future<User> loadSpecifiedUserData(String id) async {
+    return await httpRequestWrapper.request<User>(
+        url: "/users/profile/" + id,
+        typeHttpRequest: TypeHttpRequest.get,
+        correctStatusCode: 200,
+        onCorrectStatusCode: (response) async {
+          switch (response.data["kind"]) {
+            case "Mentee":
+              return Mentee.fromJson(response.data);
+              break;
+            case "Mentor":
+              return Mentor.fromJson(response.data);
+              break;
+            default:
+              throw SomethingWentWrongException.message(
+                  "Some error happened on the server side.");
+          }
+        },
+        onIncorrectStatusCode: (_) {
+          throw SomethingWentWrongException.message(
+            "Couldn't load the selected user section. Try again later.",
           );
         },
         onUnknownDioError: (_) {
