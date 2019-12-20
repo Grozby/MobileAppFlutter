@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../models/exceptions/no_internet_exception.dart';
 import '../providers/explore/card_provider.dart';
 import '../providers/user/user_data_provider.dart';
-import '../widgets/general/custom_alert_dialog.dart';
-import '../widgets/general/no_internet_connection.dart';
+import '../widgets/general/loading_error.dart';
 import '../widgets/phone/explore/explore_screen_widgets.dart' as phone;
 import '../widgets/transition/loading_animated.dart';
 
@@ -108,7 +106,7 @@ class _HomepageWidgetState extends State<HomepageWidget>
 
     setState(() {
       _loadExploreSection = Future.wait([
-        userDataProvider.loadUserData(),
+        userDataProvider.loadUserData(), //TODO may implement a reduced version
         cardProvider.loadCardProvider(),
       ]);
     });
@@ -132,25 +130,13 @@ class _HomepageWidgetState extends State<HomepageWidget>
         }
 
         if (snapshot.hasError) {
-          if (snapshot.error is NoInternetException) {
-            Future.delayed(
-              Duration.zero,
-              () => showErrorDialog(
-                context,
-                (snapshot.error as NoInternetException).getMessage(),
-              ),
-            );
-            return NoInternetConnectionWidget(
-              retryToConnect: () => setState(() => loadExploreSection()),
-              errorText: (snapshot.error as NoInternetException).getMessage(),
+          if (snapshot.hasError) {
+            return LoadingError(
+              exception: snapshot.error,
+              retry: () => setState(() {}),
+              buildContext: context,
             );
           }
-
-          Future.delayed(
-            Duration.zero,
-            () => showErrorDialog(context, "Something went wrong..."),
-          );
-          return const Center();
         }
 
         controller.forward();

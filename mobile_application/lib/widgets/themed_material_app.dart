@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
+import 'package:mobile_application/widgets/general/loading_error.dart';
 import 'package:provider/provider.dart';
 
 import '../models/exceptions/something_went_wrong_exception.dart';
@@ -41,18 +42,13 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
             default:
               if (snapshot.hasError) {
                 if (snapshot.error is NoInternetException) {
-                  Future.delayed(
-                    Duration.zero,
-                    () => showErrorDialog(
-                      context,
-                      (snapshot.error as NoInternetException).getMessage(),
-                    ),
-                  );
                   return Scaffold(
-                    body: NoInternetConnectionWidget(
-                      retryToConnect: () => setState(() {}),
-                      errorText:
-                          (snapshot.error as NoInternetException).getMessage(),
+                    body: SafeArea(
+                      child: LoadingError(
+                        exception: snapshot.error,
+                        retry: () => setState(() {}),
+                        buildContext: context,
+                      ),
                     ),
                   );
                 } else {

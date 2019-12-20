@@ -1,5 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/theming/theme_provider.dart';
+import 'package:mobile_application/widgets/general/loading_error.dart';
+import 'package:mobile_application/widgets/transition/loading_animated.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -17,49 +20,119 @@ import '../widgets/general/image_wrapper.dart';
 import '../widgets/phone/explore/card_container.dart';
 import '../widgets/phone/explore/circular_button.dart';
 
-class UserProfileScreen extends StatelessWidget {
+class UserProfileArguments {
+  final String id;
+
+  UserProfileArguments(this.id);
+}
+
+class UserProfileScreen extends StatefulWidget {
   static const routeName = '/profile';
 
-  final User user;
+  UserProfileScreen();
 
-  UserProfileScreen({this.user});
+  @override
+  _UserProfileScreenState createState() => _UserProfileScreenState();
+}
+
+class _UserProfileScreenState extends State<UserProfileScreen> {
+  Future _loadUserData;
+  UserProfileArguments _arguments;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(Duration.zero, () {
+      _arguments = ModalRoute.of(context).settings.arguments;
+
+      _loadUserData = _arguments != null
+          ? Provider.of<UserDataProvider>(context)
+              .loadSpecifiedUserData(_arguments.id)
+          : Provider.of<UserDataProvider>(context).loadUserData();
+      //: Future.delayed(Duration(seconds: 1));
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    User user = this.user == null
-        ? Provider.of<UserDataProvider>(context).user
-        : this.user;
+    Provider.of<UserDataProvider>(context).user;
 
-    return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(builder: (ctx, constraints) {
-          return ScopedModel<AvailableSizes>(
-            model: AvailableSizes(constraints.maxHeight - 100),
-            child: SingleChildScrollView(
-              child: Stack(
-                alignment: Alignment.topCenter,
-                children: [
-                  Column(
-                    children: <Widget>[
-                      Container(
-                        height: 100,
-                        alignment: Alignment.center,
-                        child: TopButtons(width: constraints.maxWidth * 0.85),
+    return Scaffold(body: SafeArea(
+      child: LayoutBuilder(builder: (ctx, constraints) {
+        return ScopedModel<AvailableSizes>(
+          model: AvailableSizes(constraints.maxHeight - 100),
+          child: FutureBuilder(
+            future: _loadUserData,
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              bool isWaiting =
+                  snapshot.connectionState == ConnectionState.waiting;
+
+              if (snapshot.hasError && !isWaiting) {
+                return LoadingError(
+                  exception: snapshot.error,
+                  buildContext: context,
+                  retry: () => setState(() {
+                    _loadUserData = _arguments != null
+                        ? Provider.of<UserDataProvider>(context)
+                            .loadSpecifiedUserData(_arguments.id)
+                        : Provider.of<UserDataProvider>(context).loadUserData();
+                  }),
+                );
+              }
+
+              return AnimatedCrossFade(
+                duration: Duration(milliseconds: 1500),
+                crossFadeState: isWaiting
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
+                firstChild: const Center(
+                  child: const LoadingUserProfile(),
+                ),
+                secondChild: isWaiting
+                    ? const Center()
+                    : Builder(
+                        builder: (BuildContext context) {
+                          User user = this._arguments != null
+                              ? snapshot.data
+                              : Provider.of<UserDataProvider>(context).user;
+
+                          return SingleChildScrollView(
+                            child: Stack(
+                              alignment: Alignment.topCenter,
+                              children: [
+                                Column(
+                                  children: <Widget>[
+                                    Container(
+                                      height: 100,
+                                      alignment: Alignment.center,
+                                      child: TopButtons(
+                                        width: constraints.maxWidth * 0.85,
+                                      ),
+                                    ),
+                                    CardContent(
+                                      user: user,
+                                      width: constraints.maxWidth * 0.9,
+                                    ),
+                                  ],
+                                ),
+                                UserImage(userPictureUrl: user.pictureUrl),
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                      CardContent(
-                        user: user,
-                        width: constraints.maxWidth * 0.9,
-                      ),
-                    ],
-                  ),
-                  UserImage(userPictureUrl: user.pictureUrl),
-                ],
-              ),
-            ),
-          );
-        }),
-      ),
-    );
+              );
+            },
+          ),
+        );
+      }),
+    ));
   }
 }
 
@@ -131,6 +204,14 @@ class UserImage extends StatelessWidget {
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
           color: Colors.transparent,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 5.0,
+              spreadRadius: 2.0,
+              offset: Offset(2.0, 2.0),
+            )
+          ],
         ),
         child: ClipRRect(
           borderRadius: const BorderRadius.all(const Radius.circular(1000)),
@@ -392,17 +473,14 @@ class SocialIcons extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: socialAccounts.entries
-          .map(
-            (e) =>
-                CircularButton(
-                  assetPath: AssetImages.socialAssets(e.key),
-                  alignment: Alignment.center,
-                  width: 40,
-                  height: 40,
-                  applyElevation: false,
-                  onPressFunction: () => _launchURL(e.value.urlAccount),
-                )
-          )
+          .map((e) => CircularButton(
+                assetPath: AssetImages.socialAssets(e.key),
+                alignment: Alignment.center,
+                width: 40,
+                height: 40,
+                applyElevation: false,
+                onPressFunction: () => _launchURL(e.value.urlAccount),
+              ))
           .toList(),
     );
   }
@@ -413,5 +491,130 @@ class SocialIcons extends StatelessWidget {
     } else {
       throw 'Could not launch $url';
     }
+  }
+}
+
+class LoadingUserProfile extends StatefulWidget {
+  const LoadingUserProfile();
+
+  @override
+  _LoadingUserProfileState createState() => _LoadingUserProfileState();
+}
+
+class _LoadingUserProfileState extends State<LoadingUserProfile>
+    with SingleTickerProviderStateMixin {
+  AnimationController _controller;
+
+  Animation gradientPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+        duration: Duration(milliseconds: 1500), vsync: this);
+
+    gradientPosition = Tween<double>(
+      begin: -2,
+      end: 4,
+    ).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.linear),
+    );
+
+    _controller.repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (ctx, constraints) {
+      double maxHeight = ScopedModel.of<AvailableSizes>(context).height;
+
+      return AnimatedBuilder(
+        animation: gradientPosition,
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            Column(
+              children: <Widget>[
+                Container(
+                  height: 100,
+                  alignment: Alignment.center,
+                  child: TopButtons(width: constraints.maxWidth * 0.85),
+                ),
+                Container(
+                  width: constraints.maxWidth * 0.9,
+                  padding: EdgeInsets.only(bottom: 12.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24.0),
+                    ),
+                    elevation: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      constraints: BoxConstraints(
+                        minHeight: maxHeight - 12 * 2,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(const Radius.circular(24.0)),
+                      ),
+                      child: const Center(
+                        child: const LoadingAnimated(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              top: 40,
+              child: Container(
+                alignment: Alignment.center,
+                height: 120,
+                width: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 5.0,
+                      spreadRadius: 2.0,
+                      offset: Offset(2.0, 2.0),
+                    )
+                  ],
+                ),
+                child: const Center(),
+              ),
+            ),
+          ],
+        ),
+        builder: (ctx, child) {
+          return ShaderMask(
+            shaderCallback: (Rect bounds) {
+              final gradient = LinearGradient(
+                begin: Alignment(gradientPosition.value, 0),
+                end: Alignment(gradientPosition.value - 2, 0.5),
+                colors: [
+                  Colors.white,
+                  ThemeProvider.primaryColor.withOpacity(0.05),
+                  Colors.white,
+                ],
+              );
+
+              // using bounds directly doesn't work because the shader origin is translated already
+              // so create a new rect with the same size at origin
+              return gradient.createShader(Offset.zero & bounds.size);
+            },
+            child: child,
+          );
+        },
+      );
+    });
   }
 }

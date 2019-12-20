@@ -11,7 +11,6 @@ class LoadingAnimated extends StatefulWidget {
 class _LoadingAnimatedState extends State<LoadingAnimated>
     with SingleTickerProviderStateMixin {
   AnimationController _controller;
-
   Animation gradientPosition;
 
   @override

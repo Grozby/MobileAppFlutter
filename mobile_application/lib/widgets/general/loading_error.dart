@@ -7,10 +7,12 @@ import 'no_internet_connection.dart';
 class LoadingError extends StatelessWidget {
   final Exception exception;
   final Function retry;
+  final BuildContext buildContext;
 
   LoadingError({
     @required this.exception,
     @required this.retry,
+    @required this.buildContext,
   });
 
   @override
@@ -19,12 +21,12 @@ class LoadingError extends StatelessWidget {
       Future.delayed(
         Duration.zero,
         () => showErrorDialog(
-          context,
+          buildContext,
           (exception as NoInternetException).getMessage(),
         ),
       );
       return NoInternetConnectionWidget(
-        retryToConnect: () => retry(),
+        retryToConnect: retry,
         errorText: (exception as NoInternetException).getMessage(),
       );
     }
