@@ -500,8 +500,12 @@ class __BackCardMentorState extends State<_BackCardMentor> {
             selector: (_, qProvider) => qProvider.noMoreQuestions,
             builder: (ctx, noMoreQuestions, child) {
               return noMoreQuestions
-                  ? const Expanded(child: const ContactMentor())
-                  : const Expanded(child: const QuestionsWidget());
+                  ? Expanded(
+                      child: ContactMentor(rotateCard: widget.rotateCard),
+                    )
+                  : Expanded(
+                      child: QuestionsWidget(rotateCard: widget.rotateCard),
+                    );
             },
           ),
         ],
@@ -511,7 +515,9 @@ class __BackCardMentorState extends State<_BackCardMentor> {
 }
 
 class QuestionsWidget extends StatefulWidget {
-  const QuestionsWidget();
+  final Function rotateCard;
+
+  QuestionsWidget({@required this.rotateCard});
 
   @override
   _QuestionsWidgetState createState() => _QuestionsWidgetState();
@@ -572,16 +578,16 @@ class _QuestionsWidgetState extends State<QuestionsWidget> {
   String getRemainingQuestionsText(int numberQuestionAnswered, Mentor mentor) {
     if (numberQuestionAnswered == 0) {
       return "To contact ${mentor.name} you have to answer "
-          "${mentor.howManyQuestionsToAnswer} "
-          "question${mentor.howManyQuestionsToAnswer > 1 ? "s" : ""}."
+          "${mentor.howManyQuestionsToAnswer}"
+          " question${mentor.howManyQuestionsToAnswer > 1 ? "s" : ""}.\n"
           "Answer the first question in:";
     } else if (mentor.howManyQuestionsToAnswer - numberQuestionAnswered == 1) {
-      return "Last question to answer for contactacting ${mentor.name}!"
+      return "Last question to answer for contactacting ${mentor.name}!\n"
           "You have to answer it in:";
     } else {
       return "To contact ${mentor.name} you need to answer other "
           "${mentor.howManyQuestionsToAnswer} "
-          "question${mentor.howManyQuestionsToAnswer > 1 ? "s" : ""}"
+          "question${mentor.howManyQuestionsToAnswer > 1 ? "s" : ""}.\n"
           "Answer the next question in:";
     }
   }
@@ -817,7 +823,9 @@ class _TimeCounterState extends State<TimeCounter> {
 /// This widget will be the one that will send the request to the server.
 ///
 class ContactMentor extends StatefulWidget {
-  const ContactMentor();
+  final Function rotateCard;
+
+  const ContactMentor({@required this.rotateCard});
 
   @override
   _ContactMentorState createState() => _ContactMentorState();
@@ -877,6 +885,13 @@ class _ContactMentorState extends State<ContactMentor> {
           ),
         ),
         const SizedBox(height: 16),
+        Container(
+          child: ButtonStyled(
+            onPressFunction: () => widget.rotateCard(),
+            fractionalWidthDimension: 0.99,
+            text: "Back",
+          ),
+        ),
         Container(
           child: ButtonStyled(
             onPressFunction: () => sendRequestToMentor(context),
