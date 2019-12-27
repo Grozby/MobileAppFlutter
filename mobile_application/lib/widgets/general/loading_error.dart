@@ -21,7 +21,7 @@ class LoadingError extends StatelessWidget {
       Future.delayed(
         Duration.zero,
         () => showErrorDialog(
-          buildContext,
+          context,
           (exception as NoInternetException).getMessage(),
         ),
       );
@@ -35,6 +35,10 @@ class LoadingError extends StatelessWidget {
       Duration.zero,
       () => showErrorDialog(context, "Something went wrong..."),
     );
-    return const Center();
+    //TODO modify with correct widget
+    return NoInternetConnectionWidget(
+      retryToConnect: retry,
+      errorText: "Something went wrong...",
+    );
   }
 }

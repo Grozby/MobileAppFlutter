@@ -25,7 +25,7 @@ class _LandingScreenState extends State<LandingScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _authenticationProvider =
           Provider.of<AuthenticationProvider>(context, listen: true);
     });

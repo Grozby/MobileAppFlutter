@@ -21,9 +21,5 @@ class CustomPageTransitionBuilder extends PageTransitionsBuilder {
       child: child,
     );
 
-//    return FadeTransition(
-//      opacity: animation,
-//      child: child,
-//    );
   }
 }

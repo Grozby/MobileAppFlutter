@@ -82,7 +82,8 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
         SettingsScreen.routeName: (_) => SettingsScreen(),
         SignUpChoiceScreen.routeName: (_) => SignUpChoiceScreen(),
         SignUpScreen.routeName: (_) => SignUpScreen(),
-        UserProfileScreen.routeName: (_) => UserProfileScreen(),
+        UserProfileScreen.routeName: (ctx) =>
+            UserProfileScreen(ModalRoute.of(ctx).settings.arguments),
         MessagesScreen.routeName: (_) => MessagesScreen(),
       },
     );

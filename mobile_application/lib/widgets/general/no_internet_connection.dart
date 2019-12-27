@@ -13,21 +13,24 @@ class NoInternetConnectionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Center(
-          child: Text(errorText),
-        ),
-        const SizedBox(height: 16),
-        Center(
-          child: ButtonStyled(
-            fractionalWidthDimension: 0.4,
-            text: "Retry now",
-            onPressFunction: retryToConnect,
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Center(
+            child: Text(errorText),
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          Center(
+            child: ButtonStyled(
+              fractionalWidthDimension: 0.4,
+              text: "Retry now",
+              onPressFunction: retryToConnect,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
