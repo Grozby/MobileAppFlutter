@@ -130,13 +130,11 @@ class _HomepageWidgetState extends State<HomepageWidget>
         }
 
         if (snapshot.hasError) {
-          if (snapshot.hasError) {
-            return LoadingError(
-              exception: snapshot.error,
-              retry: () => setState(() {}),
-              buildContext: context,
-            );
-          }
+          return LoadingError(
+            exception: snapshot.error,
+            retry: () => setState(() {}),
+            buildContext: context,
+          );
         }
 
         controller.forward();

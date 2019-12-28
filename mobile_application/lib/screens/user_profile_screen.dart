@@ -1,9 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
-import 'package:mobile_application/widgets/general/loading_error.dart';
-import 'package:mobile_application/widgets/transition/loading_animated.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,12 +10,15 @@ import '../models/users/question.dart';
 import '../models/users/socials/social_account.dart';
 import '../models/users/user.dart';
 import '../models/utility/available_sizes.dart';
+import '../providers/theming/theme_provider.dart';
 import '../providers/user/user_data_provider.dart';
 import '../screens/settings_screen.dart';
 import '../widgets/general/expandable_widget.dart';
 import '../widgets/general/image_wrapper.dart';
+import '../widgets/general/loading_error.dart';
 import '../widgets/phone/explore/card_container.dart';
 import '../widgets/phone/explore/circular_button.dart';
+import '../widgets/transition/loading_animated.dart';
 
 class UserProfileArguments {
   final String id;
@@ -106,12 +105,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             builder: (BuildContext context) {
                               User user = widget._arguments != null
                                   ? snapshot.data
-                                  : Provider.of<UserDataProvider>(
-                                      context,
-                                      listen: false,
-                                    ).user;
+                                  : Provider.of<UserDataProvider>(context).user;
 
                               return SingleChildScrollView(
+                                physics: const AlwaysScrollableScrollPhysics(),
                                 child: Stack(
                                   alignment: Alignment.topCenter,
                                   children: [

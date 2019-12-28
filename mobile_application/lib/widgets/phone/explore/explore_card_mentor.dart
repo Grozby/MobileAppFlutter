@@ -126,7 +126,7 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
                 builder: _workingSpecializationBadge,
               ),
               const Divider(),
-              const _FavoriteLanguages(height: 30),
+              const _FavoriteLanguages(height: 37),
               const Divider(),
               FadedListView<PastExperience>(
                 list: mentor.experiences,
