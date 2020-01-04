@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/refresh_page_provider.dart';
+import 'package:mobile_application/widgets/general/refresh_content_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,6 +25,8 @@ import '../widgets/phone/explore/card_container.dart';
 import '../widgets/phone/explore/circular_button.dart';
 import '../widgets/transition/loading_animated.dart';
 
+typedef VoidCallBack = void Function();
+
 class UserProfileArguments {
   final String id;
 
@@ -38,23 +45,6 @@ class UserProfileScreen extends StatefulWidget {
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
-  Future _loadUserData;
-  Widget _errorWidget;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData = widget._arguments != null
-        ? Provider.of<UserDataProvider>(context, listen: false)
-            .loadSpecifiedUserData(widget._arguments.id)
-        : Provider.of<UserDataProvider>(context, listen: false).loadUserData();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,84 +52,143 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         child: LayoutBuilder(
           builder: (ctx, constraints) {
             return ScopedModel<AvailableSizes>(
+              //-100 used for [CardContainer] to define the available size
+              // to occupy.
               model: AvailableSizes(constraints.maxHeight - 100),
-              child: FutureBuilder(
-                future: _loadUserData,
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  bool isWaiting =
-                      snapshot.connectionState == ConnectionState.waiting;
-
-                  if (snapshot.hasError && !isWaiting) {
-                    _errorWidget ??= LoadingError(
-                      exception: snapshot.error,
-                      buildContext: context,
-                      retry: () => setState(() {
-                        _loadUserData = widget._arguments != null
-                            ? Provider.of<UserDataProvider>(
-                                context,
-                                listen: false,
-                              ).loadSpecifiedUserData(widget._arguments.id)
-                            : Provider.of<UserDataProvider>(
-                                context,
-                                listen: false,
-                              ).loadUserData();
-                      }),
-                    );
-                    return _errorWidget;
-                  }
-
-                  return AnimatedCrossFade(
-                    duration: const Duration(milliseconds: 1500),
-                    crossFadeState: isWaiting
-                        ? CrossFadeState.showFirst
-                        : CrossFadeState.showSecond,
-                    firstChild: Center(
-                      child: LoadingUserProfile(
-                        maxWidth: constraints.maxWidth,
-                        maxHeight: constraints.maxHeight,
-                      ),
-                    ),
-                    secondChild: isWaiting
-                        ? const Center()
-                        : Builder(
-                            builder: (BuildContext context) {
-                              User user = widget._arguments != null
-                                  ? snapshot.data
-                                  : Provider.of<UserDataProvider>(context).user;
-
-                              return SingleChildScrollView(
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                child: Stack(
-                                  alignment: Alignment.topCenter,
-                                  children: [
-                                    Column(
-                                      children: <Widget>[
-                                        Container(
-                                          height: 100,
-                                          alignment: Alignment.center,
-                                          child: TopButtons(
-                                            width: constraints.maxWidth * 0.85,
-                                          ),
-                                        ),
-                                        CardContent(
-                                          user: user,
-                                          width: constraints.maxWidth * 0.9,
-                                        ),
-                                      ],
-                                    ),
-                                    UserImage(userPictureUrl: user.pictureUrl),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                  );
-                },
+              child: RefreshWidget(
+                builder: (refreshCompleted) => UserProfileBuilder(
+                  maxWidth: constraints.maxWidth,
+                  maxHeight: constraints.maxHeight,
+                  arguments: widget._arguments,
+                  refreshCompleted: refreshCompleted,
+                ),
               ),
             );
           },
         ),
       ),
+    );
+  }
+}
+
+class UserProfileBuilder extends StatefulWidget {
+  final double maxWidth, maxHeight;
+  final UserProfileArguments arguments;
+  final Function refreshCompleted;
+
+  UserProfileBuilder({
+    @required this.maxWidth,
+    @required this.maxHeight,
+    @required this.arguments,
+    @required this.refreshCompleted,
+  });
+
+  @override
+  _UserProfileBuilderState createState() => _UserProfileBuilderState();
+}
+
+class _UserProfileBuilderState extends State<UserProfileBuilder> {
+  Future _loadUserData;
+
+  /// For some reasons [LayoutBuilder} is called twice when the [FutureBuilder]
+  /// completes with an error. Therefore, the widget to show on error is stored,
+  /// to avoid multiple popups to appear.
+  Widget _errorWidget;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData = widget.arguments != null
+        ? Provider.of<UserDataProvider>(context, listen: false)
+            .loadSpecifiedUserData(widget.arguments.id)
+        : Provider.of<UserDataProvider>(context, listen: false).loadUserData();
+  }
+
+  /// As the widget has as parent the [RefreshWidget],
+  @override
+  void didUpdateWidget(UserProfileBuilder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    refreshPage();
+  }
+
+  void refreshPage() {
+    setState(() {
+      _loadUserData = widget.arguments != null
+          ? Provider.of<UserDataProvider>(
+              context,
+              listen: false,
+            ).loadSpecifiedUserData(widget.arguments.id)
+          : Provider.of<UserDataProvider>(
+              context,
+              listen: false,
+            ).loadUserData();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _loadUserData,
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        bool isWaiting = snapshot.connectionState == ConnectionState.waiting;
+
+        if (snapshot.hasError && !isWaiting) {
+          _errorWidget ??= LoadingError(
+            exception: snapshot.error,
+            buildContext: context,
+            retry: refreshPage,
+          );
+          return _errorWidget;
+        }
+
+        return AnimatedCrossFade(
+          duration: const Duration(milliseconds: 1000),
+          reverseDuration: const Duration(milliseconds: 500),
+          crossFadeState:
+              isWaiting ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+          firstChild: Center(
+            child: LoadingUserProfile(
+              maxWidth: widget.maxWidth,
+              maxHeight: widget.maxHeight,
+            ),
+          ),
+          secondChild: isWaiting
+              ? const Center()
+              : Builder(
+                  builder: (_) {
+                    User user = widget.arguments != null
+                        ? snapshot.data
+                        : Provider.of<UserDataProvider>(context).user;
+
+                    /// This is the callback that will notify the parent
+                    /// that the refresh procedure has ended.
+                    widget.refreshCompleted();
+
+                    return Stack(
+                      alignment: Alignment.topCenter,
+                      children: [
+                        Column(
+                          children: <Widget>[
+                            Container(
+                              height: 100,
+                              alignment: Alignment.center,
+                              child: TopButtons(
+                                width: widget.maxWidth * 0.85,
+                              ),
+                            ),
+                            CardContent(
+                              user: user,
+                              width: widget.maxWidth * 0.9,
+                            ),
+                          ],
+                        ),
+                        UserImage(userPictureUrl: user.pictureUrl),
+                      ],
+                    );
+                  },
+                ),
+        );
+      },
     );
   }
 }
@@ -524,11 +573,13 @@ class _LoadingUserProfileState extends State<LoadingUserProfile>
   void initState() {
     super.initState();
     _controller = AnimationController(
-        duration: Duration(milliseconds: 1500), vsync: this);
+      duration: Duration(milliseconds: 1200),
+      vsync: this,
+    );
 
     gradientPosition = Tween<double>(
-      begin: -2,
-      end: 4,
+      begin: -2.5,
+      end: 1.0,
     ).animate(
       CurvedAnimation(parent: _controller, curve: Curves.linear),
     );
@@ -544,86 +595,96 @@ class _LoadingUserProfileState extends State<LoadingUserProfile>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: gradientPosition,
+    return Container(
+      height: widget.maxHeight,
       child: Stack(
-        alignment: Alignment.topCenter,
         children: [
-          Column(
-            children: <Widget>[
-              Container(
-                height: 100,
-                alignment: Alignment.center,
-                child: TopButtons(width: widget.maxWidth * 0.85),
-              ),
-              Container(
-                width: widget.maxWidth * 0.9,
-                padding: EdgeInsets.only(bottom: 12.0),
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24.0),
-                  ),
-                  elevation: 8,
+          AnimatedBuilder(
+            animation: gradientPosition,
+            child: Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                Column(
+                  children: <Widget>[
+                    Container(
+                      height: 100,
+                      alignment: Alignment.center,
+                      child: TopButtons(width: widget.maxWidth * 0.85),
+                    ),
+                    Container(
+                      width: widget.maxWidth * 0.9,
+                      padding: EdgeInsets.only(bottom: 12.0),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24.0),
+                        ),
+                        elevation: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          constraints: BoxConstraints(
+                            minHeight: widget.maxHeight - 100 - 12 * 2,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.all(
+                                const Radius.circular(24.0)),
+                          ),
+                          child: const Center(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Positioned(
+                  top: 40,
                   child: Container(
-                    padding: const EdgeInsets.all(12),
-                    constraints: BoxConstraints(
-                      minHeight: widget.maxHeight - 100 - 12 * 2,
-                    ),
+                    alignment: Alignment.center,
+                    height: 120,
+                    width: 120,
                     decoration: BoxDecoration(
-                      borderRadius:
-                          const BorderRadius.all(const Radius.circular(24.0)),
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 5.0,
+                          spreadRadius: 2.0,
+                          offset: Offset(2.0, 2.0),
+                        )
+                      ],
                     ),
-                    child: const Center(
-                      child: const LoadingAnimated(),
-                    ),
+                    child: const Center(),
                   ),
                 ),
-              ),
-            ],
-          ),
-          Positioned(
-            top: 40,
-            child: Container(
-              alignment: Alignment.center,
-              height: 120,
-              width: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 5.0,
-                    spreadRadius: 2.0,
-                    offset: Offset(2.0, 2.0),
-                  )
-                ],
-              ),
-              child: const Center(),
+              ],
             ),
+            builder: (ctx, child) {
+              return ShaderMask(
+                shaderCallback: (Rect bounds) {
+                  final gradient = LinearGradient(
+                    begin: Alignment(gradientPosition.value, 0),
+                    end: Alignment(gradientPosition.value + 1.5, 0),
+                    stops: [0.05, 0.5, 0.95],
+                    colors: [
+                      Colors.white54,
+                      ThemeProvider.primaryLighterColor.withOpacity(0.2),
+                      //Color(0xFFFFB069).withOpacity(0.3),
+                      Colors.white54,
+                    ],
+                  );
+
+                  // using bounds directly doesn't work because the shader origin is translated already
+                  // so create a new rect with the same size at origin
+                  return gradient.createShader(Offset.zero & bounds.size);
+                },
+                child: child,
+              );
+            },
+          ),
+          const Center(
+            child: const LoadingAnimated(),
           ),
         ],
       ),
-      builder: (ctx, child) {
-        return ShaderMask(
-          shaderCallback: (Rect bounds) {
-            final gradient = LinearGradient(
-              begin: Alignment(gradientPosition.value, 0),
-              end: Alignment(gradientPosition.value - 2, 0.5),
-              colors: [
-                Colors.white,
-                ThemeProvider.primaryColor.withOpacity(0.05),
-                Colors.white,
-              ],
-            );
-
-            // using bounds directly doesn't work because the shader origin is translated already
-            // so create a new rect with the same size at origin
-            return gradient.createShader(Offset.zero & bounds.size);
-          },
-          child: child,
-        );
-      },
     );
   }
 }

@@ -16,7 +16,6 @@ import '../screens/sign_up_screens/sign_up_screen.dart';
 import '../screens/user_profile_screen.dart';
 import '../screens/waiting_screen.dart';
 import 'general/custom_alert_dialog.dart';
-import 'general/no_internet_connection.dart';
 
 class ThemedMaterialApp extends StatefulWidget {
   @override

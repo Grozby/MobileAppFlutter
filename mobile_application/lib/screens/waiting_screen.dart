@@ -6,9 +6,11 @@ class WaitingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: const Center(
-        child: const LoadingAnimated(),
+    return const SafeArea(
+      child: const Scaffold(
+        body: const Center(
+          child: const LoadingAnimated(),
+        ),
       ),
     );
   }

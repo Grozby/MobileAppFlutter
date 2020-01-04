@@ -12,6 +12,7 @@ class ThemeProvider with ChangeNotifier {
   static const Color _menteeCardColor = Color(0x6CD1F4);
 
   static const Color _primaryColor = _mentorColor;
+  static const Color _primaryLighterColor = Color(0xFFFFB069);
   static Color _loginButtonColor = Colors.grey.shade200;
   static const Color _textColor = Color.fromRGBO(68, 86, 108, 1);
   static const Color _greyTextColor = Color.fromRGBO(161, 170, 181, 1);
@@ -72,6 +73,7 @@ class ThemeProvider with ChangeNotifier {
   ThemeData getTheme() => _themeData;
 
   static Color get primaryColor => _primaryColor;
+  static Color get primaryLighterColor => _primaryLighterColor;
 
   static Color get mentorColor => _mentorColor;
   static Color get mentorCardColor => _mentorCardColor.withOpacity(0.1);

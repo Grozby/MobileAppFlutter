@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/widgets/general/refresh_content_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/explore/card_provider.dart';
@@ -24,41 +25,60 @@ class _HomepageScreenState extends State<HomepageScreen> {
     var keyboardHeight = mediaQuery.viewInsets.bottom;
 
     return Scaffold(
-      body: isSmartPhone
-          ? HomepageWidget<phone.InfoBarWidget, phone.ExploreBodyWidget>(
-              infoWidgetCreator: () => phone.InfoBarWidget(),
-              exploreWidgetCreator: () => phone.ExploreBodyWidget(),
-              keyboardHeight: keyboardHeight,
-            )
-          : HomepageWidget<phone.InfoBarWidget, phone.ExploreBodyWidget>(
-              infoWidgetCreator: () => phone.InfoBarWidget(),
-              exploreWidgetCreator: () => phone.ExploreBodyWidget(),
-              keyboardHeight: keyboardHeight,
-            ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (ctx, constraints) {
+            return RefreshWidget(
+              builder: (refreshCompleted) {
+                return isSmartPhone
+                    ? HomepageWidget(
+                        infoWidgetCreator: phone.InfoBarWidget(),
+                        exploreWidgetCreator: phone.ExploreBodyWidget(),
+                        keyboardHeight: keyboardHeight,
+                        maxHeight: constraints.maxHeight,
+                        maxWidth: constraints.maxWidth,
+                        refreshCompleted: refreshCompleted,
+                      )
+                    : HomepageWidget(
+                        infoWidgetCreator: phone.InfoBarWidget(),
+                        exploreWidgetCreator: phone.ExploreBodyWidget(),
+                        keyboardHeight: keyboardHeight,
+                        maxHeight: constraints.maxHeight,
+                        maxWidth: constraints.maxWidth,
+                        refreshCompleted: refreshCompleted,
+                      );
+              },
+            );
+          },
+        ),
+      ),
     );
   }
 }
 
-typedef S ItemCreator<S>();
-
-class HomepageWidget<I extends Widget, E extends Widget>
-    extends StatefulWidget {
-  final ItemCreator<I> infoWidgetCreator;
-  final ItemCreator<E> exploreWidgetCreator;
+class HomepageWidget extends StatefulWidget {
+  final Widget infoWidgetCreator;
+  final Widget exploreWidgetCreator;
 
   /// This keyboard height is needed as we are using a layout builder.
   /// Whenever the keyboard is shown, the layout builder will detect that the
   /// available size on the screen as reduce, therefore will try to size the
-  /// widget accordly. Unfortunately, we can't detect from the context of
+  /// widget accordingly. Unfortunately, we can't detect from the context of
   /// this widget. Therefore, we will obtain this information from the
   /// [MediaQuery.of(context).viewInsets.bottom] of the parent of this
   /// widget.
   final double keyboardHeight;
+  final double maxHeight, maxWidth;
+
+  final Function refreshCompleted;
 
   HomepageWidget({
     @required this.infoWidgetCreator,
     @required this.exploreWidgetCreator,
     @required this.keyboardHeight,
+    @required this.maxHeight,
+    @required this.maxWidth,
+    @required this.refreshCompleted,
   })  : assert(infoWidgetCreator != null),
         assert(exploreWidgetCreator != null),
         assert(keyboardHeight != null);
@@ -70,10 +90,9 @@ class HomepageWidget<I extends Widget, E extends Widget>
 class _HomepageWidgetState extends State<HomepageWidget>
     with SingleTickerProviderStateMixin {
   /// This is the future used for loading the user information in the explore section.
-  /// At first, we use a placeholder future, as the real future we will use for
-  /// the FutureBuilder is contained inside the [UserDataProvider]. To do so,
-  /// we initialize it inside the [initState] with a small gimmick.
-  Future _loadExploreSection = Future.delayed(Duration(milliseconds: 1000));
+  /// The real future we will use for the FutureBuilder is contained inside
+  /// the [UserDataProvider].
+  Future _loadExploreSection;
   Animation<double> animation;
   AnimationController controller;
 
@@ -88,27 +107,22 @@ class _HomepageWidgetState extends State<HomepageWidget>
 
     animation = Tween<double>(begin: 0.0, end: 1.0).animate(controller);
 
-    ///Initialization of the future for [FutureBuilder]
-    Future.delayed(Duration.zero, () {
-      loadExploreSection();
-    });
+    loadExploreSection();
   }
 
   void loadExploreSection() {
-    UserDataProvider userDataProvider = Provider.of<UserDataProvider>(
-      context,
-      listen: false,
-    );
-    CardProvider cardProvider = Provider.of<CardProvider>(
-      context,
-      listen: false,
-    );
+    _loadExploreSection = Future.wait([
+      //TODO may implement a reduced version
+      Provider.of<UserDataProvider>(context, listen: false).loadUserData(),
+      Provider.of<CardProvider>(context, listen: false).loadCardProvider(),
+    ]);
+  }
 
+  @override
+  void didUpdateWidget(HomepageWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
     setState(() {
-      _loadExploreSection = Future.wait([
-        userDataProvider.loadUserData(), //TODO may implement a reduced version
-        cardProvider.loadCardProvider(),
-      ]);
+      loadExploreSection();
     });
   }
 
@@ -132,38 +146,33 @@ class _HomepageWidgetState extends State<HomepageWidget>
         if (snapshot.hasError) {
           return LoadingError(
             exception: snapshot.error,
-            retry: () => setState(() {}),
+            retry: () => setState(() {
+              loadExploreSection();
+            }),
             buildContext: context,
           );
         }
 
         controller.forward();
+        widget.refreshCompleted();
 
-        return SafeArea(
-          child: FadeTransition(
-            opacity: animation,
-            child: LayoutBuilder(
-              builder: (ctx, constraints) {
-                return SingleChildScrollView(
-                  child: Container(
-                    width: constraints.maxWidth,
-                    height: constraints.maxHeight + widget.keyboardHeight,
-                    child: Column(
-                      children: <Widget>[
-                        Flexible(
-                          fit: FlexFit.tight,
-                          child: widget.infoWidgetCreator(),
-                        ),
-                        Flexible(
-                          fit: FlexFit.tight,
-                          flex: 6,
-                          child: widget.exploreWidgetCreator(),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+        return FadeTransition(
+          opacity: animation,
+          child: Container(
+            width: widget.maxWidth,
+            height: widget.maxHeight + widget.keyboardHeight,
+            child: Column(
+              children: <Widget>[
+                Flexible(
+                  fit: FlexFit.tight,
+                  child: widget.infoWidgetCreator,
+                ),
+                Flexible(
+                  fit: FlexFit.tight,
+                  flex: 6,
+                  child: widget.exploreWidgetCreator,
+                ),
+              ],
             ),
           ),
         );
