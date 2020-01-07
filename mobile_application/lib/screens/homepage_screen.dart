@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/widgets/general/refresh_content_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../helpers/overglow_less_scroll_behavior.dart';
 import '../providers/explore/card_provider.dart';
 import '../providers/user/user_data_provider.dart';
 import '../widgets/general/loading_error.dart';
+import '../widgets/general/refresh_content_widget.dart';
 import '../widgets/phone/explore/explore_screen_widgets.dart' as phone;
 import '../widgets/transition/loading_animated.dart';
 
@@ -28,26 +29,29 @@ class _HomepageScreenState extends State<HomepageScreen> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (ctx, constraints) {
-            return RefreshWidget(
-              builder: (refreshCompleted) {
-                return isSmartPhone
-                    ? HomepageWidget(
-                        infoWidgetCreator: phone.InfoBarWidget(),
-                        exploreWidgetCreator: phone.ExploreBodyWidget(),
-                        keyboardHeight: keyboardHeight,
-                        maxHeight: constraints.maxHeight,
-                        maxWidth: constraints.maxWidth,
-                        refreshCompleted: refreshCompleted,
-                      )
-                    : HomepageWidget(
-                        infoWidgetCreator: phone.InfoBarWidget(),
-                        exploreWidgetCreator: phone.ExploreBodyWidget(),
-                        keyboardHeight: keyboardHeight,
-                        maxHeight: constraints.maxHeight,
-                        maxWidth: constraints.maxWidth,
-                        refreshCompleted: refreshCompleted,
-                      );
-              },
+            return ScrollConfiguration(
+              behavior: OverglowLessScrollBehavior(),
+              child: RefreshWidget(
+                builder: (refreshCompleted) {
+                  return isSmartPhone
+                      ? HomepageWidget(
+                          infoWidget: phone.InfoBarWidget(),
+                          exploreWidget: phone.ExploreBodyWidget(),
+                          keyboardHeight: keyboardHeight,
+                          maxHeight: constraints.maxHeight,
+                          maxWidth: constraints.maxWidth,
+                          refreshCompleted: refreshCompleted,
+                        )
+                      : HomepageWidget(
+                          infoWidget: phone.InfoBarWidget(),
+                          exploreWidget: phone.ExploreBodyWidget(),
+                          keyboardHeight: keyboardHeight,
+                          maxHeight: constraints.maxHeight,
+                          maxWidth: constraints.maxWidth,
+                          refreshCompleted: refreshCompleted,
+                        );
+                },
+              ),
             );
           },
         ),
@@ -57,8 +61,8 @@ class _HomepageScreenState extends State<HomepageScreen> {
 }
 
 class HomepageWidget extends StatefulWidget {
-  final Widget infoWidgetCreator;
-  final Widget exploreWidgetCreator;
+  final Widget infoWidget;
+  final Widget exploreWidget;
 
   /// This keyboard height is needed as we are using a layout builder.
   /// Whenever the keyboard is shown, the layout builder will detect that the
@@ -73,14 +77,14 @@ class HomepageWidget extends StatefulWidget {
   final Function refreshCompleted;
 
   HomepageWidget({
-    @required this.infoWidgetCreator,
-    @required this.exploreWidgetCreator,
+    @required this.infoWidget,
+    @required this.exploreWidget,
     @required this.keyboardHeight,
     @required this.maxHeight,
     @required this.maxWidth,
     @required this.refreshCompleted,
-  })  : assert(infoWidgetCreator != null),
-        assert(exploreWidgetCreator != null),
+  })  : assert(infoWidget != null),
+        assert(exploreWidget != null),
         assert(keyboardHeight != null);
 
   @override
@@ -165,12 +169,12 @@ class _HomepageWidgetState extends State<HomepageWidget>
               children: <Widget>[
                 Flexible(
                   fit: FlexFit.tight,
-                  child: widget.infoWidgetCreator,
+                  child: widget.infoWidget,
                 ),
                 Flexible(
                   fit: FlexFit.tight,
                   flex: 6,
-                  child: widget.exploreWidgetCreator,
+                  child: widget.exploreWidget,
                 ),
               ],
             ),

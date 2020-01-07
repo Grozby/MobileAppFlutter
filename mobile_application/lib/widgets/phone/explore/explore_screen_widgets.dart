@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -184,6 +186,8 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                   minHeight: constraints.minHeight,
                 ),
                 child: SingleChildScrollView(
+                  primary: false,
+                  physics: const ScrollPhysics(),
                   child: ScopedModel<AvailableSizes>(
                     model: AvailableSizes(constraints.minHeight),
                     child: Padding(
@@ -214,4 +218,13 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
       );
     });
   }
+}
+
+class CustomBouncingScrollPhysics extends BouncingScrollPhysics {
+  @override
+  SpringDescription get spring => SpringDescription(
+        mass: 2.2,
+        stiffness: 150,
+        damping: 16,
+      );
 }
