@@ -524,7 +524,6 @@ class QuestionsWidget extends StatefulWidget {
 }
 
 class _QuestionsWidgetState extends State<QuestionsWidget> {
-  StreamController timeStreamNotifier;
   final textController = TextEditingController();
   bool canWriteAnswer = true;
   bool hasStartedAnswering = false;
@@ -533,16 +532,13 @@ class _QuestionsWidgetState extends State<QuestionsWidget> {
   @override
   void initState() {
     super.initState();
-    timeStreamNotifier = StreamController.broadcast();
-    Future.delayed(Duration.zero, () {
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       int index = ScopedModel.of<IndexUser>(context).indexUser;
-      Mentor mentor = Provider.of<CardProvider>(
-        context,
-        listen: false,
-      ).getMentor(index);
-      startingCounter = mentor
+      startingCounter = Provider.of<CardProvider>(context, listen: false)
+          .getMentor(index)
           .getMentorQuestionAt(
-            Provider.of<QuestionsProvider>(context).currentIndex,
+            Provider.of<QuestionsProvider>(context, listen: false).currentIndex,
           )
           .availableTime;
     });
@@ -550,7 +546,6 @@ class _QuestionsWidgetState extends State<QuestionsWidget> {
 
   @override
   void dispose() {
-    timeStreamNotifier.close();
     textController.dispose();
     super.dispose();
   }
@@ -600,11 +595,6 @@ class _QuestionsWidgetState extends State<QuestionsWidget> {
       listen: false,
     ).getMentor(index);
 
-    //Send an event into the timeStreamNotifier, in order to start the
-    //timer. We delay it in order to first build the widgets, then call the
-    //stream.
-    Future.delayed(Duration.zero, () => timeStreamNotifier.sink.add(null));
-
     return hasStartedAnswering
 
         /// This is the section in which the user can answer to the question
@@ -635,7 +625,6 @@ class _QuestionsWidgetState extends State<QuestionsWidget> {
               const SizedBox(height: 8),
               TimeCounter(
                 startingCounter: startingCounter,
-                startCounterStream: timeStreamNotifier.stream,
                 notifyParent: notifyMeToStopAnswering,
               ),
               Expanded(
@@ -710,6 +699,13 @@ class _QuestionsWidgetState extends State<QuestionsWidget> {
               const SizedBox(height: 16),
               Container(
                 child: ButtonStyled(
+                  onPressFunction: () => widget.rotateCard(),
+                  fractionalWidthDimension: 0.99,
+                  text: "Back",
+                ),
+              ),
+              Container(
+                child: ButtonStyled(
                   onPressFunction: startAnswering,
                   fractionalWidthDimension: 0.99,
                   text: "Start",
@@ -729,14 +725,12 @@ class _QuestionsWidgetState extends State<QuestionsWidget> {
 ///
 class TimeCounter extends StatefulWidget {
   final int startingCounter;
-  final Stream startCounterStream;
   final Function notifyParent;
 
   const TimeCounter({
     @required this.startingCounter,
-    @required this.startCounterStream,
     @required this.notifyParent,
-  }) : assert(startCounterStream != null);
+  });
 
   @override
   _TimeCounterState createState() => _TimeCounterState();
@@ -745,21 +739,16 @@ class TimeCounter extends StatefulWidget {
 class _TimeCounterState extends State<TimeCounter> {
   int startingCounter = 120;
   bool isCountDownActive = false;
-  StreamSubscription streamSubscription;
-  Stream startCounterStream;
   Timer _timer;
 
   @override
   void initState() {
     super.initState();
-    startingCounter = widget.startingCounter;
-    startCounterStream = widget.startCounterStream;
-    streamSubscription = startCounterStream.listen((_) => startCounter());
+    startCounter();
   }
 
   @override
   void dispose() {
-    streamSubscription.cancel();
     _timer.cancel();
     super.dispose();
   }
@@ -847,7 +836,7 @@ class _ContactMentorState extends State<ContactMentor> {
         Provider.of<QuestionsProvider>(context).answers,
         messageController.text,
       );
-    } on Exception catch (e) {
+    } on Exception catch (_) {
       showErrorDialog(context, "Something went wrong!");
     }
   }

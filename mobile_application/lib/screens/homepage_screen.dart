@@ -125,9 +125,12 @@ class _HomepageWidgetState extends State<HomepageWidget>
   @override
   void didUpdateWidget(HomepageWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    setState(() {
-      loadExploreSection();
-    });
+
+    if(oldWidget.refreshCompleted != this.widget.refreshCompleted){
+      setState(() {
+        loadExploreSection();
+      });
+    }
   }
 
   @override

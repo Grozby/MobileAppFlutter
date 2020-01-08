@@ -16,9 +16,7 @@ class RefreshPageProvider with ChangeNotifier {
     /// [RefreshController.refreshComplete()].
     StreamController internStream = StreamController.broadcast();
     /// We pass a simple callback that immediately close a stream.
-    changeNotifier.sink.add(() {
-      internStream.close();
-    });
+    changeNotifier.sink.add(internStream.close);
     await for (dynamic _ in internStream.stream) {}
   }
 

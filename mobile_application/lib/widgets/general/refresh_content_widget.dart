@@ -167,7 +167,10 @@ class _RefreshedWidgetState extends State<RefreshedWidget> {
 
     try {
       final Stream newRefreshContentStream =
-          Provider.of<RefreshPageProvider>(context).changeNotifier.stream;
+          Provider
+              .of<RefreshPageProvider>(context)
+              .changeNotifier
+              .stream;
       // in case the stream instance changed, subscribe to the new one
       if (newRefreshContentStream != refreshContentStream) {
         streamSubscription.cancel();
@@ -183,12 +186,10 @@ class _RefreshedWidgetState extends State<RefreshedWidget> {
 
   @override
   void dispose() {
-    if (streamSubscription != null) streamSubscription.cancel();
+    if (streamSubscription != null) {
+      streamSubscription.cancel();
+    }
     super.dispose();
-  }
-
-  void refreshCompleted() {
-    this.callback();
   }
 
   @override
@@ -207,7 +208,7 @@ class _RefreshedWidgetState extends State<RefreshedWidget> {
                 .findAncestorStateOfType<_RefreshWidgetState>()
                 .isOverScrolling;
           },
-          child: widget.builder(refreshCompleted),
+          child: widget.builder(callback),
         ),
       ),
     );

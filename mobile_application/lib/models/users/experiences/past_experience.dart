@@ -33,12 +33,10 @@ abstract class PastExperience {
       DateFormat.yMMMd().format(toDate);
 
   static Institution getInstitutionFromJson(Map<String, dynamic> json) {
-      return Institution.fromJson(json);
+    return Institution.fromJson(json);
   }
 
   static DateTime getDateTimeFromString(String string) {
-    return string == null
-        ? null
-        : DateTime.parse(string);
+    return string == null ? null : DateTime.parse(string);
   }
 }
