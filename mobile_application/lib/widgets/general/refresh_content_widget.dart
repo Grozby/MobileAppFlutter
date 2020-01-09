@@ -37,6 +37,14 @@ class RefreshWidget extends StatefulWidget {
 class _RefreshWidgetState extends State<RefreshWidget> {
   RefreshController _refreshController = RefreshController();
   bool isOverScrolling = false;
+  RefreshPageProvider _provider;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _provider = RefreshPageProvider();
+  }
 
   void interruptOverScroll() {
     isOverScrolling = false;
@@ -44,10 +52,9 @@ class _RefreshWidgetState extends State<RefreshWidget> {
     _refreshController.position.jumpTo(_refreshController.position.pixels);
   }
 
+
   @override
   Widget build(BuildContext context) {
-    RefreshPageProvider provider = RefreshPageProvider();
-
     /// For this class we provide a system where multiple inner scroll views
     /// are managed. In Flutter 1.12.13+hotfix.5, when a inner scroll view
     /// overscrolls, the outer scroll view doesn't move. This make difficult
@@ -63,7 +70,7 @@ class _RefreshWidgetState extends State<RefreshWidget> {
     /// direction of the overscroll, the outer scroll is returned to its initial
     /// position for simplicity.
     return ChangeNotifierProvider(
-      create: (_) => provider,
+      create: (_) => _provider,
       child: NotificationListener<OverscrollNotification>(
         onNotification: (OverscrollNotification scrollInfo) {
           if (scrollInfo.depth != 0) {
@@ -110,7 +117,7 @@ class _RefreshWidgetState extends State<RefreshWidget> {
               enablePullDown: true,
               controller: _refreshController,
               onRefresh: () async {
-                await provider.refresh();
+                await _provider.refresh();
                 _refreshController.refreshCompleted();
               },
               header: ClassicHeader(),
@@ -181,7 +188,9 @@ class _RefreshedWidgetState extends State<RefreshedWidget> {
           });
         });
       }
-    } catch (e) {}
+    } catch (e) {
+      print("Eccoci");
+    }
   }
 
   @override
