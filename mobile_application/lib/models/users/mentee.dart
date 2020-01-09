@@ -10,7 +10,6 @@ part 'mentee.g.dart';
 
 @JsonSerializable(explicitToJson: true, anyMap: true)
 class Mentee extends User {
-
   int tokenWallet;
 
   Mentee({
@@ -24,8 +23,7 @@ class Mentee extends User {
     @required socialAccounts,
     @required currentJob,
     @required this.tokenWallet,
-  })  : assert(tokenWallet != null),
-        super(
+  }) : super(
           name: name,
           surname: surname,
           pictureUrl: pictureUrl,
@@ -37,6 +35,9 @@ class Mentee extends User {
           currentJob: currentJob,
         );
 
+  ///
+  /// Serializable methods
+  ///
   factory Mentee.fromJson(Map<String, dynamic> json) => _$MenteeFromJson(json);
 
   Map<String, dynamic> toJson() => _$MenteeToJson(this);

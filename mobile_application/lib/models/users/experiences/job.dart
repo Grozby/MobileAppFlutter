@@ -28,6 +28,9 @@ class Job extends PastExperience {
   @override
   String get assetPath => AssetImages.WORK;
 
+  ///
+  /// Serializable methods
+  ///
   factory Job.fromJson(Map json) => _$JobFromJson(json);
 
   Map<String, dynamic> toJson() => _$JobToJson(this);

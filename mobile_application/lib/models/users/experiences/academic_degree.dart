@@ -29,6 +29,9 @@ class AcademicDegree extends PastExperience {
   @override
   String get assetPath => AssetImages.EDUCATION;
 
+  ///
+  /// Serializable methods
+  ///
   factory AcademicDegree.fromJson(Map json) => _$AcademicDegreeFromJson(json);
 
   Map<String, dynamic> toJson() => _$AcademicDegreeToJson(this);

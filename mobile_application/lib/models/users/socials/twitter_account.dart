@@ -10,6 +10,9 @@ class TwitterAccount extends SocialAccount {
   @override
   String get typeAccount => "Twitter";
 
+  ///
+  /// Serializable methods
+  ///
   factory TwitterAccount.fromJson(Map json) => _$TwitterAccountFromJson(json);
 
   Map<String, dynamic> toJson() => _$TwitterAccountToJson(this);

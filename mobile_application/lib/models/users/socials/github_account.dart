@@ -10,6 +10,9 @@ class GithubAccount extends SocialAccount {
   @override
   String get typeAccount => "Github";
 
+  ///
+  /// Serializable methods
+  ///
   factory GithubAccount.fromJson(Map json) => _$GithubAccountFromJson(json);
 
   Map<String, dynamic> toJson() => _$GithubAccountToJson(this);

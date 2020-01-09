@@ -11,8 +11,11 @@ class Institution {
   Institution({
     @required this.name,
     this.pictureUrl,
-  }) : assert(name != null);
+  });
 
+  ///
+  /// Serializable methods
+  ///
   factory Institution.fromJson(Map json) => _$InstitutionFromJson(json);
 
   Map<String, dynamic> toJson() => _$InstitutionToJson(this);

@@ -11,9 +11,11 @@ class MentorQuestion {
   MentorQuestion({
     @required this.question,
     @required this.availableTime,
-  })  : assert(question != null),
-        assert(availableTime != null);
+  });
 
+  ///
+  /// Serializable methods
+  ///
   factory MentorQuestion.fromJson(Map json) => _$MentorQuestionFromJson(json);
 
   Map<String, dynamic> toJson() => _$MentorQuestionToJson(this);

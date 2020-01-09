@@ -12,8 +12,7 @@ class Question {
   Question({
     @required this.question,
     @required this.answer,
-  })  : assert(question != null),
-        assert(answer != null);
+  });
 
   factory Question.fromJson(Map json) => _$QuestionFromJson(json);
 

@@ -3,7 +3,7 @@ abstract class SocialAccount {
 
   String get typeAccount;
 
-  SocialAccount(this.urlAccount) : assert(urlAccount != null);
+  SocialAccount(this.urlAccount);
 
   Map<String, dynamic> toJson();
 }

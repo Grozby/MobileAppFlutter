@@ -16,8 +16,7 @@ abstract class PastExperience {
     @required this.institution,
     @required this.fromDate,
     this.toDate,
-  })  : assert(fromDate != null),
-        assert(institution != null);
+  });
 
   String get assetPath;
 
@@ -32,6 +31,9 @@ abstract class PastExperience {
       " - " +
       DateFormat.yMMMd().format(toDate);
 
+  ///
+  /// Serializable methods
+  ///
   static Institution getInstitutionFromJson(Map<String, dynamic> json) {
     return Institution.fromJson(json);
   }

@@ -21,6 +21,7 @@ import '../../models/users/socials/twitter_account.dart';
 ///
 ///
 abstract class User {
+  String id;
   String name;
   String surname;
   String pictureUrl;
@@ -30,7 +31,7 @@ abstract class User {
   @JsonKey(fromJson: getCurrentJobFromJson)
   Job currentJob;
 
-  @JsonKey(fromJson: getQuestionFromJson)
+  @JsonKey(fromJson: getQuestionFromJson, nullable: false)
   List<Question> questions;
 
   @JsonKey(
@@ -47,6 +48,7 @@ abstract class User {
   HashMap<String, SocialAccount> socialAccounts;
 
   User({
+    id,
     @required this.name,
     @required this.surname,
     @required this.pictureUrl,
@@ -56,15 +58,7 @@ abstract class User {
     @required this.experiences,
     @required this.socialAccounts,
     @required this.currentJob,
-  })  : assert(name != null),
-        assert(surname != null),
-        assert(pictureUrl != null),
-        assert(location != null),
-        assert(bio != null),
-        assert(questions != null),
-        assert(experiences != null),
-        assert(socialAccounts != null),
-        assert(currentJob != null);
+  })  : id = id == null ? id = "0" : id;
 
   String get completeName => name + " " + surname;
 
@@ -80,12 +74,18 @@ abstract class User {
       .map((j) => j as AcademicDegree)
       .toList();
 
+  ///
+  /// Serializable methods
+  ///
   static Job getCurrentJobFromJson(Map<String, dynamic> json) {
     return Job.fromJson(json);
   }
 
   static List<Question> getQuestionFromJson(questionsJson) {
-    return questionsJson.map<Question>((q) => Question.fromJson(q)).toList();
+    return questionsJson
+            ?.map<Question>((q) => Question.fromJson(q))
+            ?.toList() ??
+        <Question>[];
   }
 
   static SocialAccount getSocialAccountFromJson(element) {
@@ -106,12 +106,12 @@ abstract class User {
   }
 
   static HashMap<String, SocialAccount> getSocialAccountsFromJson(
-      socialAccountsJson) {
+    socialAccountsJson,
+  ) {
     HashMap<String, SocialAccount> hashMap = HashMap();
-    if(socialAccountsJson != null){
-      socialAccountsJson
-          .forEach((e) => hashMap[e["type"]] = getSocialAccountFromJson(e));
-    }
+
+    socialAccountsJson
+        ?.forEach((e) => hashMap[e["type"]] = getSocialAccountFromJson(e));
 
     return hashMap;
   }
@@ -119,13 +119,12 @@ abstract class User {
   static List<Map<String, dynamic>> getJsonSocialAccounts(
       HashMap<String, SocialAccount> socialAccount) {
     List<Map<String, dynamic>> list = List();
-    if(socialAccount != null){
-      socialAccount.forEach((key, socialAccount) {
-        var map = socialAccount.toJson();
-        map["type"] = socialAccount.typeAccount;
-        list.add(map);
-      });
-    }
+
+    socialAccount?.forEach((key, socialAccount) {
+      var map = socialAccount.toJson();
+      map["type"] = socialAccount.typeAccount;
+      list.add(map);
+    });
 
     return list;
   }
@@ -140,7 +139,7 @@ abstract class User {
         default:
           throw Exception();
       }
-    })?.toList();
+    })?.toList() ?? <PastExperience>[];
   }
 
   static List<Map<String, dynamic>> getJsonExperiences(

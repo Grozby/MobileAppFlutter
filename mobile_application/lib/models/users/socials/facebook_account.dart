@@ -10,6 +10,9 @@ class FacebookAccount extends SocialAccount {
   @override
   String get typeAccount => "Facebook";
 
+  ///
+  /// Serializable methods
+  ///
   factory FacebookAccount.fromJson(Map json) => _$FacebookAccountFromJson(json);
 
   Map<String, dynamic> toJson() => _$FacebookAccountToJson(this);

@@ -19,17 +19,18 @@ Mentee _$MenteeFromJson(Map json) {
     currentJob:
         User.getCurrentJobFromJson(json['currentJob'] as Map<String, dynamic>),
     tokenWallet: json['tokenWallet'] as int,
-  );
+  )..id = json['id'] as String;
 }
 
 Map<String, dynamic> _$MenteeToJson(Mentee instance) => <String, dynamic>{
+      'id': instance.id,
       'name': instance.name,
       'surname': instance.surname,
       'pictureUrl': instance.pictureUrl,
       'location': instance.location,
       'bio': instance.bio,
       'currentJob': instance.currentJob?.toJson(),
-      'questions': instance.questions?.map((e) => e?.toJson())?.toList(),
+      'questions': instance.questions.map((e) => e.toJson()).toList(),
       'pastExperiences': User.getJsonExperiences(instance.experiences),
       'socialAccounts': User.getJsonSocialAccounts(instance.socialAccounts),
       'tokenWallet': instance.tokenWallet,

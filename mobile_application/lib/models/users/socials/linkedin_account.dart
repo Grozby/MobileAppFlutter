@@ -10,6 +10,9 @@ class LinkedInAccount extends SocialAccount {
   @override
   String get typeAccount => "Linkedin";
 
+  ///
+  /// Serializable methods
+  ///
   factory LinkedInAccount.fromJson(Map json) => _$LinkedInAccountFromJson(json);
 
   Map<String, dynamic> toJson() => _$LinkedInAccountToJson(this);

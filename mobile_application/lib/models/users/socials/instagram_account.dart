@@ -10,6 +10,9 @@ class InstagramAccount extends SocialAccount {
   @override
   String get typeAccount => "Instagram";
 
+  ///
+  /// Serializable methods
+  ///
   factory InstagramAccount.fromJson(Map json) => _$InstagramAccountFromJson(json);
 
   Map<String, dynamic> toJson() => _$InstagramAccountToJson(this);
