@@ -293,7 +293,7 @@ class CardContent extends StatelessWidget {
       width: width,
       padding: EdgeInsets.only(bottom: 12.0),
       child: CardContainer(
-        rotateCard: () {},
+        onLongPress: () {},
         canExpand: true,
         startingColor: user.cardColor,
         child: Column(

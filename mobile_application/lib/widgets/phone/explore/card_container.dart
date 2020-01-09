@@ -6,18 +6,18 @@ import '../../../providers/theming/theme_provider.dart';
 
 class CardContainer extends StatelessWidget {
   final Widget child;
-  final Function rotateCard;
+  final Function onLongPress;
   static const double padding = 12;
   final bool canExpand;
   final Color startingColor;
 
   CardContainer({
     @required this.child,
-    @required this.rotateCard,
+    @required this.onLongPress,
     this.canExpand = true,
     startingColor,
   })  : assert(child != null),
-        assert(rotateCard != null),
+        assert(onLongPress != null),
         this.startingColor = startingColor != null
             ? startingColor
             : ThemeProvider.primaryColor.withOpacity(0.10);
@@ -51,7 +51,7 @@ class CardContainer extends StatelessWidget {
         ),
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onLongPress: rotateCard,
+          onLongPress: onLongPress,
           child: child,
         ),
       ),

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/screens/user_profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -19,6 +20,7 @@ import '../../faded_list_view.dart';
 import '../../general/button_styled.dart';
 import '../../transition/rotation_transition_upgraded.dart';
 import 'card_container.dart';
+import 'circular_button.dart';
 import 'explore_card.dart';
 
 ///
@@ -97,13 +99,24 @@ class _FrontCardMentor extends StatefulWidget {
 }
 
 class _FrontCardMentorState extends State<_FrontCardMentor> {
+  void goToProfilePage(BuildContext context) {
+    Navigator.of(context).pushNamed(UserProfileScreen.routeName,
+
+        /// TODO: should be UserProfileArguments(
+        ///             Provider.of<CardProvider>(context, listen: false)
+        ///                .getMentor(ScopedModel.of<IndexUser>(context).indexUser)
+        ///                .id;
+        ///        ),
+        arguments: UserProfileArguments("5e105efc3c5ab2083ca32e50"));
+  }
+
   @override
   Widget build(BuildContext context) {
     int index = ScopedModel.of<IndexUser>(context).indexUser;
     Mentor mentor = Provider.of<CardProvider>(context).getMentor(index);
 
     return CardContainer(
-      rotateCard: widget.rotateCard,
+      onLongPress: () => goToProfilePage(context),
       startingColor: mentor.cardColor,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -112,8 +125,9 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
             children: <Widget>[
               const _CompanyInformationBar(),
               const Divider(),
-              const _MentorBasicInformation(
+              _MentorBasicInformation(
                 isVertical: true,
+                onImageMentorLongPress: () => goToProfilePage(context),
               ),
               const SizedBox(height: 8),
               const _MentorBio(
@@ -248,8 +262,12 @@ class _CompanyInformationBar extends StatelessWidget {
 ///
 class _MentorBasicInformation extends StatelessWidget {
   final bool isVertical;
+  final Function onImageMentorLongPress;
 
-  const _MentorBasicInformation({@required this.isVertical});
+  const _MentorBasicInformation({
+    @required this.isVertical,
+    this.onImageMentorLongPress,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -257,7 +275,9 @@ class _MentorBasicInformation extends StatelessWidget {
         ? Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              const _MentorBasicInformationAvatar(),
+              _MentorBasicInformationAvatar(
+                onImageMentorLongPress: onImageMentorLongPress,
+              ),
               const SizedBox(height: 4),
               const _MentorBasicInformationText(
                 alignment: Alignment.center,
@@ -267,7 +287,9 @@ class _MentorBasicInformation extends StatelessWidget {
         : Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              const _MentorBasicInformationAvatar(),
+              _MentorBasicInformationAvatar(
+                onImageMentorLongPress: onImageMentorLongPress,
+              ),
               const _MentorBasicInformationText(
                 alignment: Alignment.centerLeft,
               ),
@@ -277,7 +299,9 @@ class _MentorBasicInformation extends StatelessWidget {
 }
 
 class _MentorBasicInformationAvatar extends StatelessWidget {
-  const _MentorBasicInformationAvatar();
+  final Function onImageMentorLongPress;
+
+  _MentorBasicInformationAvatar({@required this.onImageMentorLongPress});
 
   @override
   Widget build(BuildContext context) {
@@ -289,34 +313,13 @@ class _MentorBasicInformationAvatar extends StatelessWidget {
 
     return Container(
       alignment: Alignment.center,
-      child: Stack(
-        children: <Widget>[
-          const Positioned.fill(
-            child: const Material(
-              color: Colors.transparent,
-              elevation: 8,
-              type: MaterialType.circle,
-            ),
-          ),
-          const Positioned.fill(
-            child: const Material(
-              color: Colors.white,
-              elevation: 0,
-              type: MaterialType.circle,
-            ),
-          ),
-          ClipRRect(
-            borderRadius: const BorderRadius.all(const Radius.circular(100)),
-            child: Container(
-              width: 80,
-              height: 80,
-              child: ImageWrapper(
-                assetPath: "user.png",
-                imageUrl: mentor.pictureUrl,
-              ),
-            ),
-          ),
-        ],
+      child: CircularButton(
+        assetPath: AssetImages.USER,
+        imageUrl: mentor.pictureUrl,
+        alignment: Alignment.center,
+        onPressFunction: onImageMentorLongPress,
+        width: 80,
+        height: 80,
       ),
     );
   }
@@ -490,7 +493,7 @@ class __BackCardMentorState extends State<_BackCardMentor> {
   Widget build(BuildContext context) {
     return CardContainer(
       canExpand: false,
-      rotateCard: widget.rotateCard,
+      onLongPress: widget.rotateCard,
       startingColor: color,
       child: Column(
         children: <Widget>[
@@ -665,7 +668,8 @@ class _QuestionsWidgetState extends State<QuestionsWidget> {
         /// question
         : Column(
             children: <Widget>[
-              const _MentorBasicInformation(isVertical: false),
+              const _MentorBasicInformation(isVertical: false,
+              ),
               const SizedBox(height: 16),
               Consumer<QuestionsProvider>(
                 builder: (ctx, qProvider, child) {
