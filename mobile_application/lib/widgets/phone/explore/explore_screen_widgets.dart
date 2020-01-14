@@ -4,12 +4,12 @@ import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-import '../../../helpers/asset_images.dart';
 import '../../../models/utility/available_sizes.dart';
 import '../../../providers/explore/card_provider.dart';
 import '../../../providers/user/user_data_provider.dart';
 import '../../../screens/messages_screen.dart';
 import '../../../screens/user_profile_screen.dart';
+import '../../../widgets/general/image_wrapper.dart';
 import 'circular_button.dart';
 import 'explore_card.dart';
 

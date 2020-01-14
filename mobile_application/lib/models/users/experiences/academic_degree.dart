@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../../helpers/asset_images.dart';
 import '../../../models/users/experiences/past_experience.dart';
+import '../../../widgets/general/image_wrapper.dart';
 
 part 'academic_degree.g.dart';
 

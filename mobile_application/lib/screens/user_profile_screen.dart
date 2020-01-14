@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../helpers/asset_images.dart';
 import '../models/users/experiences/past_experience.dart';
 import '../models/users/question.dart';
 import '../models/users/socials/social_account.dart';

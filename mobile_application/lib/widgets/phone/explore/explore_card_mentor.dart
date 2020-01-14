@@ -6,7 +6,6 @@ import 'package:mobile_application/screens/user_profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-import '../../../helpers/asset_images.dart';
 import '../../../models/users/experiences/past_experience.dart';
 import '../../../models/users/mentor.dart';
 import '../../../providers/explore/card_provider.dart';
@@ -668,7 +667,8 @@ class _QuestionsWidgetState extends State<QuestionsWidget> {
         /// question
         : Column(
             children: <Widget>[
-              const _MentorBasicInformation(isVertical: false,
+              const _MentorBasicInformation(
+                isVertical: false,
               ),
               const SizedBox(height: 16),
               Consumer<QuestionsProvider>(
