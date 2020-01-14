@@ -358,55 +358,58 @@ class _AudioPlayerState extends State<AudioPlayer> {
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: ValueKey("Recorded"),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(
-            const Radius.circular(24),
-          ),
-          color: ThemeProvider.primaryColor.withOpacity(0.25),
+      key: ValueKey("RecordedAudio"),
+      direction: DismissDirection.endToStart,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(
+          const Radius.circular(24),
         ),
-        child: Row(
-          children: <Widget>[
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              transitionBuilder: (child, animation) => ScaleTransition(
-                child: child,
-                scale: animation,
-              ),
-              child: widget.flutterSound.audioState == t_AUDIO_STATE.IS_PLAYING
-                  ? Container(
-                      key: ValueKey("PauseButtonPlayer"),
-                      child: CircularButton(
-                        assetPath: "ic_pause.png",
-                        alignment: Alignment.center,
-                        onPressFunction: pausePlayer,
-                        height: 40,
-                        width: 40,
-                        applyElevation: false,
-                      ),
-                    )
-                  : Container(
-                      key: ValueKey("PlayButtonPlayer"),
-                      child: CircularButton(
-                        assetPath: "ic_play.png",
-                        alignment: Alignment.center,
-                        onPressFunction: startPlayer,
-                        height: 40,
-                        width: 40,
-                        applyElevation: false,
-                      ),
-                    ),
+        child: Container(
+          color: Colors.white,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            color: ThemeProvider.primaryColor.withOpacity(0.25),
+            child: Row(
+              children: <Widget>[
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  transitionBuilder: (child, animation) => ScaleTransition(
+                    child: child,
+                    scale: animation,
+                  ),
+                  child: _isPlaying
+                      ? Container(
+                          key: ValueKey("PauseButtonPlayer"),
+                          child: CircularButton(
+                            assetPath: "ic_pause.png",
+                            alignment: Alignment.center,
+                            onPressFunction: pausePlayer,
+                            height: 40,
+                            width: 40,
+                            applyElevation: false,
+                          ),
+                        )
+                      : Container(
+                          key: ValueKey("PlayButtonPlayer"),
+                          child: CircularButton(
+                            assetPath: "ic_play.png",
+                            alignment: Alignment.center,
+                            onPressFunction: startPlayer,
+                            height: 40,
+                            width: 40,
+                            applyElevation: false,
+                          ),
+                        ),
+                ),
+                Container(
+                  child: Text(timeToShow()),
+                ),
+              ],
             ),
-            Container(
-              child: Text(timeToShow()),
-            ),
-          ],
+          ),
         ),
       ),
       background: Container(
-        alignment: Alignment.centerRight,
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(
@@ -414,10 +417,16 @@ class _AudioPlayerState extends State<AudioPlayer> {
           ),
           color: Colors.red,
         ),
-        child: Container(
-          height: 35,
-          width: 35,
-          child: ImageWrapper(assetPath: AssetImages.DELETE),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            Text("Delete"),
+            Container(
+              height: 35,
+              width: 35,
+              child: ImageWrapper(assetPath: AssetImages.DELETE),
+            ),
+          ],
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
+import 'package:mobile_application/screens/test_screen.dart';
 import 'package:mobile_application/widgets/general/loading_error.dart';
 import 'package:provider/provider.dart';
 
@@ -28,63 +29,64 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
     final currentTheme = Provider.of<ThemeProvider>(context);
     final authenticationProvider = Provider.of<AuthenticationProvider>(context);
 
-    return MaterialApp(
-      theme: currentTheme.getTheme(),
-      debugShowCheckedModeBanner: false,
-      home: FutureBuilder(
-        future: authenticationProvider.checkAuthentication() ?? null,
-        builder: (BuildContext ctx, AsyncSnapshot snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.waiting:
-              return const WaitingScreen();
-
-            default:
-              if (snapshot.hasError) {
-                if (snapshot.error is NoInternetException) {
-                  return Scaffold(
-                    body: SafeArea(
-                      child: LoadingError(
-                        exception: snapshot.error,
-                        retry: () => setState(() {}),
-                        buildContext: context,
-                      ),
-                    ),
-                  );
-                } else {
-                  Future.delayed(
-                    Duration.zero,
-                    () => showErrorDialog(
-                      ctx,
-                      snapshot.error is SomethingWentWrongException
-                          ? (snapshot.error as SomethingWentWrongException).text
-                          : "Got some error.",
-                    ),
-                  );
-                  return LandingScreen();
-                }
-              }
-
-              if (snapshot.data) {
-                //If true is returned, we are logged in
-                return const HomepageScreen();
-              } else {
-                //Otherwise, we show the sign-up screen
-                return LandingScreen();
-              }
-          }
-        },
-      ),
-      routes: {
-        LandingScreen.routeName: (_) => LandingScreen(),
-        LoginScreen.routeName: (_) => LoginScreen(),
-        HomepageScreen.routeName: (_) => HomepageScreen(),
-        SettingsScreen.routeName: (_) => SettingsScreen(),
-        SignUpChoiceScreen.routeName: (_) => SignUpChoiceScreen(),
-        SignUpScreen.routeName: (_) => SignUpScreen(),
-        UserProfileScreen.routeName: (ctx) =>
-            UserProfileScreen(ModalRoute.of(ctx).settings.arguments),
-        MessagesScreen.routeName: (_) => MessagesScreen(),
-      },
-    );
+    return TestScreen();
+//    return MaterialApp(
+//      theme: currentTheme.getTheme(),
+//      debugShowCheckedModeBanner: false,
+//      home: FutureBuilder(
+//        future: authenticationProvider.checkAuthentication() ?? null,
+//        builder: (BuildContext ctx, AsyncSnapshot snapshot) {
+//          switch (snapshot.connectionState) {
+//            case ConnectionState.waiting:
+//              return const WaitingScreen();
+//
+//            default:
+//              if (snapshot.hasError) {
+//                if (snapshot.error is NoInternetException) {
+//                  return Scaffold(
+//                    body: SafeArea(
+//                      child: LoadingError(
+//                        exception: snapshot.error,
+//                        retry: () => setState(() {}),
+//                        buildContext: context,
+//                      ),
+//                    ),
+//                  );
+//                } else {
+//                  Future.delayed(
+//                    Duration.zero,
+//                    () => showErrorDialog(
+//                      ctx,
+//                      snapshot.error is SomethingWentWrongException
+//                          ? (snapshot.error as SomethingWentWrongException).text
+//                          : "Got some error.",
+//                    ),
+//                  );
+//                  return LandingScreen();
+//                }
+//              }
+//
+//              if (snapshot.data) {
+//                //If true is returned, we are logged in
+//                return const HomepageScreen();
+//              } else {
+//                //Otherwise, we show the sign-up screen
+//                return LandingScreen();
+//              }
+//          }
+//        },
+//      ),
+//      routes: {
+//        LandingScreen.routeName: (_) => LandingScreen(),
+//        LoginScreen.routeName: (_) => LoginScreen(),
+//        HomepageScreen.routeName: (_) => HomepageScreen(),
+//        SettingsScreen.routeName: (_) => SettingsScreen(),
+//        SignUpChoiceScreen.routeName: (_) => SignUpChoiceScreen(),
+//        SignUpScreen.routeName: (_) => SignUpScreen(),
+//        UserProfileScreen.routeName: (ctx) =>
+//            UserProfileScreen(ModalRoute.of(ctx).settings.arguments),
+//        MessagesScreen.routeName: (_) => MessagesScreen(),
+//      },
+//    );
   }
 }
