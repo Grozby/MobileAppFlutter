@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_sound/android_encoder.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/ios_quality.dart';
@@ -12,6 +14,7 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'package:mobile_application/widgets/general/image_wrapper.dart';
 import 'package:mobile_application/widgets/phone/explore/circular_button.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class AudioWidget extends StatefulWidget {
   @override
@@ -22,6 +25,7 @@ class _AudioWidgetState extends State<AudioWidget>
     with TickerProviderStateMixin {
   static const String paths = "sound.aac";
 
+  FlutterFFmpeg ffmpeg = FlutterFFmpeg();
   bool _isRecording = false;
   String _path;
   String _recorderTxt = '00:00:00';
@@ -37,17 +41,30 @@ class _AudioWidgetState extends State<AudioWidget>
     super.initState();
     flutterSound = FlutterSound();
     flutterSound.setSubscriptionDuration(0.01);
-    flutterSound.setDbPeakLevelUpdate(0.8);
+    flutterSound.setDbPeakLevelUpdate(0.1);
     flutterSound.setDbLevelEnabled(true);
     initializeDateFormatting();
+  }
+
+  @override
+  void dispose() {
+    if (flutterSound.isRecording) {
+      flutterSound.stopRecorder();
+    }
+
+    super.dispose();
   }
 
   ///
   /// Recording
   ///
   void recorderStateCallback(RecordStatus recordStatus) {
+    if (recordStatus == null) {
+      return;
+    }
+
     DateTime date = DateTime.fromMillisecondsSinceEpoch(
-      recordStatus.currentPosition.toInt(),
+      (recordStatus.currentPosition.toInt() - 100),
       isUtc: true,
     );
     String txt = DateFormat('mm:ss:SS', 'en_GB').format(date);
@@ -57,7 +74,7 @@ class _AudioWidgetState extends State<AudioWidget>
 
   void recorderDbPeakCallback(double dbPeak) {
     print("got update -> $dbPeak");
-    setState(() => _dbLevel = dbPeak);
+    _dbLevel = dbPeak;
   }
 
   void recordingStreamsSubscription() {
@@ -71,10 +88,7 @@ class _AudioWidgetState extends State<AudioWidget>
 
   void removeRecordingStreams() {
     _recorderSubscription?.cancel();
-    _recorderSubscription = null;
-
     _dbPeakSubscription?.cancel();
-    _dbPeakSubscription = null;
   }
 
   void startRecorder() async {
@@ -97,18 +111,16 @@ class _AudioWidgetState extends State<AudioWidget>
         codec: t_CODEC.CODEC_AAC,
         sampleRate: 16000,
         bitRate: 16000,
-        numChannels: 1,
+        numChannels: 2,
         androidAudioSource: AndroidAudioSource.MIC,
-        iosQuality: IosQuality.MEDIUM,
+        iosQuality: IosQuality.HIGH,
       );
 
-      print('startRecorder: $path');
       recordingStreamsSubscription();
-
       setState(() => _path = path);
     } catch (err) {
       print('startRecorder error: $err');
-      setState(() => _isRecording = false);
+      _isRecording = false;
     }
   }
 
@@ -121,15 +133,23 @@ class _AudioWidgetState extends State<AudioWidget>
     _isRecording = false;
 
     try {
-      String result = await flutterSound.stopRecorder();
-      print('stopRecorder: $result');
-
+      await flutterSound.stopRecorder();
       removeRecordingStreams();
+
+      int duration = await ffmpeg
+          .getMediaInformation(_path)
+          .then((info) => info["duration"].toInt());
+
+      DateTime date = DateTime.fromMillisecondsSinceEpoch(
+        duration,
+        isUtc: true,
+      );
+      String txt = DateFormat('mm:ss:SS', 'en_GB').format(date);
+
+      setState(() => _recorderTxt = txt.substring(0, 8));
     } catch (err) {
       print('stopRecorder error: $err');
     }
-
-    setState(() => _isRecording = false);
   }
 
   @override
@@ -179,7 +199,7 @@ class _AudioWidgetState extends State<AudioWidget>
           ),
           child: _isRecording
               ? Container(
-                  key: ValueKey(1),
+                  key: ValueKey("StopButton"),
                   child: CircularButton(
                     assetPath: "ic_stop.png",
                     alignment: Alignment.center,
@@ -190,7 +210,7 @@ class _AudioWidgetState extends State<AudioWidget>
                   ),
                 )
               : Container(
-                  key: ValueKey(2),
+                  key: ValueKey("RecordButton"),
                   child: CircularButton(
                     assetPath: "ic_mic.png",
                     alignment: Alignment.center,
@@ -269,10 +289,26 @@ class AudioPlayer extends StatefulWidget {
 
 class _AudioPlayerState extends State<AudioPlayer> {
   bool _isPlaying = false;
-  String _playerTime = '00:00:00';
   double sliderCurrentPosition = 0.0;
   double maxDuration = 1.0;
+  String _playerTime;
   StreamSubscription _playerSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _playerTime = widget.audioTime;
+    print(_playerTime);
+  }
+
+  @override
+  void dispose() {
+    if (widget.flutterSound.audioState == t_AUDIO_STATE.IS_PAUSED) {
+      widget.flutterSound.stopPlayer();
+    }
+
+    super.dispose();
+  }
 
   ///
   /// Playing
@@ -312,24 +348,26 @@ class _AudioPlayerState extends State<AudioPlayer> {
 
   void startPlayer() async {
     try {
-      String path;
-
       if (await fileExists(widget.filePath)) {
-        path = await widget.flutterSound.startPlayer(widget.filePath);
+        String path = await widget.flutterSound.startPlayer(widget.filePath);
+
+        if (path == null) {
+          print('Error starting player');
+          return;
+        }
       }
 
-      if (path == null) {
-        print('Error starting player');
-        return;
-      }
-
-      print('startPlayer: $path');
       await widget.flutterSound.setVolume(1.0);
       playerStreamsSubscription();
+
+      if (sliderCurrentPosition != maxDuration) {
+        print("Not finished playing!");
+        await widget.flutterSound.seekToPlayer(sliderCurrentPosition.toInt());
+      }
+      setState(() => _isPlaying = true);
     } catch (err) {
       print('error: $err');
     }
-    setState(() => _isPlaying = true);
   }
 
   void pausePlayer() async {
@@ -350,7 +388,8 @@ class _AudioPlayerState extends State<AudioPlayer> {
   }
 
   String timeToShow() {
-    return _isPlaying || sliderCurrentPosition != maxDuration
+    return widget.flutterSound.audioState != t_AUDIO_STATE.IS_STOPPED ||
+            sliderCurrentPosition != maxDuration
         ? _playerTime
         : widget.audioTime;
   }
