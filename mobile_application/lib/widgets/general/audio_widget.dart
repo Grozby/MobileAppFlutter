@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
-import 'dart:typed_data';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -11,10 +10,21 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/ios_quality.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:mobile_application/providers/theming/theme_provider.dart';
-import 'package:mobile_application/widgets/general/image_wrapper.dart';
-import 'package:mobile_application/widgets/phone/explore/circular_button.dart';
-import 'package:flutter/services.dart' show rootBundle;
+
+import '../../providers/theming/theme_provider.dart';
+import '../../widgets/general/image_wrapper.dart';
+import '../../widgets/phone/explore/circular_button.dart';
+
+mixin TimeConverter {
+  String timeToString(int duration) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(
+      duration,
+      isUtc: true,
+    );
+
+    return DateFormat('mm:ss:SS', 'en_GB').format(date).substring(0, 8);
+  }
+}
 
 class AudioWidget extends StatefulWidget {
   @override
@@ -22,14 +32,16 @@ class AudioWidget extends StatefulWidget {
 }
 
 class _AudioWidgetState extends State<AudioWidget>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, TimeConverter {
   static const String paths = "sound.aac";
 
   FlutterFFmpeg ffmpeg = FlutterFFmpeg();
   bool _isRecording = false;
   String _path;
-  String _recorderTxt = '00:00:00';
-  double _dbLevel;
+  int _recorderDuration = 0;
+
+  String get _recorderTxt => timeToString(_recorderDuration);
+  List<double> _dbLevels = List();
 
   StreamSubscription _recorderSubscription;
   StreamSubscription _dbPeakSubscription;
@@ -39,6 +51,7 @@ class _AudioWidgetState extends State<AudioWidget>
   @override
   void initState() {
     super.initState();
+
     flutterSound = FlutterSound();
     flutterSound.setSubscriptionDuration(0.01);
     flutterSound.setDbPeakLevelUpdate(0.1);
@@ -63,18 +76,15 @@ class _AudioWidgetState extends State<AudioWidget>
       return;
     }
 
-    DateTime date = DateTime.fromMillisecondsSinceEpoch(
-      (recordStatus.currentPosition.toInt() - 100),
-      isUtc: true,
-    );
-    String txt = DateFormat('mm:ss:SS', 'en_GB').format(date);
-
-    setState(() => _recorderTxt = txt.substring(0, 8));
+    setState(
+        () => _recorderDuration = recordStatus.currentPosition.toInt() - 100);
   }
 
   void recorderDbPeakCallback(double dbPeak) {
     print("got update -> $dbPeak");
-    _dbLevel = dbPeak;
+    if (dbPeak != null) {
+      _dbLevels.add(dbPeak);
+    }
   }
 
   void recordingStreamsSubscription() {
@@ -98,6 +108,7 @@ class _AudioWidgetState extends State<AudioWidget>
 
     ///Setting this earlier to avoid double taps.
     _isRecording = true;
+    _dbLevels = List();
 
     try {
       /// If the player is active, we first proceed in stopping it.
@@ -140,13 +151,9 @@ class _AudioWidgetState extends State<AudioWidget>
           .getMediaInformation(_path)
           .then((info) => info["duration"].toInt());
 
-      DateTime date = DateTime.fromMillisecondsSinceEpoch(
-        duration,
-        isUtc: true,
+      setState(
+        () => _recorderDuration = duration,
       );
-      String txt = DateFormat('mm:ss:SS', 'en_GB').format(date);
-
-      setState(() => _recorderTxt = txt.substring(0, 8));
     } catch (err) {
       print('stopRecorder error: $err');
     }
@@ -181,9 +188,10 @@ class _AudioWidgetState extends State<AudioWidget>
                     )
                   : _path != null
                       ? AudioPlayer(
-                          audioTime: _recorderTxt,
+                          audioDuration: _recorderDuration,
                           flutterSound: flutterSound,
                           filePath: _path,
+                          dbPeakSamples: _dbLevels,
                         )
                       : Container(
                           key: ValueKey("NothingHappening"),
@@ -261,7 +269,7 @@ class _PulseAnimationState extends State<PulseAnimation>
           return Container(
             decoration: BoxDecoration(
               color: Colors.red.withOpacity(
-                sin(_pulseController.value * pi),
+                math.sin(_pulseController.value * math.pi),
               ),
               shape: BoxShape.circle,
             ),
@@ -273,32 +281,34 @@ class _PulseAnimationState extends State<PulseAnimation>
 }
 
 class AudioPlayer extends StatefulWidget {
-  final String audioTime;
+  final int audioDuration;
   final String filePath;
   final FlutterSound flutterSound;
+  final List<double> dbPeakSamples;
 
   AudioPlayer({
-    this.audioTime,
+    this.audioDuration,
     this.filePath,
     this.flutterSound,
+    this.dbPeakSamples,
   });
 
   @override
   _AudioPlayerState createState() => _AudioPlayerState();
 }
 
-class _AudioPlayerState extends State<AudioPlayer> {
+class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
   bool _isPlaying = false;
   double sliderCurrentPosition = 0.0;
-  double maxDuration = 1.0;
+  int maxDuration;
   String _playerTime;
   StreamSubscription _playerSubscription;
 
   @override
   void initState() {
     super.initState();
-    _playerTime = widget.audioTime;
-    print(_playerTime);
+    maxDuration = widget.audioDuration;
+    _playerTime = timeIntToString(widget.audioDuration);
   }
 
   @override
@@ -306,7 +316,7 @@ class _AudioPlayerState extends State<AudioPlayer> {
     if (widget.flutterSound.audioState == t_AUDIO_STATE.IS_PAUSED) {
       widget.flutterSound.stopPlayer();
     }
-
+    print("im disposed boi");
     super.dispose();
   }
 
@@ -317,20 +327,23 @@ class _AudioPlayerState extends State<AudioPlayer> {
     return await File(path).exists();
   }
 
+  String timeIntToString(int duration) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(
+      duration,
+      isUtc: true,
+    );
+
+    return DateFormat('mm:ss:SS', 'en_GB').format(date).substring(0, 8);
+  }
+
   void playerStateCallback(PlayStatus playStatus) {
-    print(playStatus);
     // The player is running
     if (playStatus != null) {
       sliderCurrentPosition = playStatus.currentPosition;
-      maxDuration = playStatus.duration;
+      maxDuration = playStatus.duration.toInt();
 
-      DateTime date = DateTime.fromMillisecondsSinceEpoch(
-        playStatus.currentPosition.toInt(),
-        isUtc: true,
-      );
-
-      String txt = DateFormat('mm:ss:SS', 'en_GB').format(date);
-      setState(() => _playerTime = txt.substring(0, 8));
+      setState(() =>
+          _playerTime = timeIntToString(playStatus.currentPosition.toInt()));
     } else {
       setState(() => _isPlaying = false);
     }
@@ -346,7 +359,7 @@ class _AudioPlayerState extends State<AudioPlayer> {
     _playerSubscription?.cancel();
   }
 
-  void startPlayer() async {
+  Future<void> startPlayer(bool resetState) async {
     try {
       if (await fileExists(widget.filePath)) {
         String path = await widget.flutterSound.startPlayer(widget.filePath);
@@ -364,13 +377,16 @@ class _AudioPlayerState extends State<AudioPlayer> {
         print("Not finished playing!");
         await widget.flutterSound.seekToPlayer(sliderCurrentPosition.toInt());
       }
-      setState(() => _isPlaying = true);
+
+      if (resetState) {
+        setState(() => _isPlaying = true);
+      }
     } catch (err) {
       print('error: $err');
     }
   }
 
-  void pausePlayer() async {
+  Future<void> pausePlayer(bool resetState) async {
     try {
       String result = await widget.flutterSound.pausePlayer();
       removePlayerStreams();
@@ -379,7 +395,9 @@ class _AudioPlayerState extends State<AudioPlayer> {
       print('error: $err');
     }
 
-    setState(() => _isPlaying = false);
+    if (resetState) {
+      setState(() => _isPlaying = false);
+    }
   }
 
   void seekToPlayer(int milliSecs) async {
@@ -391,7 +409,7 @@ class _AudioPlayerState extends State<AudioPlayer> {
     return widget.flutterSound.audioState != t_AUDIO_STATE.IS_STOPPED ||
             sliderCurrentPosition != maxDuration
         ? _playerTime
-        : widget.audioTime;
+        : timeIntToString(widget.audioDuration);
   }
 
   @override
@@ -409,6 +427,7 @@ class _AudioPlayerState extends State<AudioPlayer> {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             color: ThemeProvider.primaryColor.withOpacity(0.25),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
@@ -422,7 +441,7 @@ class _AudioPlayerState extends State<AudioPlayer> {
                           child: CircularButton(
                             assetPath: "ic_pause.png",
                             alignment: Alignment.center,
-                            onPressFunction: pausePlayer,
+                            onPressFunction: () => pausePlayer(true),
                             height: 40,
                             width: 40,
                             applyElevation: false,
@@ -433,7 +452,7 @@ class _AudioPlayerState extends State<AudioPlayer> {
                           child: CircularButton(
                             assetPath: "ic_play.png",
                             alignment: Alignment.center,
-                            onPressFunction: startPlayer,
+                            onPressFunction: () => startPlayer(true),
                             height: 40,
                             width: 40,
                             applyElevation: false,
@@ -442,6 +461,38 @@ class _AudioPlayerState extends State<AudioPlayer> {
                 ),
                 Container(
                   child: Text(timeToShow()),
+                ),
+                Expanded(
+                  child: SliderTheme(
+                    data: SliderThemeData(
+                      trackShape: AudioTrackBarChart(widget.dbPeakSamples),
+                      trackHeight: 30,
+                      thumbColor: Colors.transparent,
+                    ),
+                    child: Slider(
+                      value: sliderCurrentPosition,
+                      max: maxDuration.toDouble(),
+                      onChangeStart: (newValue) async {
+                        if (_isPlaying) {
+                          await pausePlayer(false);
+                        }
+                      },
+                      onChanged: (newValue) {
+                        setState(() {
+                          sliderCurrentPosition = newValue;
+                          _playerTime =
+                              timeIntToString(sliderCurrentPosition.toInt());
+                        });
+                      },
+                      onChangeEnd: (newValue) async {
+                        if (_isPlaying) {
+                          await widget.flutterSound
+                              .seekToPlayer(sliderCurrentPosition.toInt());
+                          await startPlayer(false);
+                        }
+                      },
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -469,5 +520,160 @@ class _AudioPlayerState extends State<AudioPlayer> {
         ),
       ),
     );
+  }
+}
+
+///
+/// Support classes for forming the slidable audio representation
+///
+
+class AudioTrackBarChart extends SliderTrackShape with CustomTrackShape {
+  final List<double> dbPeakSamples;
+
+  AudioTrackBarChart(this.dbPeakSamples);
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset offset, {
+    @required RenderBox parentBox,
+    @required SliderThemeData sliderTheme,
+    @required Animation<double> enableAnimation,
+    @required TextDirection textDirection,
+    @required Offset thumbCenter,
+    bool isDiscrete = false,
+    bool isEnabled = false,
+  }) {
+    assert(context != null);
+    assert(offset != null);
+    assert(parentBox != null);
+    assert(sliderTheme != null);
+    assert(sliderTheme.disabledActiveTrackColor != null);
+    assert(sliderTheme.disabledInactiveTrackColor != null);
+    assert(sliderTheme.activeTrackColor != null);
+    assert(sliderTheme.inactiveTrackColor != null);
+    assert(sliderTheme.thumbShape != null);
+    assert(enableAnimation != null);
+    assert(textDirection != null);
+    assert(thumbCenter != null);
+    // If the slider track height is less than or equal to 0, then it makes no
+    // difference whether the track is painted or not, therefore the painting
+    // can be a no-op.
+    if (sliderTheme.trackHeight <= 0) {
+      return;
+    }
+
+    // Assign the track segment paints, which are leading: active and
+    // trailing: inactive.
+    final ColorTween activeTrackColorTween = ColorTween(
+      begin: sliderTheme.disabledActiveTrackColor,
+      end: sliderTheme.activeTrackColor,
+    );
+    final ColorTween inactiveTrackColorTween = ColorTween(
+      begin: sliderTheme.disabledInactiveTrackColor,
+      end: sliderTheme.inactiveTrackColor,
+    );
+    final Paint activePaint = Paint()
+      ..color = activeTrackColorTween.evaluate(enableAnimation);
+    final Paint inactivePaint = Paint()
+      ..color = inactiveTrackColorTween.evaluate(enableAnimation);
+    Paint leftTrackPaint;
+    Paint rightTrackPaint;
+    switch (textDirection) {
+      case TextDirection.ltr:
+        leftTrackPaint = activePaint;
+        rightTrackPaint = inactivePaint;
+        break;
+      case TextDirection.rtl:
+        leftTrackPaint = inactivePaint;
+        rightTrackPaint = activePaint;
+        break;
+    }
+
+    final Rect trackRect = getPreferredRect(
+      parentBox: parentBox,
+      offset: offset,
+      sliderTheme: sliderTheme,
+      isEnabled: isEnabled,
+      isDiscrete: isDiscrete,
+    );
+
+    double currentBarPosition = trackRect.left;
+    final double step = trackRect.width / dbPeakSamples.length;
+
+    for (double dbPeak in dbPeakSamples) {
+      final Rect bar = Rect.fromLTWH(
+        currentBarPosition + (step * 0.1),
+        trackRect.top + trackRect.height * ((120 - dbPeak) / 120) - 2,
+        step * 0.8,
+        trackRect.height * (dbPeak / 120),
+      );
+
+      if (currentBarPosition + (step * 0.9)< thumbCenter.dx) {
+        context.canvas.drawRect(
+          bar,
+          leftTrackPaint,
+        );
+      } else {
+        context.canvas.drawRect(
+          bar,
+          rightTrackPaint,
+        );
+      }
+
+      currentBarPosition += step;
+    }
+
+    ///Active rectangle
+    final Rect underlineBarLeft = Rect.fromLTWH(
+      trackRect.left,
+      trackRect.bottom - 2,
+      thumbCenter.dx - trackRect.left,
+      2,
+    );
+
+    if (!underlineBarLeft.isEmpty) {
+      context.canvas.drawRect(
+        underlineBarLeft,
+        leftTrackPaint,
+      );
+    }
+
+    print("Difference: ${thumbCenter.dx - trackRect.left}");
+    print("Width: ${trackRect.width}");
+    print("Left: ${trackRect.left}");
+    print("Initial bar: ${trackRect.left + (step * 0.1)}");
+
+    ///Non active rectangle
+    final Rect underlineBarRight = Rect.fromLTWH(
+      thumbCenter.dx,
+      trackRect.bottom - 2,
+      trackRect.width - (thumbCenter.dx - trackRect.left),
+      2,
+    );
+
+    if (!underlineBarRight.isEmpty) {
+      context.canvas.drawRect(
+        underlineBarRight,
+        rightTrackPaint,
+      );
+    }
+  }
+}
+
+mixin CustomTrackShape {
+  Rect getPreferredRect({
+    @required RenderBox parentBox,
+    Offset offset = Offset.zero,
+    @required SliderThemeData sliderTheme,
+    bool isEnabled = false,
+    bool isDiscrete = false,
+  }) {
+    final double trackHeight = sliderTheme.trackHeight;
+    final double trackLeft = offset.dx;
+    final double trackTop =
+        offset.dy + (parentBox.size.height - trackHeight) / 2;
+    final double trackWidth = parentBox.size.width;
+    return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }
 }
