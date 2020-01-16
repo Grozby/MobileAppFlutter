@@ -22,7 +22,7 @@ mixin TimeConverter {
       isUtc: true,
     );
 
-    return DateFormat('mm:ss:SS', 'en_GB').format(date).substring(0, 8);
+    return DateFormat('mm:ss:SS', 'en_GB').format(date).substring(3, 8);
   }
 }
 
@@ -81,7 +81,6 @@ class _AudioWidgetState extends State<AudioWidget>
   }
 
   void recorderDbPeakCallback(double dbPeak) {
-    print("got update -> $dbPeak");
     if (dbPeak != null) {
       _dbLevels.add(dbPeak);
     }
@@ -120,8 +119,8 @@ class _AudioWidgetState extends State<AudioWidget>
       String path = await flutterSound.startRecorder(
         paths,
         codec: t_CODEC.CODEC_AAC,
-        sampleRate: 16000,
-        bitRate: 16000,
+        sampleRate: 44100,
+        bitRate: 128000,
         numChannels: 2,
         androidAudioSource: AndroidAudioSource.MIC,
         iosQuality: IosQuality.HIGH,
@@ -151,9 +150,29 @@ class _AudioWidgetState extends State<AudioWidget>
           .getMediaInformation(_path)
           .then((info) => info["duration"].toInt());
 
-      setState(
-        () => _recorderDuration = duration,
-      );
+      final double cap = 40;
+      List<double> results = List();
+      final int averageLength = (_dbLevels.length / cap).ceil();
+
+      for (int i = 0; i < _dbLevels.length; i += averageLength) {
+        if (averageLength - i == 1) {
+          results.add(_dbLevels
+                  .getRange(
+                    i,
+                    (i + averageLength) <= _dbLevels.length
+                        ? (i + averageLength)
+                        : averageLength,
+                  )
+                  .reduce((double x1, double x2) => x1 + x2) /
+              averageLength);
+        } else {
+          results.add(_dbLevels[i]);
+        }
+      }
+
+      this._dbLevels = results;
+
+      setState(() => _recorderDuration = duration);
     } catch (err) {
       print('stopRecorder error: $err');
     }
@@ -166,7 +185,7 @@ class _AudioWidgetState extends State<AudioWidget>
         _isRecording ? PulseAnimation() : const SizedBox(),
         Expanded(
           child: Container(
-            height: 40,
+            height: 60,
             alignment: Alignment.center,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 250),
@@ -301,14 +320,12 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
   bool _isPlaying = false;
   double sliderCurrentPosition = 0.0;
   int maxDuration;
-  String _playerTime;
   StreamSubscription _playerSubscription;
 
   @override
   void initState() {
     super.initState();
     maxDuration = widget.audioDuration;
-    _playerTime = timeIntToString(widget.audioDuration);
   }
 
   @override
@@ -316,7 +333,7 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
     if (widget.flutterSound.audioState == t_AUDIO_STATE.IS_PAUSED) {
       widget.flutterSound.stopPlayer();
     }
-    print("im disposed boi");
+
     super.dispose();
   }
 
@@ -327,23 +344,13 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
     return await File(path).exists();
   }
 
-  String timeIntToString(int duration) {
-    DateTime date = DateTime.fromMillisecondsSinceEpoch(
-      duration,
-      isUtc: true,
-    );
-
-    return DateFormat('mm:ss:SS', 'en_GB').format(date).substring(0, 8);
-  }
-
   void playerStateCallback(PlayStatus playStatus) {
     // The player is running
     if (playStatus != null) {
       sliderCurrentPosition = playStatus.currentPosition;
       maxDuration = playStatus.duration.toInt();
 
-      setState(() =>
-          _playerTime = timeIntToString(playStatus.currentPosition.toInt()));
+      setState(() {});
     } else {
       setState(() => _isPlaying = false);
     }
@@ -374,7 +381,6 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
       playerStreamsSubscription();
 
       if (sliderCurrentPosition != maxDuration) {
-        print("Not finished playing!");
         await widget.flutterSound.seekToPlayer(sliderCurrentPosition.toInt());
       }
 
@@ -388,9 +394,8 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
 
   Future<void> pausePlayer(bool resetState) async {
     try {
-      String result = await widget.flutterSound.pausePlayer();
+      await widget.flutterSound.pausePlayer();
       removePlayerStreams();
-      print('pausePlayer: $result');
     } catch (err) {
       print('error: $err');
     }
@@ -401,15 +406,16 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
   }
 
   void seekToPlayer(int milliSecs) async {
-    String result = await widget.flutterSound.seekToPlayer(milliSecs);
-    print('seekToPlayer: $result');
+    await widget.flutterSound.seekToPlayer(milliSecs);
   }
 
   String timeToShow() {
     return widget.flutterSound.audioState != t_AUDIO_STATE.IS_STOPPED ||
-            sliderCurrentPosition != maxDuration
-        ? _playerTime
-        : timeIntToString(widget.audioDuration);
+        (sliderCurrentPosition != maxDuration && sliderCurrentPosition != 0)
+        ? timeToString(sliderCurrentPosition.toInt()) +
+            "/" +
+            timeToString(widget.audioDuration)
+        : timeToString(widget.audioDuration);
   }
 
   @override
@@ -429,69 +435,83 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  transitionBuilder: (child, animation) => ScaleTransition(
-                    child: child,
-                    scale: animation,
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    transitionBuilder: (child, animation) => ScaleTransition(
+                      child: child,
+                      scale: animation,
+                    ),
+                    child: _isPlaying
+                        ? Container(
+                            key: ValueKey("PauseButtonPlayer"),
+                            child: CircularButton(
+                              assetPath: "ic_pause.png",
+                              alignment: Alignment.center,
+                              onPressFunction: () => pausePlayer(true),
+                              height: 40,
+                              width: 40,
+                              applyElevation: false,
+                            ),
+                          )
+                        : Container(
+                            key: ValueKey("PlayButtonPlayer"),
+                            child: CircularButton(
+                              assetPath: "ic_play.png",
+                              alignment: Alignment.center,
+                              onPressFunction: () => startPlayer(true),
+                              height: 40,
+                              width: 40,
+                              applyElevation: false,
+                            ),
+                          ),
                   ),
-                  child: _isPlaying
-                      ? Container(
-                          key: ValueKey("PauseButtonPlayer"),
-                          child: CircularButton(
-                            assetPath: "ic_pause.png",
-                            alignment: Alignment.center,
-                            onPressFunction: () => pausePlayer(true),
-                            height: 40,
-                            width: 40,
-                            applyElevation: false,
-                          ),
-                        )
-                      : Container(
-                          key: ValueKey("PlayButtonPlayer"),
-                          child: CircularButton(
-                            assetPath: "ic_play.png",
-                            alignment: Alignment.center,
-                            onPressFunction: () => startPlayer(true),
-                            height: 40,
-                            width: 40,
-                            applyElevation: false,
-                          ),
-                        ),
-                ),
-                Container(
-                  child: Text(timeToShow()),
                 ),
                 Expanded(
-                  child: SliderTheme(
-                    data: SliderThemeData(
-                      trackShape: AudioTrackBarChart(widget.dbPeakSamples),
-                      trackHeight: 30,
-                      thumbColor: Colors.transparent,
-                    ),
-                    child: Slider(
-                      value: sliderCurrentPosition,
-                      max: maxDuration.toDouble(),
-                      onChangeStart: (newValue) async {
-                        if (_isPlaying) {
-                          await pausePlayer(false);
-                        }
-                      },
-                      onChanged: (newValue) {
-                        setState(() {
-                          sliderCurrentPosition = newValue;
-                          _playerTime =
-                              timeIntToString(sliderCurrentPosition.toInt());
-                        });
-                      },
-                      onChangeEnd: (newValue) async {
-                        if (_isPlaying) {
-                          await widget.flutterSound
-                              .seekToPlayer(sliderCurrentPosition.toInt());
-                          await startPlayer(false);
-                        }
-                      },
-                    ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(
+                        height: 30,
+                        child: SliderTheme(
+                          data: SliderThemeData(
+                            activeTrackColor: ThemeProvider.primaryColor,
+                            inactiveTrackColor: Colors.grey.withOpacity(0.4),
+                            trackShape:
+                                AudioTrackBarChart(widget.dbPeakSamples),
+                            trackHeight: 30,
+                            thumbColor: Colors.transparent,
+                          ),
+                          child: Slider(
+                            value: sliderCurrentPosition,
+                            max: maxDuration.toDouble(),
+                            onChangeStart: (newValue) async {
+                              if (_isPlaying) {
+                                await pausePlayer(false);
+                              }
+                            },
+                            onChanged: (newValue) {
+                              setState(() {
+                                sliderCurrentPosition = newValue;
+                              });
+                            },
+                            onChangeEnd: (newValue) async {
+                              if (_isPlaying) {
+                                await widget.flutterSound.seekToPlayer(
+                                    sliderCurrentPosition.toInt());
+                                await startPlayer(false);
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(timeToShow()),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -609,7 +629,7 @@ class AudioTrackBarChart extends SliderTrackShape with CustomTrackShape {
         trackRect.height * (dbPeak / 120),
       );
 
-      if (currentBarPosition + (step * 0.9)< thumbCenter.dx) {
+      if (currentBarPosition + (step * 0.9) < thumbCenter.dx) {
         context.canvas.drawRect(
           bar,
           leftTrackPaint,
@@ -638,11 +658,6 @@ class AudioTrackBarChart extends SliderTrackShape with CustomTrackShape {
         leftTrackPaint,
       );
     }
-
-    print("Difference: ${thumbCenter.dx - trackRect.left}");
-    print("Width: ${trackRect.width}");
-    print("Left: ${trackRect.left}");
-    print("Initial bar: ${trackRect.left + (step * 0.1)}");
 
     ///Non active rectangle
     final Rect underlineBarRight = Rect.fromLTWH(
@@ -674,6 +689,7 @@ mixin CustomTrackShape {
     final double trackTop =
         offset.dy + (parentBox.size.height - trackHeight) / 2;
     final double trackWidth = parentBox.size.width;
+
     return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }
 }
