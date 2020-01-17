@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:mobile_application/models/exceptions/something_went_wrong_exception.dart';
 
@@ -34,7 +36,8 @@ class HttpRequestWrapper {
   }
 
   String getWhatConnectionError(DioError error) {
-    if (error.type == DioErrorType.DEFAULT) {
+    if (error.type == DioErrorType.DEFAULT &&
+        error.error.osError.message == "Network is unreachable") {
       return "Activate the internet connection to connect to RyFy.";
     } else {
       return "Couldn't connect with the RyFy server. Try again later.";

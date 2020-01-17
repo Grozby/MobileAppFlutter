@@ -17,8 +17,7 @@ class MentorRegistration extends UserRegistration {
   Color get color => ThemeProvider.mentorColor;
 
   @override
-  String get registrationUrl =>
-      Configuration.serverUrl + Configuration.registrationPath + '/mentor';
+  String get registrationUrl => Configuration.registrationPath + '/mentor';
 
   @override
   getBodyRegistration(SignUpFormModel registrationForm) {

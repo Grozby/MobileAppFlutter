@@ -13,7 +13,7 @@ class MenteeRegistration extends UserRegistration{
   @override
   Color get color => ThemeProvider.menteeColor;
   @override
-  String get registrationUrl => Configuration.serverUrl + Configuration.registrationPath + '/mentee';
+  String get registrationUrl => Configuration.registrationPath + '/mentee';
 
   @override
   getBodyRegistration(SignUpFormModel registrationForm) {
