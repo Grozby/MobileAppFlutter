@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
+import 'package:mobile_application/models/exceptions/something_went_wrong_exception.dart';
 
+import 'button_styled.dart';
 import 'custom_alert_dialog.dart';
-import 'no_internet_connection.dart';
 
-class LoadingError extends StatelessWidget {
+class LoadingError extends StatefulWidget {
   final Exception exception;
   final Function retry;
   final BuildContext buildContext;
@@ -16,29 +17,124 @@ class LoadingError extends StatelessWidget {
   });
 
   @override
+  _LoadingErrorState createState() => _LoadingErrorState();
+}
+
+class _LoadingErrorState extends State<LoadingError> {
+  @override
   Widget build(BuildContext context) {
-    if (exception is NoInternetException) {
-      Future.delayed(
-        Duration.zero,
-        () => showErrorDialog(
-          context,
-          (exception as NoInternetException).getMessage(),
-        ),
-      );
+    if (widget.exception is NoInternetException) {
       return NoInternetConnectionWidget(
-        retryToConnect: retry,
-        errorText: (exception as NoInternetException).getMessage(),
+        retryToConnect: widget.retry,
+        exception: (widget.exception as NoInternetException),
       );
     }
 
-    Future.delayed(
-      Duration.zero,
-      () => showErrorDialog(context, "Something went wrong..."),
+    return GeneralErrorWidget(widget.exception);
+  }
+}
+
+class NoInternetConnectionWidget extends StatefulWidget {
+  final Function retryToConnect;
+  final NoInternetException exception;
+
+  const NoInternetConnectionWidget({
+    @required this.retryToConnect,
+    @required this.exception,
+  });
+
+  @override
+  _NoInternetConnectionWidgetState createState() =>
+      _NoInternetConnectionWidgetState();
+}
+
+class _NoInternetConnectionWidgetState
+    extends State<NoInternetConnectionWidget> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showErrorDialog(
+        context,
+        widget.exception.getMessage(),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Center(
+            child: Text(widget.exception.getMessage()),
+          ),
+          const SizedBox(height: 16),
+          Center(
+            child: ButtonStyled(
+              fractionalWidthDimension: 0.4,
+              text: "Retry now",
+              onPressFunction: widget.retryToConnect,
+            ),
+          ),
+        ],
+      ),
     );
-    //TODO modify with correct widget
-    return NoInternetConnectionWidget(
-      retryToConnect: retry,
-      errorText: "Something went wrong...",
+  }
+}
+
+class GeneralErrorWidget extends StatefulWidget {
+  final Exception exception;
+
+  GeneralErrorWidget(this.exception);
+
+  @override
+  _GeneralErrorWidgetState createState() => _GeneralErrorWidgetState();
+}
+
+class _GeneralErrorWidgetState extends State<GeneralErrorWidget> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await showErrorDialog(
+        context,
+        widget.exception is SomethingWentWrongException
+            ? (widget.exception as SomethingWentWrongException).getMessage()
+            : "Oopsie! Something went wrong!",
+      );
+      goBackToPreviousPage();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Center(
+            child: Text("Oops! Something went wrong!"),
+          ),
+          const SizedBox(height: 16),
+          Center(
+            child: ButtonStyled(
+              fractionalWidthDimension: 0.4,
+              text: "Go back",
+              onPressFunction: goBackToPreviousPage,
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  void goBackToPreviousPage() {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    }
   }
 }

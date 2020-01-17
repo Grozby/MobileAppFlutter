@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:mobile_application/models/exceptions/no_user_profile_exception.dart';
 import 'package:mobile_application/models/users/mentor.dart';
 
 import '../../helpers/http_request_wrapper.dart';
@@ -50,6 +51,9 @@ class UserDataProvider with ChangeNotifier {
         typeHttpRequest: TypeHttpRequest.get,
         correctStatusCode: 200,
         onCorrectStatusCode: (response) async {
+          if(response.data == null){
+            throw NoUserProfileException();
+          }
           switch (response.data["kind"]) {
             case "Mentee":
               return Mentee.fromJson(response.data);

@@ -91,7 +91,6 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
   /// For some reasons [LayoutBuilder} is called twice when the [FutureBuilder]
   /// completes with an error. Therefore, the widget to show on error is stored,
   /// to avoid multiple popups to appear.
-  Widget _errorWidget;
 
   @override
   void initState() {
@@ -109,7 +108,8 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
     refreshPage();
   }
 
-  void refreshPage() {
+  void
+  refreshPage() {
     setState(() {
       _loadUserData = widget.arguments != null
           ? Provider.of<UserDataProvider>(
@@ -131,12 +131,11 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
         bool isWaiting = snapshot.connectionState == ConnectionState.waiting;
 
         if (snapshot.hasError && !isWaiting) {
-          _errorWidget ??= LoadingError(
+          return LoadingError(
             exception: snapshot.error,
             buildContext: context,
             retry: refreshPage,
           );
-          return _errorWidget;
         }
 
         return AnimatedCrossFade(

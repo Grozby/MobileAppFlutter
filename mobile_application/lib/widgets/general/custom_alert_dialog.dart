@@ -21,13 +21,13 @@ class CustomAlertDialog extends StatelessWidget {
     );
   }
 
-  void removeOverlay(BuildContext context){
+  void removeOverlay(BuildContext context) {
     Navigator.of(context).pop();
   }
 }
 
-void showErrorDialog(BuildContext context, String text) {
-  showDialog(
+Future<void> showErrorDialog(BuildContext context, String text) async {
+  await showDialog(
     context: context,
     builder: (ctx) => CustomAlertDialog(text),
   );
