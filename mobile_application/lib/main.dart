@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -30,16 +32,26 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
+  /// Creation of all needed data for the http manager
   var options = BaseOptions(
     baseUrl: Configuration.serverUrl,
-    receiveTimeout: 5000,
-    sendTimeout: 4000,
+    receiveTimeout: 8000,
+    sendTimeout: 5000,
   );
-  options.connectTimeout = 8000;
+
   // Setup the Http manager
   Dio _httpManager = Dio(options);
   (_httpManager.transformer as DefaultTransformer).jsonDecodeCallback =
       parseJson;
+
+  SecurityContext securityContext = SecurityContext.defaultContext;
+  List bytes = utf8.encode(
+    await rootBundle.loadString("assets/trustedCertificate/certificate.crt"),
+  );
+  securityContext.setTrustedCertificatesBytes(bytes);
+
+  (_httpManager.httpClientAdapter as DefaultHttpClientAdapter)
+      .onHttpClientCreate = (client) => HttpClient(context: securityContext);
 
   var themeProvider = ThemeProvider();
   var authenticationProvider = AuthenticationProvider(_httpManager);
