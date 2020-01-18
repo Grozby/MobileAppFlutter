@@ -39,7 +39,6 @@ class _RefreshWidgetState extends State<RefreshWidget> {
   bool isOverScrolling = false;
   RefreshPageProvider _provider;
 
-
   @override
   void initState() {
     super.initState();
@@ -51,7 +50,6 @@ class _RefreshWidgetState extends State<RefreshWidget> {
     //Make the drag activity stop.
     _refreshController.position.jumpTo(_refreshController.position.pixels);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -174,10 +172,7 @@ class _RefreshedWidgetState extends State<RefreshedWidget> {
 
     try {
       final Stream newRefreshContentStream =
-          Provider
-              .of<RefreshPageProvider>(context)
-              .changeNotifier
-              .stream;
+          Provider.of<RefreshPageProvider>(context).changeNotifier.stream;
       // in case the stream instance changed, subscribe to the new one
       if (newRefreshContentStream != refreshContentStream) {
         streamSubscription.cancel();

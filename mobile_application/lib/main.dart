@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'package:intl/date_symbol_data_local.dart';
 import 'providers/authentication/authentication_provider.dart';
 import 'providers/configuration.dart';
 import 'providers/explore/card_provider.dart';
@@ -31,6 +32,8 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  initializeDateFormatting();
 
   /// Creation of all needed data for the http manager
   var options = BaseOptions(

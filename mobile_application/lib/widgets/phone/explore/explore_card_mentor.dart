@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_application/screens/user_profile_screen.dart';
+import 'package:mobile_application/widgets/general/audio_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -525,7 +526,7 @@ class QuestionsWidget extends StatefulWidget {
   _QuestionsWidgetState createState() => _QuestionsWidgetState();
 }
 
-class _QuestionsWidgetState extends State<QuestionsWidget> {
+class _QuestionsWidgetState extends State<QuestionsWidget> with TimeConverter {
   final textController = TextEditingController();
   bool canWriteAnswer = true;
   bool hasStartedAnswering = false;
@@ -663,8 +664,8 @@ class _QuestionsWidgetState extends State<QuestionsWidget> {
             ],
           )
 
-        /// This instead is the section where the user can answer to the
-        /// question
+        /// This instead is the section where the user can see the question
+        /// overview.
         : Column(
             children: <Widget>[
               const _MentorBasicInformation(
@@ -689,7 +690,7 @@ class _QuestionsWidgetState extends State<QuestionsWidget> {
                 child: Container(
                   alignment: Alignment.center,
                   child: Text(
-                    "${(startingCounter / 60).floor()} minutes",
+                    "${timeToString(((startingCounter / 6) * 100).toInt()).substring(1)} minutes",
                     style: Theme.of(context).textTheme.display3.copyWith(
                           color: ThemeProvider.primaryColor,
                         ),

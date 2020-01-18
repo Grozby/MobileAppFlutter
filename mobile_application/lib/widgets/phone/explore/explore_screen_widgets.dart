@@ -219,12 +219,3 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
     });
   }
 }
-
-class CustomBouncingScrollPhysics extends BouncingScrollPhysics {
-  @override
-  SpringDescription get spring => SpringDescription(
-        mass: 2.2,
-        stiffness: 150,
-        damping: 16,
-      );
-}

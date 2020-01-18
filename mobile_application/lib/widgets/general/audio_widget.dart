@@ -8,7 +8,7 @@ import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_sound/android_encoder.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/ios_quality.dart';
-import 'package:intl/date_symbol_data_local.dart';
+
 import 'package:intl/intl.dart' show DateFormat;
 
 import '../../providers/theming/theme_provider.dart';
@@ -56,7 +56,6 @@ class _AudioWidgetState extends State<AudioWidget>
     flutterSound.setSubscriptionDuration(0.01);
     flutterSound.setDbPeakLevelUpdate(0.1);
     flutterSound.setDbLevelEnabled(true);
-    initializeDateFormatting();
   }
 
   @override

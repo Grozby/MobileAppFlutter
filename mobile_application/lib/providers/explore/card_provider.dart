@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:mobile_application/providers/explore/questions_provider.dart';
 
 import '../../helpers/http_request_wrapper.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
@@ -13,6 +14,7 @@ import '../../models/users/user.dart';
 class CardProvider with ChangeNotifier {
   List<User> availableUsers;
   final HttpRequestWrapper httpRequestWrapper;
+  List<QuestionsProvider> questionsProvider = List();
 
   CardProvider(this.httpRequestWrapper);
 
@@ -21,6 +23,11 @@ class CardProvider with ChangeNotifier {
   User getUser(int index) {
     assert(index >= 0 && index < availableUsers.length);
     return availableUsers[index];
+  }
+
+  QuestionsProvider getQuestionProvider(int index){
+    assert(index >= 0 && index < availableUsers.length);
+    return questionsProvider[index];
   }
 
   Mentor getMentor(int index) => getUser(index) as Mentor;
@@ -51,9 +58,16 @@ class CardProvider with ChangeNotifier {
           return Mentor.fromJson(user);
         default:
           throw SomethingWentWrongException.message(
-              "Some error happened on the server side.");
+            "Some error happened on the server side.",
+          );
       }
     }).toList();
+
+    questionsProvider = availableUsers.map(
+      (user) => QuestionsProvider(
+        numberOfQuestions: user is Mentor ? user.howManyQuestionsToAnswer : 0,
+      ),
+    ).toList();
 
 //    availableUsers = [
 //      Mentor(

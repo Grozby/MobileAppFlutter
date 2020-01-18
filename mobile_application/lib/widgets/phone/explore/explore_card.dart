@@ -17,14 +17,14 @@ class ExploreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    User user = Provider.of<CardProvider>(
+    CardProvider cardProvider = Provider.of<CardProvider>(
       context,
       listen: false,
-    ).getUser(indexUser);
-    switch (user.runtimeType) {
+    );
+    switch (cardProvider.getUser(indexUser).runtimeType) {
       case Mentee:
         //TODO
-        Mentee m = user as Mentee;
+        Mentee m = cardProvider.getUser(indexUser) as Mentee;
         return Card();
       case Mentor:
 
@@ -39,10 +39,8 @@ class ExploreCard extends StatelessWidget {
               ChangeNotifierProvider(
                 create: (_) => ShouldCollapseProvider(),
               ),
-              ChangeNotifierProvider(
-                create: (_) => QuestionsProvider(
-                  numberOfQuestions: (user as Mentor).howManyQuestionsToAnswer,
-                ),
+              ChangeNotifierProvider.value(
+                value: cardProvider.getQuestionProvider(indexUser),
               ),
             ],
             child: const MentorCard(),
