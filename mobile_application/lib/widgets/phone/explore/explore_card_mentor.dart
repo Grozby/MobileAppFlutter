@@ -493,7 +493,7 @@ class __BackCardMentorState extends State<_BackCardMentor> {
   Widget build(BuildContext context) {
     return CardContainer(
       canExpand: false,
-      onLongPress: widget.rotateCard,
+      onLongPress: () {},
       startingColor: color,
       child: Column(
         children: <Widget>[
@@ -523,34 +523,29 @@ class QuestionsWidget extends StatefulWidget {
   QuestionsWidget({@required this.rotateCard});
 
   @override
-  _QuestionsWidgetState createState() => _QuestionsWidgetState();
+  QuestionsWidgetState createState() => QuestionsWidgetState();
 }
 
-class _QuestionsWidgetState extends State<QuestionsWidget> with TimeConverter {
+class QuestionsWidgetState extends State<QuestionsWidget>
+    with TimeConverter, ChangeNotifier {
   final textController = TextEditingController();
   bool canWriteAnswer = true;
   bool hasStartedAnswering = false;
-  int startingCounter = 120;
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      int index = ScopedModel.of<IndexUser>(context).indexUser;
-      startingCounter = Provider.of<CardProvider>(context, listen: false)
-          .getMentor(index)
-          .getMentorQuestionAt(
-            Provider.of<QuestionsProvider>(context, listen: false).currentIndex,
-          )
-          .availableTime;
-    });
-  }
 
   @override
   void dispose() {
     textController.dispose();
+
     super.dispose();
+  }
+
+  int getQuestionTime() {
+    return Provider.of<CardProvider>(context, listen: false)
+        .getMentor(ScopedModel.of<IndexUser>(context).indexUser)
+        .getMentorQuestionAt(
+          Provider.of<QuestionsProvider>(context, listen: false).currentIndex,
+        )
+        .availableTime;
   }
 
   void startAnswering() {
@@ -561,6 +556,8 @@ class _QuestionsWidgetState extends State<QuestionsWidget> with TimeConverter {
 
   void notifyMeToStopAnswering() {
     setState(() => canWriteAnswer = false);
+    print("Eccoci");
+    notifyListeners();
   }
 
   void notifyMeAndContinue() {
@@ -590,6 +587,24 @@ class _QuestionsWidgetState extends State<QuestionsWidget> with TimeConverter {
     }
   }
 
+  String timeToShow(int seconds) {
+    String time = timeToString(seconds * 1000).substring(0, 5);
+    String timeToShow = "";
+    int parsedSeconds = int.tryParse(time.substring(3, 5));
+    int parsedMinutes = int.tryParse(time.substring(0, 2));
+
+    if (parsedMinutes != 0) {
+      timeToShow += "$parsedMinutes minute" + (parsedMinutes != 1 ? "s" : "");
+    }
+
+    if (int.tryParse(time.substring(3, 5)) != 0) {
+      timeToShow += (timeToShow != "" ? "and " : "") +
+          "$parsedSeconds second" +
+          (parsedSeconds != 1 ? "s" : "");
+    }
+    return timeToShow != null ? timeToShow : "1 minute";
+  }
+
   @override
   Widget build(BuildContext context) {
     int index = ScopedModel.of<IndexUser>(context).indexUser;
@@ -602,66 +617,77 @@ class _QuestionsWidgetState extends State<QuestionsWidget> with TimeConverter {
 
         /// This is the section in which the user can answer to the question
         /// of the mentor.
-        ? Column(
-            children: <Widget>[
-              Container(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "${mentor.completeName} is asking you:",
-                  style: Theme.of(context).textTheme.title,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                alignment: Alignment.centerLeft,
-                child: Consumer<QuestionsProvider>(
-                  builder: (ctx, provider, child) {
-                    return Text(
-                      mentor
-                          .getMentorQuestionAt(provider.currentIndex)
-                          .question,
-                      style: Theme.of(context).textTheme.body1,
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 8),
-              TimeCounter(
-                startingCounter: startingCounter,
-                notifyParent: notifyMeToStopAnswering,
-              ),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  decoration: BoxDecoration(
-                    borderRadius:
-                        const BorderRadius.all(const Radius.circular(12)),
-                    border: Border.all(
-                      width: 1,
-                      color: Colors.grey.shade300,
-                    ),
-                  ),
-                  child: TextField(
-                    controller: textController,
-                    decoration: InputDecoration(
-                      hintText: 'Answer here...',
-                      border: InputBorder.none,
-                    ),
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    enabled: canWriteAnswer,
+        ? Provider.value(
+            value: canWriteAnswer,
+            child: Column(
+              children: <Widget>[
+                Container(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "${mentor.completeName} is asking you:",
+                    style: Theme.of(context).textTheme.title,
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                child: ButtonStyled(
-                  onPressFunction: notifyMeAndContinue,
-                  fractionalWidthDimension: 0.99,
-                  text: "Continue",
+                const SizedBox(height: 8),
+                Container(
+                  alignment: Alignment.centerLeft,
+                  child: Consumer<QuestionsProvider>(
+                    builder: (ctx, questionProvider, child) {
+                      return Text(
+                        mentor
+                            .getMentorQuestionAt(questionProvider.currentIndex)
+                            .question,
+                        style: Theme.of(context).textTheme.body1,
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                TimeCounter(
+                  startingCounter: getQuestionTime(),
+                  notifyParent: notifyMeToStopAnswering,
+                ),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          const BorderRadius.all(const Radius.circular(12)),
+                      border: Border.all(
+                        width: 1,
+                        color: Colors.grey.shade300,
+                      ),
+                    ),
+                    child: TextField(
+                      controller: textController,
+                      decoration: InputDecoration(
+                        hintText: 'Answer here...',
+                        border: InputBorder.none,
+                      ),
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      enabled: canWriteAnswer,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                AudioWidget(
+                  questionNumber: Provider.of<QuestionsProvider>(
+                    context,
+                    listen: false,
+                  ).currentIndex,
+                  notifier: this,
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  child: ButtonStyled(
+                    onPressFunction: notifyMeAndContinue,
+                    fractionalWidthDimension: 0.99,
+                    text: "Continue",
+                  ),
+                ),
+              ],
+            ),
           )
 
         /// This instead is the section where the user can see the question
@@ -690,7 +716,7 @@ class _QuestionsWidgetState extends State<QuestionsWidget> with TimeConverter {
                 child: Container(
                   alignment: Alignment.center,
                   child: Text(
-                    "${timeToString(((startingCounter / 6) * 100).toInt()).substring(1)} minutes",
+                    timeToShow(getQuestionTime()),
                     style: Theme.of(context).textTheme.display3.copyWith(
                           color: ThemeProvider.primaryColor,
                         ),
@@ -742,13 +768,14 @@ class TimeCounter extends StatefulWidget {
 }
 
 class _TimeCounterState extends State<TimeCounter> {
-  int startingCounter = 120;
+  int startingCounter;
   bool isCountDownActive = false;
   Timer _timer;
 
   @override
   void initState() {
     super.initState();
+    startingCounter = widget.startingCounter;
     startCounter();
   }
 
@@ -766,13 +793,13 @@ class _TimeCounterState extends State<TimeCounter> {
     _timer = Timer.periodic(
       Duration(seconds: 1),
       (timer) {
-        if (startingCounter > 0) {
-          setState(() {
-            startingCounter--;
-          });
-        } else {
-          timer.cancel();
+        setState(() {
+          startingCounter--;
+        });
+
+        if (startingCounter == 0) {
           widget.notifyParent();
+          timer.cancel();
         }
       },
     );
@@ -797,7 +824,7 @@ class _TimeCounterState extends State<TimeCounter> {
         ),
         Container(
           child: Text(
-            startingCounter != 0
+            startingCounter > 0
                 ? "$minutes:${seconds.toString().padLeft(2, '0')}"
                 : "Time's up!",
             style: Theme.of(context)

@@ -47,4 +47,7 @@ class Mentee extends User {
 
   @override
   Color get cardColor => ThemeProvider.menteeCardColor;
+
+  @override
+  int get howManyQuestionsToAnswer => 0;
 }

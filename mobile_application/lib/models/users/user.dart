@@ -58,9 +58,11 @@ abstract class User {
     @required this.experiences,
     @required this.socialAccounts,
     @required this.currentJob,
-  })  : id = id == null ? id = "0" : id;
+  }) : id = id == null ? id = "0" : id;
 
   String get completeName => name + " " + surname;
+
+  int get howManyQuestionsToAnswer;
 
   Color get color;
 
@@ -131,15 +133,16 @@ abstract class User {
 
   static List<PastExperience> getExperiencesFromJson(experiencesJson) {
     return experiencesJson?.map<PastExperience>((e) {
-      switch (e["kind"]) {
-        case "Job": // Selector decided by the backend
-          return Job.fromJson(e);
-        case "Education":
-          return AcademicDegree.fromJson(e);
-        default:
-          throw Exception();
-      }
-    })?.toList() ?? <PastExperience>[];
+          switch (e["kind"]) {
+            case "Job": // Selector decided by the backend
+              return Job.fromJson(e);
+            case "Education":
+              return AcademicDegree.fromJson(e);
+            default:
+              throw Exception();
+          }
+        })?.toList() ??
+        <PastExperience>[];
   }
 
   static List<Map<String, dynamic>> getJsonExperiences(
@@ -159,4 +162,26 @@ abstract class User {
       throw Exception("Not a past experience!!");
     })?.toList();
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is User &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          name == other.name &&
+          surname == other.surname;
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      name.hashCode ^
+      surname.hashCode ^
+      pictureUrl.hashCode ^
+      location.hashCode ^
+      bio.hashCode ^
+      currentJob.hashCode ^
+      questions.hashCode ^
+      experiences.hashCode ^
+      socialAccounts.hashCode;
 }

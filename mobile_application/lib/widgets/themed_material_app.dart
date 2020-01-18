@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
-import 'package:mobile_application/screens/test_screen.dart';
 import 'package:mobile_application/widgets/general/loading_error.dart';
 import 'package:provider/provider.dart';
 

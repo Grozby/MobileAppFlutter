@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:mobile_application/models/exceptions/something_went_wrong_exception.dart';
 

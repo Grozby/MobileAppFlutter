@@ -8,7 +8,6 @@ import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_sound/android_encoder.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/ios_quality.dart';
-
 import 'package:intl/intl.dart' show DateFormat;
 
 import '../../providers/theming/theme_provider.dart';
@@ -22,20 +21,29 @@ mixin TimeConverter {
       isUtc: true,
     );
 
-    return DateFormat('mm:ss:SS', 'en_GB').format(date).substring(3, 8);
+    return DateFormat('mm:ss:SS', 'en_GB').format(date).substring(0, 8);
   }
 }
 
 class AudioWidget extends StatefulWidget {
+  final int questionNumber;
+  final ChangeNotifier notifier;
+
+  AudioWidget({
+    @required this.questionNumber,
+    this.notifier,
+  });
+
   @override
   _AudioWidgetState createState() => _AudioWidgetState();
 }
 
 class _AudioWidgetState extends State<AudioWidget>
     with TickerProviderStateMixin, TimeConverter {
-  static const String paths = "sound.aac";
+  String fileName;
 
   FlutterFFmpeg ffmpeg = FlutterFFmpeg();
+  bool _canRecord = true;
   bool _isRecording = false;
   String _path;
   int _recorderDuration = 0;
@@ -52,6 +60,16 @@ class _AudioWidgetState extends State<AudioWidget>
   void initState() {
     super.initState();
 
+    if (widget.notifier != null) {
+      widget.notifier.addListener(() async {
+        if (_isRecording) {
+          _canRecord = false;
+          stopRecorder();
+        }
+      });
+    }
+
+    fileName = "sound${widget.questionNumber}.aac";
     flutterSound = FlutterSound();
     flutterSound.setSubscriptionDuration(0.01);
     flutterSound.setDbPeakLevelUpdate(0.1);
@@ -76,7 +94,8 @@ class _AudioWidgetState extends State<AudioWidget>
     }
 
     setState(
-        () => _recorderDuration = recordStatus.currentPosition.toInt() - 100);
+      () => _recorderDuration = recordStatus.currentPosition.toInt() - 100,
+    );
   }
 
   void recorderDbPeakCallback(double dbPeak) {
@@ -116,7 +135,7 @@ class _AudioWidgetState extends State<AudioWidget>
       }
 
       String path = await flutterSound.startRecorder(
-        paths,
+        fileName,
         codec: t_CODEC.CODEC_AAC,
         sampleRate: 44100,
         bitRate: 128000,
@@ -133,7 +152,7 @@ class _AudioWidgetState extends State<AudioWidget>
     }
   }
 
-  void stopRecorder() async {
+  Future<void> stopRecorder() async {
     if (!_isRecording) {
       return;
     }
@@ -238,9 +257,10 @@ class _AudioWidgetState extends State<AudioWidget>
               : Container(
                   key: ValueKey("RecordButton"),
                   child: CircularButton(
-                    assetPath: "ic_mic.png",
+                    assetPath:
+                        _canRecord ? "ic_mic.png" : "ic_mic_disabled.png",
                     alignment: Alignment.center,
-                    onPressFunction: startRecorder,
+                    onPressFunction: _canRecord ? startRecorder : () {},
                     height: 40,
                     width: 40,
                     applyElevation: false,
@@ -280,6 +300,7 @@ class _PulseAnimationState extends State<PulseAnimation>
   Widget build(BuildContext context) {
     return Container(
       width: 20,
+      height: 20,
       alignment: Alignment.center,
       child: AnimatedBuilder(
         animation: _pulseController,
@@ -410,7 +431,7 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
 
   String timeToShow() {
     return widget.flutterSound.audioState != t_AUDIO_STATE.IS_STOPPED ||
-        (sliderCurrentPosition != maxDuration && sliderCurrentPosition != 0)
+            (sliderCurrentPosition != maxDuration && sliderCurrentPosition != 0)
         ? timeToString(sliderCurrentPosition.toInt()) +
             "/" +
             timeToString(widget.audioDuration)

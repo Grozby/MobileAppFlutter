@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -177,7 +176,7 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
         child: PageView.builder(
           controller: pageController,
           scrollDirection: Axis.horizontal,
-          itemCount: cardProvider.availableUsers.length,
+          itemCount: cardProvider.numberAvailableUsers,
           itemBuilder: (BuildContext context, int index) {
             return AnimatedBuilder(
               animation: controllerAnimation,
