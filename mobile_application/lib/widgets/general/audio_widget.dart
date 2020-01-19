@@ -25,13 +25,16 @@ mixin TimeConverter {
   }
 }
 
+
 class AudioWidget extends StatefulWidget {
-  final int questionNumber;
+  final String audioFilePath;
   final ChangeNotifier notifier;
+  final Function setPathInParent;
 
   AudioWidget({
-    @required this.questionNumber,
-    this.notifier,
+    @required this.audioFilePath,
+    @required this.notifier,
+    this.setPathInParent,
   });
 
   @override
@@ -69,7 +72,7 @@ class _AudioWidgetState extends State<AudioWidget>
       });
     }
 
-    fileName = "sound${widget.questionNumber}.aac";
+    fileName = widget.audioFilePath;
     flutterSound = FlutterSound();
     flutterSound.setSubscriptionDuration(0.01);
     flutterSound.setDbPeakLevelUpdate(0.1);
@@ -145,7 +148,9 @@ class _AudioWidgetState extends State<AudioWidget>
       );
 
       recordingStreamsSubscription();
+
       setState(() => _path = path);
+      widget.setPathInParent(path);
     } catch (err) {
       print('startRecorder error: $err');
       _isRecording = false;

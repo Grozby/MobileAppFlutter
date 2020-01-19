@@ -82,7 +82,7 @@ class CardProvider with ChangeNotifier {
       } else {
         return UserContainer(
           toAdd,
-          QuestionsProvider(numberOfQuestions: toAdd.howManyQuestionsToAnswer),
+          QuestionsProvider(numberOfQuestions: toAdd.howManyQuestionsToAnswer, mentorId: toAdd.id),
         );
       }
     }).toList();

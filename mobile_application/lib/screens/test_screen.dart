@@ -19,7 +19,7 @@ class _TestScreenState extends State<TestScreen> {
             child: FractionallySizedBox(
               widthFactor: 0.8,
               heightFactor: 0.5,
-              child: AudioWidget(questionNumber: 0),
+              child: AudioWidget(),
             ),
           ),
         ),

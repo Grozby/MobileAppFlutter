@@ -529,6 +529,7 @@ class QuestionsWidget extends StatefulWidget {
 class QuestionsWidgetState extends State<QuestionsWidget>
     with TimeConverter, ChangeNotifier {
   final textController = TextEditingController();
+  String audioPath;
   bool canWriteAnswer = true;
   bool hasStartedAnswering = false;
 
@@ -556,12 +557,14 @@ class QuestionsWidgetState extends State<QuestionsWidget>
 
   void notifyMeToStopAnswering() {
     setState(() => canWriteAnswer = false);
-    print("Eccoci");
     notifyListeners();
   }
 
-  void notifyMeAndContinue() {
-    Provider.of<QuestionsProvider>(context).insertAnswer(textController.text);
+  void saveAnswerAndContinue() {
+    Provider.of<QuestionsProvider>(context).insertAnswer(
+      textController.text,
+      audioPath,
+    );
 
     setState(() {
       canWriteAnswer = true;
@@ -617,77 +620,75 @@ class QuestionsWidgetState extends State<QuestionsWidget>
 
         /// This is the section in which the user can answer to the question
         /// of the mentor.
-        ? Provider.value(
-            value: canWriteAnswer,
-            child: Column(
-              children: <Widget>[
-                Container(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "${mentor.completeName} is asking you:",
-                    style: Theme.of(context).textTheme.title,
-                  ),
+        ? Column(
+            children: <Widget>[
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "${mentor.completeName} is asking you:",
+                  style: Theme.of(context).textTheme.title,
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  child: Consumer<QuestionsProvider>(
-                    builder: (ctx, questionProvider, child) {
-                      return Text(
-                        mentor
-                            .getMentorQuestionAt(questionProvider.currentIndex)
-                            .question,
-                        style: Theme.of(context).textTheme.body1,
-                      );
-                    },
-                  ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Consumer<QuestionsProvider>(
+                  builder: (ctx, questionProvider, child) {
+                    return Text(
+                      mentor
+                          .getMentorQuestionAt(questionProvider.currentIndex)
+                          .question,
+                      style: Theme.of(context).textTheme.body1,
+                    );
+                  },
                 ),
-                const SizedBox(height: 8),
-                TimeCounter(
-                  startingCounter: getQuestionTime(),
-                  notifyParent: notifyMeToStopAnswering,
-                ),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(
-                      borderRadius:
-                          const BorderRadius.all(const Radius.circular(12)),
-                      border: Border.all(
-                        width: 1,
-                        color: Colors.grey.shade300,
-                      ),
-                    ),
-                    child: TextField(
-                      controller: textController,
-                      decoration: InputDecoration(
-                        hintText: 'Answer here...',
-                        border: InputBorder.none,
-                      ),
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                      enabled: canWriteAnswer,
+              ),
+              const SizedBox(height: 8),
+              TimeCounter(
+                startingCounter: getQuestionTime(),
+                notifyParent: notifyMeToStopAnswering,
+              ),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    borderRadius:
+                        const BorderRadius.all(const Radius.circular(12)),
+                    border: Border.all(
+                      width: 1,
+                      color: Colors.grey.shade300,
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                AudioWidget(
-                  questionNumber: Provider.of<QuestionsProvider>(
-                    context,
-                    listen: false,
-                  ).currentIndex,
-                  notifier: this,
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  child: ButtonStyled(
-                    onPressFunction: notifyMeAndContinue,
-                    fractionalWidthDimension: 0.99,
-                    text: "Continue",
+                  child: TextField(
+                    controller: textController,
+                    decoration: InputDecoration(
+                      hintText: 'Answer here...',
+                      border: InputBorder.none,
+                    ),
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    enabled: canWriteAnswer,
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 8),
+              AudioWidget(
+                audioFilePath: Provider.of<QuestionsProvider>(
+                  context,
+                  listen: false,
+                ).getAudioFilePath(),
+                notifier: this,
+                setPathInParent: (newPath) => audioPath = newPath,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                child: ButtonStyled(
+                  onPressFunction: saveAnswerAndContinue,
+                  fractionalWidthDimension: 0.99,
+                  text: "Continue",
+                ),
+              ),
+            ],
           )
 
         /// This instead is the section where the user can see the question
