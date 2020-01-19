@@ -174,6 +174,7 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
           maxWidth: constraints.maxWidth,
         ),
         child: PageView.builder(
+          physics: const BouncingScrollPhysics(),
           controller: pageController,
           scrollDirection: Axis.horizontal,
           itemCount: cardProvider.numberAvailableUsers,
