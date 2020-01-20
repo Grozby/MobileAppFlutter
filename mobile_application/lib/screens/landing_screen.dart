@@ -143,6 +143,7 @@ class _AnimatedCompanyNamesState extends State<AnimatedCompanyNames>
 
   void restartAnimationAfter(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
+      //TODO add timer for allowing canceling the function
       Future.delayed(Duration(seconds: 1), () {
         controller.reset();
         controller.forward();

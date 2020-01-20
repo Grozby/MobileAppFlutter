@@ -306,11 +306,11 @@ class CardContent extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             AutoSizeText(
-              user.currentJob.workingRole + " @ ",
+              user.currentJob != null ? user.currentJob.at : "Not working",
               style: Theme.of(context).textTheme.overline,
             ),
             AutoSizeText(
-              user.currentJob.at,
+              user.currentJob != null ? user.currentJob.at : "",
               style: Theme.of(context).textTheme.overline.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

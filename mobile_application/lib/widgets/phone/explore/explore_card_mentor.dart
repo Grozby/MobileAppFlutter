@@ -139,11 +139,9 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
                 height: 31,
                 builder: _workingSpecializationBadge,
               ),
-              if(mentor.workingSpecialization.isNotEmpty)
-                const Divider(),
+              if (mentor.workingSpecialization.isNotEmpty) const Divider(),
               const _FavoriteLanguages(height: 37),
-              if(mentor.questions.isNotEmpty)
-                const Divider(),
+              if (mentor.questions.isNotEmpty) const Divider(),
               FadedListView<PastExperience>(
                 list: mentor.experiences,
                 height: 73,
@@ -239,19 +237,19 @@ class _CompanyInformationBar extends StatelessWidget {
           child: ClipRRect(
             borderRadius: const BorderRadius.all(const Radius.circular(100)),
             child: ImageWrapper(
-              imageUrl: mentor.currentJob.pictureUrl,
-              assetPath: AssetImages.MESSAGE,
+              imageUrl: mentor.currentJob?.pictureUrl,
+              assetPath: AssetImages.WORK,
             ),
           ),
         ),
       ),
       title: AutoSizeText(
-        mentor.currentJob.at,
+        mentor.currentJob != null ? mentor.currentJob.at : "Not working",
         maxLines: 1,
         style: Theme.of(context).textTheme.display2,
       ),
       subtitle: AutoSizeText(
-        mentor.location,
+        mentor.currentJob != null ? mentor.currentJob.at : "",
         style: Theme.of(context).textTheme.subhead,
       ),
     );
@@ -351,25 +349,26 @@ class _MentorBasicInformationText extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Container(
-          alignment: alignment,
-          child: RichText(
-            text: TextSpan(
-              children: <TextSpan>[
-                TextSpan(
-                  text: mentor.currentJob.workingRole + " @ ",
-                  style: Theme.of(context).textTheme.overline,
-                ),
-                TextSpan(
-                  text: mentor.currentJob.at,
-                  style: Theme.of(context).textTheme.overline.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
+        if (mentor.currentJob != null)
+          Container(
+            alignment: alignment,
+            child: RichText(
+              text: TextSpan(
+                children: <TextSpan>[
+                  TextSpan(
+                    text: mentor.currentJob.workingRole + " @ ",
+                    style: Theme.of(context).textTheme.overline,
+                  ),
+                  TextSpan(
+                    text: mentor.currentJob.at,
+                    style: Theme.of(context).textTheme.overline.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
       ],
     );
   }

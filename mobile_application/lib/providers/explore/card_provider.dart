@@ -24,7 +24,7 @@ class CardProvider with ChangeNotifier {
 
   CardProvider(this.httpRequestWrapper);
 
-  String get exploreUrl => "/users/explorestub";
+  String get exploreUrl => "/users/explore";
 
   int get numberAvailableUsers => users.length;
 
@@ -82,7 +82,9 @@ class CardProvider with ChangeNotifier {
       } else {
         return UserContainer(
           toAdd,
-          QuestionsProvider(numberOfQuestions: toAdd.howManyQuestionsToAnswer, mentorId: toAdd.id),
+          QuestionsProvider(
+              numberOfQuestions: toAdd.howManyQuestionsToAnswer,
+              mentorId: toAdd.id),
         );
       }
     }).toList();

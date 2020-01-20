@@ -80,7 +80,7 @@ abstract class User {
   /// Serializable methods
   ///
   static Job getCurrentJobFromJson(Map<String, dynamic> json) {
-    return Job.fromJson(json);
+    return json != null ? Job.fromJson(json) : null;
   }
 
   static List<Question> getQuestionFromJson(questionsJson) {
