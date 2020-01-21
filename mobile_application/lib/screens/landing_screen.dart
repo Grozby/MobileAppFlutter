@@ -2,13 +2,15 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import './../models/exceptions/something_went_wrong_exception.dart';
 import '../providers/authentication/authentication_provider.dart';
 import '../providers/theming/theme_provider.dart';
 import '../widgets/general/button_styled.dart';
 import '../widgets/general/custom_alert_dialog.dart';
-import './../models/exceptions/something_went_wrong_exception.dart';
+import '../widgets/general/image_wrapper.dart';
 import 'login_screen.dart';
 import 'sign_up_screens/sign_up_choice_screen.dart';
 
@@ -43,9 +45,9 @@ class _LandingScreenState extends State<LandingScreen> {
               Expanded(
                 flex: 1,
                 child: Container(
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    fit: BoxFit.cover,
+                  child: ImageWrapper(
+                    assetPath: AssetImages.LOGO,
+                    boxFit: BoxFit.cover,
                   ),
                 ),
               ),

@@ -50,4 +50,5 @@ extension AssetImages on ImageWrapper {
   static String socialAssets(String social) => social + ".png";
 
   static const String DELETE = "ic_delete.png";
+  static const String LOGO = "logo.png";
 }
