@@ -22,6 +22,7 @@ class AuthenticationProvider with ChangeNotifier {
   AuthenticationMode _authenticationMode;
   final Dio _httpManager;
   HttpRequestWrapper httpRequestWrapper;
+  bool wasLogged = false;
 
   AuthenticationProvider(this._httpManager) {
     _authenticationMode = AuthenticationMode.getAuthenticationMode(
@@ -79,6 +80,7 @@ class AuthenticationProvider with ChangeNotifier {
         this,
       );
       _authenticationMode.token = loginData["token"];
+      wasLogged = false;
     }
   }
 
@@ -91,6 +93,7 @@ class AuthenticationProvider with ChangeNotifier {
     };
 
     await storedData.setString("loginData", json.encode(loginData));
+    wasLogged = false;
   }
 
   Future<void> removeAuthenticationData() async {
@@ -104,6 +107,7 @@ class AuthenticationProvider with ChangeNotifier {
         _httpManager,
         this,
       );
+      wasLogged = true;
       notifyListeners();
     }
   }

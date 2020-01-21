@@ -69,6 +69,16 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
                 return const HomepageScreen();
               } else {
                 //Otherwise, we show the sign-up screen
+                if(authenticationProvider.wasLogged){
+                  Future.delayed(
+                    Duration.zero,
+                        () => showErrorDialog(
+                      ctx,
+                      "You have logged out. Log in again.",
+                    ),
+                  );
+                }
+
                 return LandingScreen();
               }
           }
