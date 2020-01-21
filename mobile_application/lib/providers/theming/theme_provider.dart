@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/custom_route.dart';
 
 class ThemeProvider with ChangeNotifier {
   ThemeData _themeData;
+  SystemUiOverlayStyle _overlayStyle;
+
   bool _isLight;
   static const Color _mentorColor = Color.fromRGBO(234, 128, 59, 1);
   static const Color _mentorCardColor = Color.fromRGBO(234, 128, 59, 1);
@@ -16,9 +19,27 @@ class ThemeProvider with ChangeNotifier {
   static Color _loginButtonColor = Colors.grey.shade200;
   static const Color _textColor = Color.fromRGBO(68, 86, 108, 1);
   static const Color _greyTextColor = Color.fromRGBO(161, 170, 181, 1);
+  static const Color _lightGreyTextColor = Color.fromRGBO(211, 220, 231, 1);
+
+  static const SystemUiOverlayStyle _lightOverlayStyle = SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: null,
+    statusBarColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.dark,
+    statusBarIconBrightness: Brightness.dark,
+    statusBarBrightness: Brightness.light,
+  );
+
+  static const SystemUiOverlayStyle _darkOverlayStyle = SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: null,
+    statusBarColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.dark,
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.light,
+  );
 
   ThemeData _lightTheme = ThemeData.light().copyWith(
-
     pageTransitionsTheme: PageTransitionsTheme(
       builders: {
         TargetPlatform.android: CustomPageTransitionBuilder(),
@@ -67,19 +88,73 @@ class ThemeProvider with ChangeNotifier {
         )),
   );
 
+  ThemeData _darkTheme = ThemeData.dark().copyWith(
+    pageTransitionsTheme: PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: CustomPageTransitionBuilder(),
+        TargetPlatform.iOS: CustomPageTransitionBuilder(),
+      },
+    ),
+    primaryColor: _primaryColor,
+    buttonTheme: ButtonThemeData(
+      textTheme: ButtonTextTheme.primary,
+      buttonColor: Color.fromRGBO(234, 128, 59, 1),
+    ),
+    cursorColor: Colors.grey,
+    textTheme: ThemeData.light().textTheme.copyWith(
+        display3: TextStyle(
+          fontSize: 32.0,
+          fontWeight: FontWeight.bold,
+          color: _lightGreyTextColor,
+        ),
+        display2: TextStyle(
+          fontSize: 24.0,
+          color: _lightGreyTextColor,
+          fontWeight: FontWeight.w700,
+        ),
+        display1: TextStyle(
+          fontSize: 18.0,
+          fontWeight: FontWeight.w600,
+        ),
+        subhead: TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+        ),
+        title: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: _lightGreyTextColor,
+        ),
+        overline: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: _lightGreyTextColor,
+          letterSpacing: 0,
+        ),
+        body1: TextStyle(
+          fontSize: 16,
+          color: Color.fromRGBO(105, 120, 137, 1),
+        )),
+  );
+
   /*----------
      Methods
    -----------*/
 
   ThemeData getTheme() => _themeData;
 
+  SystemUiOverlayStyle get overlayStyle => _overlayStyle;
+
   static Color get primaryColor => _primaryColor;
+
   static Color get primaryLighterColor => _primaryLighterColor;
 
   static Color get mentorColor => _mentorColor;
+
   static Color get mentorCardColor => _mentorCardColor.withOpacity(0.1);
 
   static Color get menteeColor => _menteeColor;
+
   static Color get menteeCardColor => _menteeCardColor.withOpacity(0.1);
 
   static Color get loginButtonColor => _loginButtonColor;
@@ -97,9 +172,11 @@ class ThemeProvider with ChangeNotifier {
       final themePreference = preferences.getString('theme');
       if (themePreference == 'light') {
         _themeData = _lightTheme;
+        _overlayStyle = _lightOverlayStyle;
         _isLight = true;
       } else {
-        _themeData = ThemeData.dark();
+        _themeData = _darkTheme;
+        _overlayStyle = _darkOverlayStyle;
         _isLight = false;
       }
     } else {
@@ -110,7 +187,7 @@ class ThemeProvider with ChangeNotifier {
 
   Future<void> switchTheme() async {
     if (_isLight) {
-      _themeData = ThemeData.dark();
+      _themeData = _darkTheme;
     } else {
       _themeData = _lightTheme;
     }

@@ -30,12 +30,12 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
     final currentTheme = Provider.of<ThemeProvider>(context);
     final authenticationProvider = Provider.of<AuthenticationProvider>(context);
 
-    return MaterialApp(
-      theme: currentTheme.getTheme(),
-      debugShowCheckedModeBanner: false,
-      home: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.dark,
-        child: FutureBuilder(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: Provider.of<ThemeProvider>(context).overlayStyle,
+      child: MaterialApp(
+        theme: currentTheme.getTheme(),
+        debugShowCheckedModeBanner: false,
+        home: FutureBuilder(
           future: authenticationProvider.checkAuthentication() ?? null,
           builder: (BuildContext ctx, AsyncSnapshot snapshot) {
             switch (snapshot.connectionState) {
@@ -60,8 +60,7 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
                       () => showErrorDialog(
                         ctx,
                         snapshot.error is SomethingWentWrongException
-                            ? (snapshot.error as SomethingWentWrongException)
-                                .text
+                            ? (snapshot.error as SomethingWentWrongException).text
                             : "Got some error.",
                       ),
                     );
@@ -89,19 +88,19 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
             }
           },
         ),
+        routes: {
+          LandingScreen.routeName: (_) => LandingScreen(),
+          LoginScreen.routeName: (_) => LoginScreen(),
+          HomepageScreen.routeName: (_) => HomepageScreen(),
+          SettingsScreen.routeName: (_) => SettingsScreen(),
+          SignUpChoiceScreen.routeName: (_) => SignUpChoiceScreen(),
+          SignUpScreen.routeName: (_) => SignUpScreen(),
+          UserProfileScreen.routeName: (ctx) =>
+              UserProfileScreen(ModalRoute.of(ctx).settings.arguments),
+          InitializationScreen.routeName: (_) => InitializationScreen(),
+          MessagesScreen.routeName: (_) => MessagesScreen(),
+        },
       ),
-      routes: {
-        LandingScreen.routeName: (_) => LandingScreen(),
-        LoginScreen.routeName: (_) => LoginScreen(),
-        HomepageScreen.routeName: (_) => HomepageScreen(),
-        SettingsScreen.routeName: (_) => SettingsScreen(),
-        SignUpChoiceScreen.routeName: (_) => SignUpChoiceScreen(),
-        SignUpScreen.routeName: (_) => SignUpScreen(),
-        UserProfileScreen.routeName: (ctx) =>
-            UserProfileScreen(ModalRoute.of(ctx).settings.arguments),
-        InitializationScreen.routeName: (_) => InitializationScreen(),
-        MessagesScreen.routeName: (_) => MessagesScreen(),
-      },
     );
   }
 }
