@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/screens/initialization_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/overglow_less_scroll_behavior.dart';
@@ -119,7 +120,20 @@ class _HomepageWidgetState extends State<HomepageWidget>
       //TODO may implement a reduced version
       Provider.of<UserDataProvider>(context, listen: false).loadUserData(),
       Provider.of<CardProvider>(context, listen: false).loadCardProvider(),
-    ]);
+    ]).catchError((err) {
+      /// There may two ways this future can fail. One is provoked by
+      /// [loadCardProvider]. When the user is not finalized (as when logged
+      /// from Google, for example), the /explore request will fail. Therefore,
+      /// we need to initialize the profile. The second option is that
+      /// incorrect data have been passed to the [loadUserData]. This case
+      /// will not be considered, and an error will be shown.
+      var p = Provider.of<UserDataProvider>(context, listen: false);
+
+      if (p.behavior != null && !p.behavior.isInitialized) {
+        Navigator.of(context)
+            .pushReplacementNamed(InitializationScreen.routeName);
+      }
+    });
   }
 
   @override
@@ -128,7 +142,7 @@ class _HomepageWidgetState extends State<HomepageWidget>
 
     /// Used to distinguish whether the RefreshWidget was the one to call the
     /// one to refresh the widget.
-    if(oldWidget.refreshCompleted != this.widget.refreshCompleted){
+    if (oldWidget.refreshCompleted != this.widget.refreshCompleted) {
       loadExploreSection();
     }
   }
@@ -150,8 +164,9 @@ class _HomepageWidgetState extends State<HomepageWidget>
           );
         }
 
+        widget.refreshCompleted();
+
         if (snapshot.hasError) {
-          widget.refreshCompleted();
           return LoadingError(
             exception: snapshot.error,
             retry: () => setState(() {
@@ -161,8 +176,8 @@ class _HomepageWidgetState extends State<HomepageWidget>
           );
         }
 
+        /// Normal app flow. The user is logged and no confirmation is needed.
         controller.forward();
-        widget.refreshCompleted();
 
         return FadeTransition(
           opacity: animation,

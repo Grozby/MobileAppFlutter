@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../models/users/experiences/academic_degree.dart';
@@ -15,12 +16,15 @@ import '../../models/users/socials/linkedin_account.dart';
 import '../../models/users/socials/social_account.dart';
 import '../../models/users/socials/twitter_account.dart';
 
+part 'user.g.dart';
 ///
 ///
 /// USE 'flutter pub run build_runner watch' to update the Json serializer utility!!!
 ///
 ///
-abstract class User {
+
+@JsonSerializable(explicitToJson: true)
+class User {
   String id;
   String name;
   String surname;
@@ -62,11 +66,11 @@ abstract class User {
 
   String get completeName => name + " " + surname;
 
-  int get howManyQuestionsToAnswer;
+  int get howManyQuestionsToAnswer => 0;
 
-  Color get color;
+  Color get color => Colors.blueGrey;
 
-  Color get cardColor;
+  Color get cardColor => Colors.grey;
 
   List<Job> get jobExperiences =>
       experiences.where((e) => e is Job).map((j) => j as Job).toList();
@@ -79,6 +83,11 @@ abstract class User {
   ///
   /// Serializable methods
   ///
+
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+
+  Map<String, dynamic> toJson() => _$UserToJson(this);
+
   static Job getCurrentJobFromJson(Map<String, dynamic> json) {
     return json != null ? Job.fromJson(json) : null;
   }

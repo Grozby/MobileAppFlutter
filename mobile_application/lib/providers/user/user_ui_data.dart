@@ -1,10 +1,13 @@
-import 'package:mobile_application/models/users/user.dart';
+import '../../models/users/user.dart';
 
-abstract class UserUIData {
+class UserUIData {
   User user;
 
   UserUIData({this.user});
 
-  String get remainingTokensString;
-  int get tokenCount;
+  bool get isInitialized => false;
+
+  String get remainingTokensString => "";
+
+  int get tokenCount => 0;
 }

@@ -18,6 +18,7 @@ class ThemeProvider with ChangeNotifier {
   static const Color _greyTextColor = Color.fromRGBO(161, 170, 181, 1);
 
   ThemeData _lightTheme = ThemeData.light().copyWith(
+
     pageTransitionsTheme: PageTransitionsTheme(
       builders: {
         TargetPlatform.android: CustomPageTransitionBuilder(),

@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
-import 'package:mobile_application/models/exceptions/no_user_profile_exception.dart';
-import 'package:mobile_application/models/users/mentor.dart';
 
 import '../../helpers/http_request_wrapper.dart';
+import '../../models/exceptions/no_user_profile_exception.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
 import '../../models/users/mentee.dart';
+import '../../models/users/mentor.dart';
 import '../../models/users/user.dart';
 import '../../providers/user/mentee_ui_data.dart';
 import '../../providers/user/user_ui_data.dart';
@@ -16,7 +16,6 @@ class UserDataProvider with ChangeNotifier {
 
   UserDataProvider(this.httpRequestWrapper);
 
-  ///TODO implement load of user data. Fetch from server.
   Future<void> loadUserData() async {
     return await httpRequestWrapper.request<bool>(
         url: "/users/profile",
@@ -25,14 +24,20 @@ class UserDataProvider with ChangeNotifier {
         onCorrectStatusCode: (response) async {
           switch (response.data["kind"]) {
             case "Mentee":
-              this.behavior = MenteeUIData(Mentee.fromJson(response.data));
+              this.behavior =
+                  MenteeUIData(user: Mentee.fromJson(response.data));
               break;
             case "Mentor":
-              this.behavior = MentorUIData(Mentor.fromJson(response.data));
+              this.behavior =
+                  MentorUIData(user: Mentor.fromJson(response.data));
+              break;
+            case "User":
+              this.behavior = UserUIData(user: User.fromJson(response.data));
               break;
             default:
               throw SomethingWentWrongException.message(
-                  "Some error happened on the server side.");
+                "Some error happened on the server side.",
+              );
           }
         },
         onIncorrectStatusCode: (_) {
@@ -51,7 +56,7 @@ class UserDataProvider with ChangeNotifier {
         typeHttpRequest: TypeHttpRequest.get,
         correctStatusCode: 200,
         onCorrectStatusCode: (response) async {
-          if(response.data == null){
+          if (response.data == null) {
             throw NoUserProfileException();
           }
           switch (response.data["kind"]) {
