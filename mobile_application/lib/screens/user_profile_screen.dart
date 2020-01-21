@@ -105,7 +105,11 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
   @override
   void didUpdateWidget(UserProfileBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
-    refreshPage();
+    /// Used to distinguish whether the RefreshWidget was the one to call the
+    /// one to refresh the widget.
+    if(oldWidget.refreshCompleted != this.widget.refreshCompleted){
+      refreshPage();
+    }
   }
 
   void
