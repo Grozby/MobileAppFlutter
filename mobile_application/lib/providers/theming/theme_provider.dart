@@ -168,19 +168,17 @@ class ThemeProvider with ChangeNotifier {
 
   Future<void> loadThemePreference() async {
     final preferences = await SharedPreferences.getInstance();
-    if (preferences.containsKey('theme')) {
-      final themePreference = preferences.getString('theme');
-      if (themePreference == 'light') {
-        _themeData = _lightTheme;
-        _overlayStyle = _lightOverlayStyle;
-        _isLight = true;
-      } else {
-        _themeData = _darkTheme;
-        _overlayStyle = _darkOverlayStyle;
-        _isLight = false;
-      }
+
+    /// If nothing is contained in memory or light is stored, we show the
+    /// light theme. Otherwise, the dark theme will show.
+    if (preferences.containsKey('theme') &&
+        preferences.getString('theme') == "dark") {
+      _themeData = _darkTheme;
+      _overlayStyle = _darkOverlayStyle;
+      _isLight = false;
     } else {
       _themeData = _lightTheme;
+      _overlayStyle = _lightOverlayStyle;
       _isLight = true;
     }
   }
@@ -188,8 +186,10 @@ class ThemeProvider with ChangeNotifier {
   Future<void> switchTheme() async {
     if (_isLight) {
       _themeData = _darkTheme;
+      _overlayStyle = _darkOverlayStyle;
     } else {
       _themeData = _lightTheme;
+      _overlayStyle = _lightOverlayStyle;
     }
 
     _isLight = !_isLight;
