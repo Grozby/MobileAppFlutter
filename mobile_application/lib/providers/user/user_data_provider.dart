@@ -10,11 +10,44 @@ import '../../providers/user/mentee_ui_data.dart';
 import '../../providers/user/user_ui_data.dart';
 import 'mentor_ui_data.dart';
 
+enum UserKind {
+  Mentee,
+  Mentor,
+}
+
 class UserDataProvider with ChangeNotifier {
   UserUIData behavior;
   HttpRequestWrapper httpRequestWrapper;
 
   UserDataProvider(this.httpRequestWrapper);
+
+  Future<void> selectUserKind(UserKind kind) async {
+    return await httpRequestWrapper.request<void>(
+        url: "/users/signup/decide",
+        typeHttpRequest: TypeHttpRequest.post,
+        postBody: {"kind": describeEnum(kind)},
+        correctStatusCode: 200,
+        onCorrectStatusCode: (_) {
+          switch (kind) {
+            case UserKind.Mentee:
+              this.behavior =
+                  MenteeUIData(user: Mentee.fromJson(behavior.user.toJson()));
+              break;
+            case UserKind.Mentor:
+              this.behavior =
+                  MentorUIData(user: Mentor.fromJson(behavior.user.toJson()));
+              break;
+          }
+        },
+        onIncorrectStatusCode: (_) {
+          throw SomethingWentWrongException.message(
+            "Couldn't load the explore section. Try again later.",
+          );
+        },
+        onUnknownDioError: (_) {
+          throw SomethingWentWrongException();
+        });
+  }
 
   Future<void> loadUserData() async {
     return await httpRequestWrapper.request<bool>(
