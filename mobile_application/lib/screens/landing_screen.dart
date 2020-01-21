@@ -134,6 +134,7 @@ class _AnimatedCompanyNamesState extends State<AnimatedCompanyNames>
     "Microsoft"
   ];
 
+  Timer _timer;
   AnimationController controller;
   Animation<Offset> slideInAnimation;
   Animation<double> fadeInAnimation;
@@ -143,14 +144,16 @@ class _AnimatedCompanyNamesState extends State<AnimatedCompanyNames>
 
   void restartAnimationAfter(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
-      //TODO add timer for allowing canceling the function
-      Future.delayed(Duration(seconds: 1), () {
-        controller.reset();
-        controller.forward();
-        setState(() {
-          currentIndex = (currentIndex + 1) % companyNames.length;
-        });
-      });
+      _timer = Timer(
+        Duration(seconds: 1),
+        () {
+          controller.reset();
+          controller.forward();
+          setState(() {
+            currentIndex = (currentIndex + 1) % companyNames.length;
+          });
+        },
+      );
     }
   }
 
@@ -182,6 +185,7 @@ class _AnimatedCompanyNamesState extends State<AnimatedCompanyNames>
   @override
   void dispose() {
     controller.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 

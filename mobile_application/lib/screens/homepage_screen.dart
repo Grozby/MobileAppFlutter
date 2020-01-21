@@ -151,6 +151,7 @@ class _HomepageWidgetState extends State<HomepageWidget>
         }
 
         if (snapshot.hasError) {
+          widget.refreshCompleted();
           return LoadingError(
             exception: snapshot.error,
             retry: () => setState(() {
