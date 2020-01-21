@@ -30,7 +30,10 @@ class _LoadingErrorState extends State<LoadingError> {
       );
     }
 
-    return GeneralErrorWidget(widget.exception);
+    return GeneralErrorWidget(
+      exception: widget.exception,
+      retry: widget.retry,
+    );
   }
 }
 
@@ -87,8 +90,12 @@ class _NoInternetConnectionWidgetState
 
 class GeneralErrorWidget extends StatefulWidget {
   final Exception exception;
+  final Function retry;
 
-  GeneralErrorWidget(this.exception);
+  GeneralErrorWidget({
+    @required this.exception,
+    @required this.retry,
+  });
 
   @override
   _GeneralErrorWidgetState createState() => _GeneralErrorWidgetState();
@@ -123,8 +130,8 @@ class _GeneralErrorWidgetState extends State<GeneralErrorWidget> {
           Center(
             child: ButtonStyled(
               fractionalWidthDimension: 0.4,
-              text: "Go back",
-              onPressFunction: goBackToPreviousPage,
+              text: Navigator.of(context).canPop() ? "Go back" : "Retry",
+              onPressFunction: goBackOrRetry,
             ),
           ),
         ],
@@ -135,6 +142,14 @@ class _GeneralErrorWidgetState extends State<GeneralErrorWidget> {
   void goBackToPreviousPage() {
     if (Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
+    }
+  }
+
+  void goBackOrRetry() {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+    } else {
+      widget.retry();
     }
   }
 }
