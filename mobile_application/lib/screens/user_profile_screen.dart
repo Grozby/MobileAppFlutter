@@ -169,8 +169,10 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
 
                     return Stack(
                       alignment: Alignment.topCenter,
+
                       children: [
                         Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             Container(
                               height: 100,
