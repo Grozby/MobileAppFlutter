@@ -23,11 +23,11 @@ Mentor _$MentorFromJson(Map json) {
     questionsForAcceptingRequest:
         Mentor.getQuestionsForAcceptingRequestFromJson(
             json['questionsForAcceptingRequest']),
-  )..id = json['id'] as String;
+  )..id = json['_id'] as String;
 }
 
 Map<String, dynamic> _$MentorToJson(Mentor instance) => <String, dynamic>{
-      'id': instance.id,
+      '_id': instance.id,
       'name': instance.name,
       'surname': instance.surname,
       'pictureUrl': instance.pictureUrl,

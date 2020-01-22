@@ -43,9 +43,6 @@ class UserDataProvider with ChangeNotifier {
           throw SomethingWentWrongException.message(
             "Couldn't load the explore section. Try again later.",
           );
-        },
-        onUnknownDioError: (_) {
-          throw SomethingWentWrongException();
         });
   }
 
@@ -77,13 +74,14 @@ class UserDataProvider with ChangeNotifier {
           throw SomethingWentWrongException.message(
             "Couldn't load the explore section. Try again later.",
           );
-        },
-        onUnknownDioError: (_) {
-          throw SomethingWentWrongException();
         });
   }
 
   Future<User> loadSpecifiedUserData(String id) async {
+    if(id == null){
+      throw NoUserProfileException();
+    }
+
     return await httpRequestWrapper.request<User>(
         url: "/users/profile/" + id,
         typeHttpRequest: TypeHttpRequest.get,
@@ -108,9 +106,6 @@ class UserDataProvider with ChangeNotifier {
           throw SomethingWentWrongException.message(
             "Couldn't load the selected user section. Try again later.",
           );
-        },
-        onUnknownDioError: (_) {
-          throw SomethingWentWrongException();
         });
   }
 

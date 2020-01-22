@@ -135,6 +135,8 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
         bool isWaiting = snapshot.connectionState == ConnectionState.waiting;
 
         if (snapshot.hasError && !isWaiting) {
+          widget.refreshCompleted();
+
           return LoadingError(
             exception: snapshot.error,
             buildContext: context,
@@ -310,11 +312,11 @@ class CardContent extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             AutoSizeText(
-              user.currentJob != null ? user.currentJob.at : "Not working",
+              user.currentJob != null ? user.currentJob.workingRole : "Not working",
               style: Theme.of(context).textTheme.overline,
             ),
             AutoSizeText(
-              user.currentJob != null ? user.currentJob.at : "",
+              user.currentJob != null ? "@ ${user.currentJob.at}" : "",
               style: Theme.of(context).textTheme.overline.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

@@ -17,6 +17,7 @@ import '../../models/users/socials/social_account.dart';
 import '../../models/users/socials/twitter_account.dart';
 
 part 'user.g.dart';
+
 ///
 ///
 /// USE 'flutter pub run build_runner watch' to update the Json serializer utility!!!
@@ -25,6 +26,7 @@ part 'user.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class User {
+  @JsonKey(name: "_id")
   String id;
   String name;
   String surname;

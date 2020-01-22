@@ -100,14 +100,14 @@ class _FrontCardMentor extends StatefulWidget {
 
 class _FrontCardMentorState extends State<_FrontCardMentor> {
   void goToProfilePage(BuildContext context) {
-    Navigator.of(context).pushNamed(UserProfileScreen.routeName,
-
-        /// TODO: should be UserProfileArguments(
-        ///             Provider.of<CardProvider>(context, listen: false)
-        ///                .getMentor(ScopedModel.of<IndexUser>(context).indexUser)
-        ///                .id;
-        ///        ),
-        arguments: UserProfileArguments("5e105efc3c5ab2083ca32e50"));
+    Navigator.of(context).pushNamed(
+      UserProfileScreen.routeName,
+      arguments: UserProfileArguments(
+        Provider.of<CardProvider>(context, listen: false)
+            .getMentor(ScopedModel.of<IndexUser>(context).indexUser)
+            .id,
+      ),
+    );
   }
 
   @override
