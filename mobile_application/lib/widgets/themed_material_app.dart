@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_application/screens/test_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../models/exceptions/no_internet_exception.dart';
@@ -35,59 +36,60 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
       child: MaterialApp(
         theme: currentTheme.getTheme(),
         debugShowCheckedModeBanner: false,
-        home: FutureBuilder(
-          future: authenticationProvider.checkAuthentication() ?? null,
-          builder: (BuildContext ctx, AsyncSnapshot snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return const WaitingScreen();
-
-              default:
-                if (snapshot.hasError) {
-                  if (snapshot.error is NoInternetException) {
-                    return Scaffold(
-                      body: SafeArea(
-                        child: LoadingError(
-                          exception: snapshot.error,
-                          retry: () => setState(() {}),
-                          buildContext: context,
-                        ),
-                      ),
-                    );
-                  } else {
-                    Future.delayed(
-                      Duration.zero,
-                      () => showErrorDialog(
-                        ctx,
-                        snapshot.error is SomethingWentWrongException
-                            ? (snapshot.error as SomethingWentWrongException).text
-                            : "Got some error.",
-                      ),
-                    );
-                    return LandingScreen();
-                  }
-                }
-
-                if (snapshot.data) {
-                  //If true is returned, we are logged in
-                  return const HomepageScreen();
-                } else {
-                  //Otherwise, we show the sign-up screen
-                  if (authenticationProvider.wasLogged) {
-                    Future.delayed(
-                      Duration.zero,
-                      () => showErrorDialog(
-                        ctx,
-                        "You have been logged out. Log in again.",
-                      ),
-                    );
-                  }
-
-                  return LandingScreen();
-                }
-            }
-          },
-        ),
+        home: TestScreen(),
+//        home: FutureBuilder(
+//          future: authenticationProvider.checkAuthentication() ?? null,
+//          builder: (BuildContext ctx, AsyncSnapshot snapshot) {
+//            switch (snapshot.connectionState) {
+//              case ConnectionState.waiting:
+//                return const WaitingScreen();
+//
+//              default:
+//                if (snapshot.hasError) {
+//                  if (snapshot.error is NoInternetException) {
+//                    return Scaffold(
+//                      body: SafeArea(
+//                        child: LoadingError(
+//                          exception: snapshot.error,
+//                          retry: () => setState(() {}),
+//                          buildContext: context,
+//                        ),
+//                      ),
+//                    );
+//                  } else {
+//                    Future.delayed(
+//                      Duration.zero,
+//                      () => showErrorDialog(
+//                        ctx,
+//                        snapshot.error is SomethingWentWrongException
+//                            ? (snapshot.error as SomethingWentWrongException).text
+//                            : "Got some error.",
+//                      ),
+//                    );
+//                    return LandingScreen();
+//                  }
+//                }
+//
+//                if (snapshot.data) {
+//                  //If true is returned, we are logged in
+//                  return const HomepageScreen();
+//                } else {
+//                  //Otherwise, we show the sign-up screen
+//                  if (authenticationProvider.wasLogged) {
+//                    Future.delayed(
+//                      Duration.zero,
+//                      () => showErrorDialog(
+//                        ctx,
+//                        "You have been logged out. Log in again.",
+//                      ),
+//                    );
+//                  }
+//
+//                  return LandingScreen();
+//                }
+//            }
+//          },
+//        ),
         routes: {
           LandingScreen.routeName: (_) => LandingScreen(),
           LoginScreen.routeName: (_) => LoginScreen(),

@@ -105,15 +105,15 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
   @override
   void didUpdateWidget(UserProfileBuilder oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     /// Used to distinguish whether the RefreshWidget was the one to call the
     /// one to refresh the widget.
-    if(oldWidget.refreshCompleted != this.widget.refreshCompleted){
+    if (oldWidget.refreshCompleted != this.widget.refreshCompleted) {
       refreshPage();
     }
   }
 
-  void
-  refreshPage() {
+  void refreshPage() {
     setState(() {
       _loadUserData = widget.arguments != null
           ? Provider.of<UserDataProvider>(
@@ -169,7 +169,6 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
 
                     return Stack(
                       alignment: Alignment.topCenter,
-
                       children: [
                         Column(
                           mainAxisSize: MainAxisSize.min,
@@ -200,8 +199,12 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
 
 class TopButtons extends StatelessWidget {
   final double width;
+  final bool isAnotherUser;
 
-  TopButtons({this.width});
+  TopButtons({
+    @required this.width,
+    @required this.isAnotherUser,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -314,7 +317,9 @@ class CardContent extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             AutoSizeText(
-              user.currentJob != null ? user.currentJob.workingRole : "Not working",
+              user.currentJob != null
+                  ? user.currentJob.workingRole
+                  : "Not working",
               style: Theme.of(context).textTheme.overline,
             ),
             AutoSizeText(
