@@ -2,14 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/users/answer.dart';
 
 String getAudioFile(String filePath) {
   try {
     File file = File(filePath);
-    if (!file.existsSync())
-      return null;
+    if (!file.existsSync()) return null;
 
     return String.fromCharCodes((file..openRead()).readAsBytesSync());
   } catch (e) {
@@ -40,8 +40,13 @@ class QuestionsProvider with ChangeNotifier {
     }
   }
 
-  void insertAnswer(String textAnswer, String audioFilePath) async {
+  void insertAnswer({
+    String question,
+    String textAnswer,
+    String audioFilePath,
+  }) async {
     answers.add(Answer(
+      question: question,
       textAnswer: textAnswer,
       audioAnswer: await compute(getAudioFile, audioFilePath),
     ));
@@ -55,7 +60,7 @@ class QuestionsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  String getAudioFilePath(){
+  String getAudioFilePath() {
     return "sound${mentorId}_$currentIndex.aac";
   }
 

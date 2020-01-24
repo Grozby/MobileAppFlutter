@@ -563,8 +563,14 @@ class QuestionsWidgetState extends State<QuestionsWidget>
 
   void saveAnswerAndContinue() {
     Provider.of<QuestionsProvider>(context).insertAnswer(
-      textController.text,
-      audioPath,
+      question: Provider.of<CardProvider>(context, listen: false)
+          .getMentor(ScopedModel.of<IndexUser>(context).indexUser)
+          .getMentorQuestionAt(
+            Provider.of<QuestionsProvider>(context, listen: false).currentIndex,
+          )
+          .question,
+      textAnswer: textController.text,
+      audioFilePath: audioPath,
     );
 
     setState(() {

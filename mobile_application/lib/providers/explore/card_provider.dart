@@ -53,9 +53,6 @@ class CardProvider with ChangeNotifier {
           throw SomethingWentWrongException.message(
             "Couldn't load the explore section. Try again later.",
           );
-        },
-        onUnknownDioError: (_) {
-          throw SomethingWentWrongException();
         });
 
     users = json.data.map<UserContainer>((user) {
