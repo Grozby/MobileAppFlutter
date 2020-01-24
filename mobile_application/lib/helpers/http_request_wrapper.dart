@@ -3,7 +3,6 @@ import 'package:mobile_application/models/exceptions/something_went_wrong_except
 
 import '../models/exceptions/no_internet_exception.dart';
 
-typedef T ParserResponseFunction<T>(dynamic x);
 
 enum TypeHttpRequest { post, get }
 
@@ -44,11 +43,11 @@ class HttpRequestWrapper {
 
   Future<T> request<T>({
     String url,
-    ParserResponseFunction onCorrectStatusCode,
-    ParserResponseFunction onIncorrectStatusCode,
+    Future<T> Function(dynamic x) onCorrectStatusCode,
+    Future<T> Function(dynamic x) onIncorrectStatusCode,
     TypeHttpRequest typeHttpRequest = TypeHttpRequest.get,
     int correctStatusCode = 200,
-    Function onUnknownDioError,
+    dynamic Function(DioError) onUnknownDioError,
     postBody,
     dioOptions,
   }) async {
