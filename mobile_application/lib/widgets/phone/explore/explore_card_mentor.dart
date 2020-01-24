@@ -86,6 +86,11 @@ class _MentorCardState extends State<MentorCard> {
 ///                                                                         ///
 /// /////////////////////////////////////////////////////////////////////// ///
 
+mixin GetMentor {
+  Mentor getMentor(BuildContext context) => Provider.of<CardProvider>(context)
+      .getMentor(ScopedModel.of<IndexUser>(context).indexUser);
+}
+
 ///
 /// Front card containing all the information about the [Mentor].
 ///
@@ -98,7 +103,7 @@ class _FrontCardMentor extends StatefulWidget {
   _FrontCardMentorState createState() => _FrontCardMentorState();
 }
 
-class _FrontCardMentorState extends State<_FrontCardMentor> {
+class _FrontCardMentorState extends State<_FrontCardMentor> with GetMentor {
   void goToProfilePage(BuildContext context) {
     Navigator.of(context).pushNamed(
       UserProfileScreen.routeName,
@@ -112,8 +117,7 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
 
   @override
   Widget build(BuildContext context) {
-    int index = ScopedModel.of<IndexUser>(context).indexUser;
-    Mentor mentor = Provider.of<CardProvider>(context).getMentor(index);
+    Mentor mentor = getMentor(context);
 
     return CardContainer(
       onLongPress: () => goToProfilePage(context),
@@ -212,16 +216,12 @@ class _FrontCardMentorState extends State<_FrontCardMentor> {
 /// Top bar of the card that shows the information about the company in which
 /// the mentor is currently working.
 ///
-class _CompanyInformationBar extends StatelessWidget {
+class _CompanyInformationBar extends StatelessWidget with GetMentor {
   const _CompanyInformationBar();
 
   @override
   Widget build(BuildContext context) {
-    int index = ScopedModel.of<IndexUser>(context).indexUser;
-    Mentor mentor = Provider.of<CardProvider>(
-      context,
-      listen: false,
-    ).getMentor(index);
+    Mentor mentor = getMentor(context);
 
     return ListTile(
       dense: true,
@@ -298,18 +298,14 @@ class _MentorBasicInformation extends StatelessWidget {
   }
 }
 
-class _MentorBasicInformationAvatar extends StatelessWidget {
+class _MentorBasicInformationAvatar extends StatelessWidget with GetMentor {
   final Function onImageMentorLongPress;
 
   _MentorBasicInformationAvatar({@required this.onImageMentorLongPress});
 
   @override
   Widget build(BuildContext context) {
-    int index = ScopedModel.of<IndexUser>(context).indexUser;
-    Mentor mentor = Provider.of<CardProvider>(
-      context,
-      listen: false,
-    ).getMentor(index);
+    Mentor mentor = getMentor(context);
 
     return Container(
       alignment: Alignment.center,
@@ -325,18 +321,14 @@ class _MentorBasicInformationAvatar extends StatelessWidget {
   }
 }
 
-class _MentorBasicInformationText extends StatelessWidget {
+class _MentorBasicInformationText extends StatelessWidget with GetMentor {
   final Alignment alignment;
 
   const _MentorBasicInformationText({@required this.alignment});
 
   @override
   Widget build(BuildContext context) {
-    int index = ScopedModel.of<IndexUser>(context).indexUser;
-    Mentor mentor = Provider.of<CardProvider>(
-      context,
-      listen: false,
-    ).getMentor(index);
+    Mentor mentor = getMentor(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,18 +371,14 @@ class _MentorBasicInformationText extends StatelessWidget {
 /// collapses it in case the biography text is to long thanks to
 /// [ExpandableWidget]
 ///
-class _MentorBio extends StatelessWidget {
+class _MentorBio extends StatelessWidget with GetMentor {
   final double height;
 
   const _MentorBio({@required this.height});
 
   @override
   Widget build(BuildContext context) {
-    int index = ScopedModel.of<IndexUser>(context).indexUser;
-    Mentor mentor = Provider.of<CardProvider>(
-      context,
-      listen: false,
-    ).getMentor(index);
+    Mentor mentor = getMentor(context);
 
     return ExpandableWidget(
       height: height,
@@ -410,18 +398,14 @@ class _MentorBio extends StatelessWidget {
 /// Widget that simply shows which are the favorite programming languages
 /// of the mentor.
 ///
-class _FavoriteLanguages extends StatelessWidget {
+class _FavoriteLanguages extends StatelessWidget with GetMentor {
   final double height;
 
   const _FavoriteLanguages({@required this.height});
 
   @override
   Widget build(BuildContext context) {
-    int index = ScopedModel.of<IndexUser>(context).indexUser;
-    Mentor mentor = Provider.of<CardProvider>(
-      context,
-      listen: false,
-    ).getMentor(index);
+    Mentor mentor = getMentor(context);
 
     return ExpandableWidget(
       height: height,
@@ -473,21 +457,14 @@ class _BackCardMentor extends StatefulWidget {
   __BackCardMentorState createState() => __BackCardMentorState();
 }
 
-class __BackCardMentorState extends State<_BackCardMentor> {
+class __BackCardMentorState extends State<_BackCardMentor> with GetMentor {
   int questionIndex = 0;
   Color color;
 
   @override
   void initState() {
     super.initState();
-
-    Future.delayed(Duration.zero, () {
-      int index = ScopedModel.of<IndexUser>(context).indexUser;
-      color = Provider.of<CardProvider>(
-        context,
-        listen: false,
-      ).getMentor(index).cardColor;
-    });
+    color = getMentor(context).cardColor;
   }
 
   @override
@@ -528,7 +505,7 @@ class QuestionsWidget extends StatefulWidget {
 }
 
 class QuestionsWidgetState extends State<QuestionsWidget>
-    with TimeConverter, ChangeNotifier {
+    with TimeConverter, ChangeNotifier, GetMentor {
   final textController = TextEditingController();
   String audioPath;
   bool canWriteAnswer = true;
@@ -542,8 +519,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
   }
 
   int getQuestionTime() {
-    return Provider.of<CardProvider>(context, listen: false)
-        .getMentor(ScopedModel.of<IndexUser>(context).indexUser)
+    return getMentor(context)
         .getMentorQuestionAt(
           Provider.of<QuestionsProvider>(context, listen: false).currentIndex,
         )
@@ -563,8 +539,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
 
   void saveAnswerAndContinue() {
     Provider.of<QuestionsProvider>(context).insertAnswer(
-      question: Provider.of<CardProvider>(context, listen: false)
-          .getMentor(ScopedModel.of<IndexUser>(context).indexUser)
+      question: getMentor(context)
           .getMentorQuestionAt(
             Provider.of<QuestionsProvider>(context, listen: false).currentIndex,
           )
@@ -617,11 +592,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
 
   @override
   Widget build(BuildContext context) {
-    int index = ScopedModel.of<IndexUser>(context).indexUser;
-    Mentor mentor = Provider.of<CardProvider>(
-      context,
-      listen: false,
-    ).getMentor(index);
+    Mentor mentor = getMentor(context);
 
     return hasStartedAnswering
 
@@ -860,7 +831,7 @@ class ContactMentor extends StatefulWidget {
   _ContactMentorState createState() => _ContactMentorState();
 }
 
-class _ContactMentorState extends State<ContactMentor> {
+class _ContactMentorState extends State<ContactMentor> with GetMentor{
   final TextEditingController messageController = TextEditingController();
 
   @override
@@ -883,11 +854,7 @@ class _ContactMentorState extends State<ContactMentor> {
 
   @override
   Widget build(BuildContext context) {
-    int index = ScopedModel.of<IndexUser>(context).indexUser;
-    Mentor mentor = Provider.of<CardProvider>(
-      context,
-      listen: false,
-    ).getMentor(index);
+    Mentor mentor = getMentor(context);
 
     return Column(
       children: <Widget>[
