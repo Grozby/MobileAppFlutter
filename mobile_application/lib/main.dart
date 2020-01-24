@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_application/providers/chat/chat_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'package:intl/date_symbol_data_local.dart';
@@ -61,6 +62,7 @@ void main() async {
   var userDataProvider =
       UserDataProvider(authenticationProvider.httpRequestWrapper);
   var cardProvider = CardProvider(authenticationProvider.httpRequestWrapper);
+  var chatProvider = ChatProvider(authenticationProvider.httpRequestWrapper);
 
   await themeProvider.loadThemePreference();
   await authenticationProvider.loadAuthentication();
@@ -71,6 +73,7 @@ void main() async {
       authenticationProvider: authenticationProvider,
       userDataProvider: userDataProvider,
       cardProvider: cardProvider,
+      chatProvider: chatProvider,
     ),
   );
 }
@@ -80,12 +83,14 @@ class MyApp extends StatefulWidget {
   final AuthenticationProvider authenticationProvider;
   final UserDataProvider userDataProvider;
   final CardProvider cardProvider;
+  final ChatProvider chatProvider;
 
   MyApp({
     @required this.themeProvider,
     @required this.authenticationProvider,
     @required this.userDataProvider,
     @required this.cardProvider,
+    @required this.chatProvider,
   });
 
   @override
@@ -108,6 +113,9 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider.value(
           value: widget.cardProvider,
+        ),
+        ChangeNotifierProvider.value(
+          value: widget.chatProvider,
         ),
       ],
       child: ThemedMaterialApp(),
