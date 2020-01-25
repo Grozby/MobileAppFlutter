@@ -67,6 +67,8 @@ class AuthenticationProvider with ChangeNotifier {
 
   bool gotAToken() => _authenticationMode.gotAToken();
 
+  String get token => _authenticationMode.token;
+
   Future<void> loadAuthentication() async {
     //Load saved data, and check whether there is some token data stored.
     final storedData = await SharedPreferences.getInstance();

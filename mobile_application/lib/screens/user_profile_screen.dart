@@ -218,9 +218,9 @@ class TopButtons extends StatelessWidget {
               child: CircularButton(
                 assetPath: AssetImages.BACK_ARROW,
                 alignment: Alignment.centerLeft,
-                width: 30,
-                height: 30,
-                applyElevation: false,
+                width: 55,
+                height: 55,
+                reduceFactor: 0.6,
                 onPressFunction: () => backButton(context),
               ),
             ),
@@ -232,9 +232,9 @@ class TopButtons extends StatelessWidget {
               child: CircularButton(
                 assetPath: AssetImages.SETTINGS,
                 alignment: Alignment.centerRight,
-                width: 30,
-                height: 30,
-                applyElevation: false,
+                width: 55,
+                height: 55,
+                reduceFactor: 0.6,
                 onPressFunction: () => goToSettingPage(context),
               ),
             ),
@@ -545,7 +545,6 @@ class SocialIcons extends StatelessWidget {
                 alignment: Alignment.center,
                 width: 40,
                 height: 40,
-                applyElevation: false,
                 onPressFunction: () => _launchURL(e.value.urlAccount),
               ))
           .toList(),

@@ -139,7 +139,6 @@ class _HomepageWidgetState extends State<HomepageWidget>
   @override
   void didUpdateWidget(HomepageWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     /// Used to distinguish whether the RefreshWidget was the one to call the
     /// one to refresh the widget.
     if (oldWidget.refreshCompleted != this.widget.refreshCompleted) {
@@ -192,7 +191,7 @@ class _HomepageWidgetState extends State<HomepageWidget>
                 ),
                 Flexible(
                   fit: FlexFit.tight,
-                  flex: 6,
+                  flex: 8,
                   child: widget.exploreWidget,
                 ),
               ],
