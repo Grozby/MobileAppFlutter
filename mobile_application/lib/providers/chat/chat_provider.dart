@@ -6,6 +6,7 @@ import 'package:mobile_application/models/chat/contact_mentor.dart';
 import 'package:mobile_application/models/chat/message.dart';
 import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
 import 'package:mobile_application/models/exceptions/something_went_wrong_exception.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 
 import '../configuration.dart';
@@ -18,10 +19,13 @@ class ChatProvider with ChangeNotifier {
   bool isConnected = false;
   List<ContactMentor> contacts;
 
-  StreamController<String> _errorNotifier = StreamController();
-  StreamController<bool> _connectionNotifier = StreamController();
+  StreamController<String> _errorNotifier = StreamController.broadcast();
+  StreamController<bool> _connectionNotifier = StreamController.broadcast();
+  BehaviorSubject<List<ContactMentor>> _listContactNotifier = BehaviorSubject();
 
   ChatProvider(this.httpRequestWrapper);
+
+  Stream get listContactStream => _listContactNotifier.stream;
 
   Stream get errorNotifierStream => _errorNotifier.stream;
 
@@ -30,34 +34,48 @@ class ChatProvider with ChangeNotifier {
   Future<void> initializeChatProvider(String authToken) async {
     this.authToken = authToken;
 
-    try {
-      contacts = await httpRequestWrapper.request<List<ContactMentor>>(
-          url: getContactsUrl,
-          correctStatusCode: 200,
-          onCorrectStatusCode: (jsonArray) async {
-            return jsonArray.data
-                .map<ContactMentor>((json) => ContactMentor.fromJson(json))
-                .toList();
-          },
-          onIncorrectStatusCode: (_) {
-            throw SomethingWentWrongException.message(
-              "Couldn't load the messages. Try again later.",
-            );
-          });
-    } on NoInternetException catch (e) {
-      print("");
+    if(socket == null){
+      _initializeSocket();
     }
 
-    _initializeSocket();
+    initializeChatContacts(forceRefresh: true);
   }
 
+  Future<void> initializeChatContacts({bool forceRefresh = false}) async {
+    if(forceRefresh){
+      try {
+        _listContactNotifier.sink.add(null);
+
+        contacts = await httpRequestWrapper.request<List<ContactMentor>>(
+            url: getContactsUrl,
+            correctStatusCode: 200,
+            onCorrectStatusCode: (jsonArray) async {
+              return jsonArray.data
+                  .map<ContactMentor>((json) => ContactMentor.fromJson(json))
+                  .toList();
+            },
+            onIncorrectStatusCode: (_) {
+              throw SomethingWentWrongException.message(
+                "Couldn't load the messages. Try again later.",
+              );
+            });
+
+        _listContactNotifier.sink.add(contacts);
+      } on NoInternetException catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  ///
+  /// Socket methods
+  ///
   void _initializeSocket() {
     socket = io(
       Configuration.serverUrl,
       <String, dynamic>{
         'transports': ['websocket'],
         'extraHeaders': {'token': authToken},
-        'timeout': 5000
       },
     );
 
@@ -98,8 +116,20 @@ class ChatProvider with ChangeNotifier {
     });
   }
 
+  ///
+  ///
+  ///
+  List<ContactMentor> filteredChats({StatusRequest status}) {
+    if (status == null) {
+      return contacts;
+    }
+
+    return contacts.where((e) => e.status == status).toList();
+  }
+
   @override
   void dispose() {
+    _listContactNotifier.close();
     _errorNotifier.close();
     _connectionNotifier.close();
     super.dispose();

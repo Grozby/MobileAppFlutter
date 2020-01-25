@@ -37,6 +37,7 @@ dependencies:
   flutter_sound: ^2.0.0
   flutter_ffmpeg: ^0.2.8
   socket_io_client: ^0.9.7+2
+  rxdart: ^0.23.1
 
 
   # The following adds the Cupertino Icons font to your application.

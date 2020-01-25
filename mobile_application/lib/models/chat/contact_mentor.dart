@@ -15,6 +15,8 @@ class ContactMentor {
   StatusRequest status;
   List<Answer> answers;
   List<Message> messages;
+  @JsonKey(fromJson: getDateTimeFromString)
+  DateTime createdAt;
 
   ContactMentor({
     this.user,
@@ -31,4 +33,8 @@ class ContactMentor {
       _$ContactMentorFromJson(json);
 
   Map<String, dynamic> toJson() => _$ContactMentorToJson(this);
+
+  static DateTime getDateTimeFromString(String string) {
+    return string == null ? null : DateTime.parse(string);
+  }
 }

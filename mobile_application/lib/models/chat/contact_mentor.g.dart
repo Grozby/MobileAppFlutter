@@ -29,7 +29,8 @@ ContactMentor _$ContactMentorFromJson(Map json) {
                 (k, e) => MapEntry(k as String, e),
               )))
         ?.toList(),
-  );
+  )..createdAt =
+      ContactMentor.getDateTimeFromString(json['createdAt'] as String);
 }
 
 Map<String, dynamic> _$ContactMentorToJson(ContactMentor instance) =>
@@ -39,6 +40,7 @@ Map<String, dynamic> _$ContactMentorToJson(ContactMentor instance) =>
       'status': _$StatusRequestEnumMap[instance.status],
       'answers': instance.answers?.map((e) => e?.toJson())?.toList(),
       'messages': instance.messages?.map((e) => e?.toJson())?.toList(),
+      'createdAt': instance.createdAt?.toIso8601String(),
     };
 
 T _$enumDecode<T>(
