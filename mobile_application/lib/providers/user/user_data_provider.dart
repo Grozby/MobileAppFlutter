@@ -38,6 +38,8 @@ class UserDataProvider with ChangeNotifier {
                   MentorUIData(user: Mentor.fromJson(behavior.user.toJson()));
               break;
           }
+
+          return;
         },
         onIncorrectStatusCode: (_) {
           throw SomethingWentWrongException.message(
@@ -69,6 +71,8 @@ class UserDataProvider with ChangeNotifier {
                 "Some error happened on the server side.",
               );
           }
+
+          return;
         },
         onIncorrectStatusCode: (_) {
           throw SomethingWentWrongException.message(
@@ -78,7 +82,7 @@ class UserDataProvider with ChangeNotifier {
   }
 
   Future<User> loadSpecifiedUserData(String id) async {
-    if(id == null){
+    if (id == null) {
       throw NoUserProfileException();
     }
 

@@ -1,4 +1,3 @@
-import '../../models/exceptions/not_mentee_exception.dart';
 import '../../models/users/mentor.dart';
 import 'user_ui_data.dart';
 
@@ -9,10 +8,4 @@ class MentorUIData extends UserUIData {
 
   @override
   bool get isInitialized => true;
-
-  @override
-  String get remainingTokensString => "Find valuable mentees!";
-
-  @override
-  int get tokenCount => throw NotMenteeException();
 }

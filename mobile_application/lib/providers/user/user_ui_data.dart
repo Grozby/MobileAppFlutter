@@ -6,8 +6,4 @@ class UserUIData {
   UserUIData({this.user});
 
   bool get isInitialized => false;
-
-  String get remainingTokensString => "";
-
-  int get tokenCount => 0;
 }

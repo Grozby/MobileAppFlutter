@@ -8,11 +8,4 @@ class MenteeUIData extends UserUIData {
 
   @override
   bool get isInitialized => true;
-
-  @override
-  String get remainingTokensString =>
-      "You have ${user.tokenWallet} tokens left.";
-
-  @override
-  int get tokenCount => user.tokenWallet;
 }
