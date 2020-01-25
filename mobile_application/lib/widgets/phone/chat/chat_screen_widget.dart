@@ -203,8 +203,8 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
     return Padding(
       padding: const EdgeInsets.only(
         right: 12,
-        top: 12,
-        bottom: 12,
+        top: 4,
+        bottom: 4,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

@@ -77,7 +77,7 @@ class _ChatWidgetState extends State<ChatWidget>
 
   void refreshChatProvider() async {
     await Provider.of<ChatProvider>(context, listen: false)
-        .initializeChatContacts();
+        .fetchChatContacts();
   }
 
   @override

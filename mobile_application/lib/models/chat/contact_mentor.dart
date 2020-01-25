@@ -10,6 +10,8 @@ enum StatusRequest { accepted, refused, pending }
 
 @JsonSerializable(explicitToJson: true)
 class ContactMentor {
+  @JsonKey(name: "_id")
+  String id;
   UserMinimal user;
   String startingMessage;
   StatusRequest status;

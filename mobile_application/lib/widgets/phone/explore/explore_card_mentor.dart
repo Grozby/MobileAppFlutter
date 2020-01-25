@@ -87,8 +87,9 @@ class _MentorCardState extends State<MentorCard> {
 /// /////////////////////////////////////////////////////////////////////// ///
 
 mixin GetMentor {
-  Mentor getMentor(BuildContext context) => Provider.of<CardProvider>(context)
-      .getMentor(ScopedModel.of<IndexUser>(context).indexUser);
+  Mentor getMentor(BuildContext context) =>
+      Provider.of<CardProvider>(context, listen: false)
+          .getMentor(ScopedModel.of<IndexUser>(context).indexUser);
 }
 
 ///
@@ -831,7 +832,7 @@ class ContactMentor extends StatefulWidget {
   _ContactMentorState createState() => _ContactMentorState();
 }
 
-class _ContactMentorState extends State<ContactMentor> with GetMentor{
+class _ContactMentorState extends State<ContactMentor> with GetMentor {
   final TextEditingController messageController = TextEditingController();
 
   @override

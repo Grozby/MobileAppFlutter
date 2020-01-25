@@ -38,10 +38,10 @@ class ChatProvider with ChangeNotifier {
       _initializeSocket();
     }
 
-    initializeChatContacts();
+    fetchChatContacts();
   }
 
-  Future<void> initializeChatContacts() async {
+  Future<void> fetchChatContacts() async {
     try {
       _loadedContactsNotifier.sink.add(false);
 
@@ -95,8 +95,15 @@ class ChatProvider with ChangeNotifier {
     );
 
     socket.on('message', (data) {
-      print(data);
-      print(Message.fromJson(data));
+      contacts.where((c) => data.chatId == c.id).first.messages.insert(
+            0,
+            Message.fromJson({
+              "userId": data.userId,
+              "content": data.content,
+              "kind": data.kind,
+              "createdAt": data.createdAt,
+            }),
+          );
     });
   }
 
