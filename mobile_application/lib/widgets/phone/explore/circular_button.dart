@@ -6,63 +6,41 @@ class CircularButton extends StatelessWidget {
   final String imageUrl;
   final double width;
   final double height;
+  final double reduceFactor;
   final Alignment alignment;
   final Function onPressFunction;
-  final bool applyElevation;
 
   CircularButton({
     @required this.assetPath,
     @required this.onPressFunction,
     @required this.alignment,
-    this.applyElevation = true,
+    this.reduceFactor = 0.8,
     this.imageUrl,
-    this.width = 40,
-    this.height = 40,
+    this.width,
+    this.height,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       alignment: alignment,
-      child: Container(
-        width: width,
-        height: height,
-        child: Stack(
-          alignment: alignment,
-          children: <Widget>[
-            if (applyElevation)
-              Container(
-                alignment: alignment,
-                child: Material(
-                  color: Colors.transparent,
-                  elevation: 8,
-                  shape: const CircleBorder(),
-                  child: Container(),
-                ),
-              ),
-            Container(
-              alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.transparent,
-              ),
-              child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.all(const Radius.circular(100)),
-                child: ImageWrapper(
-                  imageUrl: imageUrl,
-                  assetPath: assetPath,
-                ),
+      child: InkWell(
+        customBorder: CircleBorder(),
+        onTap: onPressFunction,
+        child: Container(
+          width: width,
+          height: height,
+          child: FractionallySizedBox(
+            heightFactor: reduceFactor,
+            widthFactor: reduceFactor,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.all(const Radius.circular(100)),
+              child: ImageWrapper(
+                imageUrl: imageUrl,
+                assetPath: assetPath,
               ),
             ),
-            Container(
-              child: RawMaterialButton(
-                shape: const CircleBorder(),
-                onPressed: onPressFunction,
-                child: Container(),
-              ),
-            )
-          ],
+          ),
         ),
       ),
     );

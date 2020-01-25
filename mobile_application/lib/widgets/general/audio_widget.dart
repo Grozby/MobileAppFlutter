@@ -256,7 +256,6 @@ class _AudioWidgetState extends State<AudioWidget>
                     onPressFunction: stopRecorder,
                     height: 40,
                     width: 40,
-                    applyElevation: false,
                   ),
                 )
               : Container(
@@ -268,7 +267,6 @@ class _AudioWidgetState extends State<AudioWidget>
                     onPressFunction: _canRecord ? startRecorder : () {},
                     height: 40,
                     width: 40,
-                    applyElevation: false,
                   ),
                 ),
         ),
@@ -475,9 +473,8 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
                               assetPath: "ic_pause.png",
                               alignment: Alignment.center,
                               onPressFunction: () => pausePlayer(true),
-                              height: 40,
-                              width: 40,
-                              applyElevation: false,
+                              height: 50,
+                              width: 50,
                             ),
                           )
                         : Container(
@@ -486,9 +483,8 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
                               assetPath: "ic_play.png",
                               alignment: Alignment.center,
                               onPressFunction: () => startPlayer(true),
-                              height: 40,
-                              width: 40,
-                              applyElevation: false,
+                              height: 50,
+                              width: 50,
                             ),
                           ),
                   ),

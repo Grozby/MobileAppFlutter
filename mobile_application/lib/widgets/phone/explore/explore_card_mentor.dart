@@ -314,8 +314,8 @@ class _MentorBasicInformationAvatar extends StatelessWidget with GetMentor {
         imageUrl: mentor.pictureUrl,
         alignment: Alignment.center,
         onPressFunction: onImageMentorLongPress,
-        width: 80,
-        height: 80,
+        width: 120,
+        height: 120,
       ),
     );
   }
