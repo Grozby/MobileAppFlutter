@@ -92,9 +92,8 @@ class User {
   }
 
   static List<Question> getQuestionFromJson(questionsJson) {
-    return questionsJson
-            ?.map<Question>((q) => Question.fromJson(q))
-            ?.toList() as List<Question> ??
+    return questionsJson?.map<Question>((q) => Question.fromJson(q))?.toList()
+            as List<Question> ??
         <Question>[];
   }
 
@@ -120,8 +119,8 @@ class User {
   ) {
     HashMap<String, SocialAccount> hashMap = HashMap();
 
-    socialAccountsJson?.forEach((e) =>
-        hashMap[e["type"]] = getSocialAccountFromJson(e));
+    socialAccountsJson
+        ?.forEach((e) => hashMap[e["type"]] = getSocialAccountFromJson(e));
 
     return hashMap;
   }
@@ -140,7 +139,7 @@ class User {
   }
 
   static List<PastExperience> getExperiencesFromJson(experiencesJson) {
-    return experiencesJson?.map<PastExperience>((Map<String, String> e) {
+    return experiencesJson?.map<PastExperience>((e) {
           switch (e["kind"]) {
             case "Job": // Selector decided by the backend
               return Job.fromJson(e);

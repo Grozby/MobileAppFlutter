@@ -8,11 +8,11 @@ part of 'mentor.dart';
 
 Mentor _$MentorFromJson(Map json) {
   return Mentor(
-    name: json['name'],
-    surname: json['surname'],
-    pictureUrl: json['pictureUrl'],
-    location: json['location'],
-    bio: json['bio'],
+    name: json['name'] as String,
+    surname: json['surname'] as String,
+    pictureUrl: json['pictureUrl'] as String,
+    location: json['location'] as String,
+    bio: json['bio'] as String,
     questions: User.getQuestionFromJson(json['questions']),
     experiences: User.getExperiencesFromJson(json['pastExperiences']),
     socialAccounts: User.getSocialAccountsFromJson(json['socialAccounts']),
