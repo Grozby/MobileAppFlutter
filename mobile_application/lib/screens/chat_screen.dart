@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/user/user_data_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/authentication/authentication_provider.dart';
@@ -60,29 +61,33 @@ class ChatWidget extends StatefulWidget {
 class _ChatWidgetState extends State<ChatWidget>
     with SingleTickerProviderStateMixin {
   StreamSubscription _errorStreamSubscription;
+  ChatProvider chatProviderReference;
 
   @override
   void initState() {
     super.initState();
-    var chatProvider = Provider.of<ChatProvider>(context, listen: false);
-    if (chatProvider != null) {
-      _errorStreamSubscription =
-          chatProvider.errorNotifierStream.listen((message) => print(message));
+    chatProviderReference = Provider.of<ChatProvider>(context, listen: false);
+    if (chatProviderReference != null) {
+      _errorStreamSubscription = chatProviderReference.errorNotifierStream
+          .listen((message) => print(message));
 
-      chatProvider.initializeChatProvider(
-        Provider.of<AuthenticationProvider>(context, listen: false).token,
+      chatProviderReference.initializeChatProvider(
+        authToken:
+            Provider.of<AuthenticationProvider>(context, listen: false).token,
+        userId: Provider.of<UserDataProvider>(context, listen: false).user.id,
       );
     }
   }
 
   void refreshChatProvider() async {
-    await Provider.of<ChatProvider>(context, listen: false)
-        .fetchChatContacts();
+    await Provider.of<ChatProvider>(context, listen: false).fetchChatContacts();
   }
 
   @override
   void dispose() {
+    chatProviderReference.closeConnections();
     _errorStreamSubscription.cancel();
+
     super.dispose();
   }
 

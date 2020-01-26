@@ -24,6 +24,8 @@ class AuthenticationProvider with ChangeNotifier {
   HttpRequestWrapper httpRequestWrapper;
   bool wasLogged = false;
 
+  void setToken(String token) => _authenticationMode.token = token;
+
   AuthenticationProvider(this._httpManager) {
     _authenticationMode = AuthenticationMode.getAuthenticationMode(
       'credentials',

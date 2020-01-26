@@ -166,20 +166,18 @@ class _MessageListState extends State<MessageList> with ChatTimeConverter {
 
     return listChats.isNotEmpty
         ? CustomScrollView(
-            physics: ClampingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             slivers: <Widget>[
               SliverList(
                 delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) => ChatTile(
-                    chat: listChats[0],
-                  ),
+                  (ctx, int index) => ChatTile(chat: listChats[0]),
                   childCount: 10 * listChats.length,
                 ),
               )
             ],
           )
         : Center(
-            child: Text(
+            child: AutoSizeText(
               "No ${describeEnum(widget.status)} contact requests.",
             ),
           );
@@ -238,57 +236,98 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                   bottom: BorderSide(width: 1.0, color: Colors.grey.shade300),
                 ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Container(
-                    height: 60,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              child: StreamBuilder<bool>(
+                  stream: Provider.of<ChatProvider>(context, listen: false)
+                      .getTypingNotificationStream(chat.id),
+                  builder: (context, snapshot) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
                         Container(
-                          child: Text(
-                            chat.user.completeName,
-                            style: Provider.of<ThemeProvider>(context)
-                                .getTheme()
-                                .textTheme
-                                .display1,
+                          height: 60,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Container(
+                                child: AutoSizeText(
+                                  chat.user.completeName,
+                                  style: Provider.of<ThemeProvider>(context)
+                                      .getTheme()
+                                      .textTheme
+                                      .display1,
+                                  maxLines: 1,
+                                ),
+                              ),
+                              Container(
+                                child: AutoSizeText(
+                                  (snapshot.hasData && snapshot.data)
+                                      ? "Typing..."
+                                      : chat.messages.isNotEmpty
+                                          ? chat.messages[0].content
+                                          : "Contact ${chat.user.completeName} now!",
+                                  style: Provider.of<ThemeProvider>(context)
+                                      .getTheme()
+                                      .textTheme
+                                      .subhead,
+                                  maxLines: 1,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
+                        const Flexible(
+                            fit: FlexFit.loose, child: const Center()),
                         Container(
-                          child: Text(
-                            chat.messages.isNotEmpty
-                                ? chat.messages[0].content
-                                : "Contact ${chat.user.completeName} now!",
-                            style: Provider.of<ThemeProvider>(context)
-                                .getTheme()
-                                .textTheme
-                                .subhead,
+                          alignment: Alignment.topRight,
+                          width: 50,
+                          child: AutoSizeText(
+                            (snapshot.hasData && snapshot.data)
+                                ? ""
+                                : timeToString(
+                                    chat.messages.isNotEmpty
+                                        ? chat.messages[0].createdAt
+                                        : chat.createdAt,
+                                  ),
+                            maxLines: 1,
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                  const Flexible(fit: FlexFit.loose, child: const Center()),
-                  Container(
-                    alignment: Alignment.topRight,
-                    width: 50,
-                    child: Text(
-                      timeToString(
-                        chat.messages.isNotEmpty
-                            ? chat.messages[0].createdAt
-                            : chat.createdAt,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                    );
+                  }),
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+class PreviewMessage extends StatelessWidget {
+  final ContactMentor chat;
+
+  PreviewMessage(this.chat);
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<bool>(
+        stream: Provider.of<ChatProvider>(context, listen: false)
+            .getTypingNotificationStream(chat.id),
+        builder: (context, snapshot) {
+          return Container(
+            child: Text(
+              (snapshot.hasData && snapshot.data)
+                  ? "Typing..."
+                  : chat.messages.isNotEmpty
+                      ? chat.messages[0].content
+                      : "Contact ${chat.user.completeName} now!",
+              style: Provider.of<ThemeProvider>(context)
+                  .getTheme()
+                  .textTheme
+                  .subhead,
+            ),
+          );
+        });
   }
 }
