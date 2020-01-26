@@ -16,7 +16,7 @@ class FadedListView<T> extends StatefulWidget {
 }
 
 class _FadedListViewState<T> extends State<FadedListView<T>> {
-  var _controller;
+  ScrollController _controller;
   ScrollPhysics _physics;
   double _elementWidth = 0;
   bool _reachedEnd = false;
@@ -39,16 +39,18 @@ class _FadedListViewState<T> extends State<FadedListView<T>> {
 
   void _scrollListener() {
     if (_controller.offset >=
-            _controller.position.maxScrollExtent - (_elementWidth / 3).floor() &&
+            _controller.position.maxScrollExtent -
+                (_elementWidth / 3).floor() &&
         !_controller.position.outOfRange) {
       setState(() {
         _reachedEnd = true;
       });
     } else {
-      if (_reachedEnd != false)
+      if (_reachedEnd != false) {
         setState(() {
           _reachedEnd = false;
         });
+      }
     }
   }
 
@@ -87,7 +89,7 @@ class _FadedListViewState<T> extends State<FadedListView<T>> {
               itemCount: widget.list.length,
               controller: _controller,
               physics: _physics,
-              itemBuilder: (BuildContext ctx, int index) {
+              itemBuilder: (ctx, index) {
                 return Container(
                   width: constraints.maxWidth / 2,
                   alignment: Alignment.center,
@@ -141,11 +143,12 @@ class PageViewScrollPhysics extends ScrollPhysics {
     // If we're out of range and not headed back in range, defer to the parent
     // ballistics, which should put us back in range at a page boundary.
     if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) ||
-        (velocity >= 0.0 && position.pixels >= position.maxScrollExtent))
+        (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
       return super.createBallisticSimulation(position, velocity);
+    }
     final Tolerance tolerance = this.tolerance;
     final double target = _getTargetPixels(position, tolerance, velocity);
-    if (target != position.pixels)
+    if (target != position.pixels) {
       return ScrollSpringSimulation(
         spring,
         position.pixels,
@@ -153,6 +156,7 @@ class PageViewScrollPhysics extends ScrollPhysics {
         velocity,
         tolerance: tolerance,
       );
+    }
     return null;
   }
 

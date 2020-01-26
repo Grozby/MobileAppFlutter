@@ -4,8 +4,9 @@ class SomethingWentWrongException implements Exception {
   SomethingWentWrongException() : text = "Something went wrong";
 
   SomethingWentWrongException.message(dynamic t)
-      : text =
-            (t != null && t.runtimeType == String) ? t : "Something went wrong";
+      : text = (t != null && t.runtimeType == String)
+            ? t as String
+            : "Something went wrong";
 
-  getMessage() => text;
+  String getMessage() => text;
 }

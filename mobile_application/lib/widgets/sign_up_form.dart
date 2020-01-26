@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
 import 'package:provider/provider.dart';
 
+import '../models/exceptions/no_internet_exception.dart';
 import '../models/exceptions/registration/registration_exception.dart';
 import '../models/registration/sign_up_form_model.dart';
 import '../models/registration/user_registration.dart';
@@ -29,11 +29,11 @@ class SignUpForm extends StatefulWidget {
 class _SignUpFormState extends State<SignUpForm> {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   SignUpFormModel registrationForm;
-  FocusNode _focusNodeName = FocusNode();
-  FocusNode _focusNodeSurname = FocusNode();
-  FocusNode _focusNodeEmail = FocusNode();
-  FocusNode _focusNodePassword = FocusNode();
-  FocusNode _focusNodeCompany = FocusNode();
+  final FocusNode _focusNodeName = FocusNode();
+  final FocusNode _focusNodeSurname = FocusNode();
+  final FocusNode _focusNodeEmail = FocusNode();
+  final FocusNode _focusNodePassword = FocusNode();
+  final FocusNode _focusNodeCompany = FocusNode();
 
   Future<void> _futureBuilder;
 
@@ -83,11 +83,9 @@ class _SignUpFormState extends State<SignUpForm> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _futureBuilder,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
+      builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: const CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.connectionState == ConnectionState.none) {
@@ -100,7 +98,7 @@ class _SignUpFormState extends State<SignUpForm> {
           if (snapshot.error.runtimeType == NoInternetException) {
             Future.delayed(
               Duration.zero,
-                  () => showErrorDialog(
+              () => showErrorDialog(
                 context,
                 (snapshot.error as NoInternetException).getMessage(),
               ),
@@ -133,7 +131,7 @@ class _SignUpFormState extends State<SignUpForm> {
           children: <Widget>[
             const Expanded(
               flex: 3,
-              child: const Center(),
+              child: Center(),
             ),
             Expanded(
               child: Container(
@@ -164,10 +162,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 color: ThemeProvider.loginButtonColor,
               ),
             ),
-            const Expanded(
-              flex: 3,
-              child: const Center(),
-            )
+            const Expanded(flex: 3, child: Center())
           ],
         );
       },
@@ -190,7 +185,7 @@ class _SignUpFormState extends State<SignUpForm> {
           flex: 7,
           child: Row(
             children: <Widget>[
-              const Expanded(child: const Center()),
+              const Expanded(child: Center()),
               Expanded(
                 flex: 10,
                 child: Form(
@@ -275,7 +270,8 @@ class _SignUpFormState extends State<SignUpForm> {
                         labelText: 'Password',
                         validator: (currentPassword) {
                           if (currentPassword.length < 8) {
-                            return 'The password must be at least 8 characters.';
+                            return 'The password must be at least'
+                                ' 8 characters.';
                           }
 
                           return null;
@@ -310,9 +306,7 @@ class _SignUpFormState extends State<SignUpForm> {
                   ),
                 ),
               ),
-              const Expanded(
-                child: const Center(),
-              ),
+              const Expanded(child: Center()),
             ],
           ),
         ),

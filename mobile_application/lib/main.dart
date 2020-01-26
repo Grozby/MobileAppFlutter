@@ -6,11 +6,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_application/providers/chat/chat_provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
-import 'package:intl/date_symbol_data_local.dart';
 import 'providers/authentication/authentication_provider.dart';
+import 'providers/chat/chat_provider.dart';
 import 'providers/configuration.dart';
 import 'providers/explore/card_provider.dart';
 import 'providers/theming/theme_provider.dart';
@@ -18,9 +18,7 @@ import 'providers/user/user_data_provider.dart';
 import 'widgets/themed_material_app.dart';
 
 // Must be top-level function
-_parseAndDecode(String response) {
-  return jsonDecode(response);
-}
+_parseAndDecode(String response) => jsonDecode(response);
 
 parseJson(String text) {
   return compute(_parseAndDecode, text);
@@ -44,12 +42,12 @@ void main() async {
   );
 
   // Setup the Http manager
-  Dio _httpManager = Dio(options);
+  var _httpManager = Dio(options);
   (_httpManager.transformer as DefaultTransformer).jsonDecodeCallback =
       parseJson;
 
-  SecurityContext securityContext = SecurityContext.defaultContext;
-  List bytes = utf8.encode(
+  var securityContext = SecurityContext.defaultContext;
+  var bytes = utf8.encode(
     await rootBundle.loadString("assets/trustedCertificate/certificate.crt"),
   );
   securityContext.setTrustedCertificatesBytes(bytes);

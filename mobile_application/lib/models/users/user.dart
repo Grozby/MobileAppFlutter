@@ -54,7 +54,7 @@ class User {
   HashMap<String, SocialAccount> socialAccounts;
 
   User({
-    id,
+    String id,
     @required this.name,
     @required this.surname,
     @required this.pictureUrl,
@@ -66,7 +66,7 @@ class User {
     @required this.currentJob,
   }) : id = id == null ? id = "0" : id;
 
-  String get completeName => name + " " + surname;
+  String get completeName => "$name $surname";
 
   int get howManyQuestionsToAnswer => 0;
 
@@ -74,13 +74,10 @@ class User {
 
   Color get cardColor => Colors.grey;
 
-  List<Job> get jobExperiences =>
-      experiences.where((e) => e is Job).map((j) => j as Job).toList();
+  List<Job> get jobExperiences => experiences.whereType<Job>();
 
-  List<AcademicDegree> get academicExperiences => experiences
-      .where((p) => p is AcademicDegree)
-      .map((j) => j as AcademicDegree)
-      .toList();
+  List<AcademicDegree> get academicExperiences =>
+      experiences.whereType<AcademicDegree>();
 
   ///
   /// Serializable methods
@@ -97,11 +94,11 @@ class User {
   static List<Question> getQuestionFromJson(questionsJson) {
     return questionsJson
             ?.map<Question>((q) => Question.fromJson(q))
-            ?.toList() ??
+            ?.toList() as List<Question> ??
         <Question>[];
   }
 
-  static SocialAccount getSocialAccountFromJson(element) {
+  static SocialAccount getSocialAccountFromJson(Map<String, String> element) {
     switch (element["type"]) {
       case "twitter":
         return TwitterAccount.fromJson(element);
@@ -123,8 +120,8 @@ class User {
   ) {
     HashMap<String, SocialAccount> hashMap = HashMap();
 
-    socialAccountsJson
-        ?.forEach((e) => hashMap[e["type"]] = getSocialAccountFromJson(e));
+    socialAccountsJson?.forEach((e) =>
+        hashMap[e["type"]] = getSocialAccountFromJson(e));
 
     return hashMap;
   }
@@ -143,7 +140,7 @@ class User {
   }
 
   static List<PastExperience> getExperiencesFromJson(experiencesJson) {
-    return experiencesJson?.map<PastExperience>((e) {
+    return experiencesJson?.map<PastExperience>((Map<String, String> e) {
           switch (e["kind"]) {
             case "Job": // Selector decided by the backend
               return Job.fromJson(e);
@@ -152,7 +149,7 @@ class User {
             default:
               throw Exception();
           }
-        })?.toList() ??
+        })?.toList() as List<PastExperience> ??
         <PastExperience>[];
   }
 

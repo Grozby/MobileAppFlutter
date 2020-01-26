@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/screens/sign_up_screens/sign_up_choice_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../models/exceptions/login/login_exception.dart';
@@ -27,8 +26,8 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   LoginFormModel loginForm;
-  FocusNode _focusNodeEmail = FocusNode();
-  FocusNode _focusNodePassword = FocusNode();
+  final FocusNode _focusNodeEmail = FocusNode();
+  final FocusNode _focusNodePassword = FocusNode();
 
   Future<void> _futureBuilder;
 
@@ -74,10 +73,10 @@ class _LoginFormState extends State<LoginForm> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _futureBuilder,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
+      builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-            child: const CircularProgressIndicator(),
+            child: CircularProgressIndicator(),
           );
         }
 
@@ -103,12 +102,11 @@ class _LoginFormState extends State<LoginForm> {
         //If we have successfully logged in, we go back to the homepage.
         widget.isSendingRequest = false;
         Future.delayed(
-          Duration.zero,
-              () => Navigator.of(context).pushNamedAndRemoveUntil(
-                Navigator.defaultRouteName,
-                ModalRoute.withName(""),
-              )
-          );
+            Duration.zero,
+            () => Navigator.of(context).pushNamedAndRemoveUntil(
+                  Navigator.defaultRouteName,
+                  ModalRoute.withName(""),
+                ));
         return Container();
       },
     );
@@ -132,7 +130,7 @@ class _LoginFormState extends State<LoginForm> {
           child: Row(
             children: <Widget>[
               const Expanded(
-                child: const Center(),
+                child: Center(),
               ),
               Expanded(
                 flex: 10,
@@ -172,7 +170,8 @@ class _LoginFormState extends State<LoginForm> {
                         labelText: 'Password',
                         validator: (currentPassword) {
                           if (currentPassword.length < 8) {
-                            return 'The password must be at least 8 characters.';
+                            return 'The password must be at'
+                                ' least 8 characters.';
                           }
 
                           return null;
@@ -184,9 +183,7 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ),
               ),
-              const Expanded(
-                child: const Center(),
-              ),
+              const Expanded(child: Center()),
             ],
           ),
         ),

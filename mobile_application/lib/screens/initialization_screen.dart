@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
-import 'package:mobile_application/providers/user/user_data_provider.dart';
-import 'package:mobile_application/widgets/general/button_styled.dart';
-import 'package:mobile_application/widgets/general/custom_alert_dialog.dart';
-import 'package:mobile_application/widgets/general/image_wrapper.dart';
 import 'package:provider/provider.dart';
+
+import '../models/exceptions/no_internet_exception.dart';
+import '../providers/theming/theme_provider.dart';
+import '../providers/user/user_data_provider.dart';
+import '../widgets/general/button_styled.dart';
+import '../widgets/general/custom_alert_dialog.dart';
+import '../widgets/general/image_wrapper.dart';
 
 class InitializationScreen extends StatefulWidget {
   static const routeName = '/initialize';
@@ -53,7 +53,7 @@ class _InitializationScreenState extends State<InitializationScreen> {
                     child: FractionallySizedBox(
                       heightFactor: 0.25,
                       child: ImageWrapper(
-                        assetPath: AssetImages.LOGO,
+                        assetPath: AssetImages.logo,
                         boxFit: BoxFit.cover,
                       ),
                     ),
@@ -78,8 +78,7 @@ class _InitializationScreenState extends State<InitializationScreen> {
                     color: ThemeProvider.menteeColor,
                     fractionalWidthDimension: 0.8,
                     onPressFunction: !_isSending
-                        ? () =>
-                            sendSelectKindRequest(context, UserKind.Mentee)
+                        ? () => sendSelectKindRequest(context, UserKind.Mentee)
                         : () {},
                   ),
                 ),
@@ -89,8 +88,7 @@ class _InitializationScreenState extends State<InitializationScreen> {
                     color: ThemeProvider.mentorColor,
                     fractionalWidthDimension: 0.8,
                     onPressFunction: !_isSending
-                        ? () =>
-                            sendSelectKindRequest(context, UserKind.Mentor)
+                        ? () => sendSelectKindRequest(context, UserKind.Mentor)
                         : () {},
                   ),
                 ),

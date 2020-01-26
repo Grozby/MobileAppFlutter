@@ -108,7 +108,7 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
 
     /// Used to distinguish whether the RefreshWidget was the one to call the
     /// one to refresh the widget.
-    if (oldWidget.refreshCompleted != this.widget.refreshCompleted) {
+    if (oldWidget.refreshCompleted != widget.refreshCompleted) {
       refreshPage();
     }
   }
@@ -131,7 +131,7 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _loadUserData,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
+      builder: (context, snapshot) {
         bool isWaiting = snapshot.connectionState == ConnectionState.waiting;
 
         if (snapshot.hasError && !isWaiting) {
@@ -160,7 +160,7 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
               : Builder(
                   builder: (_) {
                     User user = widget.arguments != null
-                        ? snapshot.data
+                        ? snapshot.data as User
                         : Provider.of<UserDataProvider>(context).user;
 
                     /// This is the callback that will notify the parent
@@ -216,7 +216,7 @@ class TopButtons extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: CircularButton(
-                assetPath: AssetImages.BACK_ARROW,
+                assetPath: AssetImages.backArrow,
                 alignment: Alignment.centerLeft,
                 width: 55,
                 height: 55,
@@ -230,7 +230,7 @@ class TopButtons extends StatelessWidget {
             ),
             Expanded(
               child: CircularButton(
-                assetPath: AssetImages.SETTINGS,
+                assetPath: AssetImages.settings,
                 alignment: Alignment.centerRight,
                 width: 55,
                 height: 55,
@@ -279,9 +279,9 @@ class UserImage extends StatelessWidget {
           ],
         ),
         child: ClipRRect(
-          borderRadius: const BorderRadius.all(const Radius.circular(1000)),
+          borderRadius: const BorderRadius.all(Radius.circular(1000)),
           child: ImageWrapper(
-            assetPath: AssetImages.USER,
+            assetPath: AssetImages.user,
             imageUrl: userPictureUrl,
           ),
         ),
@@ -561,7 +561,7 @@ class SocialIcons extends StatelessWidget {
 }
 
 class LoadingUserProfile extends StatefulWidget {
-  final maxHeight, maxWidth;
+  final double maxHeight, maxWidth;
 
   const LoadingUserProfile({
     @required this.maxHeight,
@@ -635,7 +635,8 @@ class _LoadingUserProfileState extends State<LoadingUserProfile>
                           ),
                           decoration: BoxDecoration(
                             borderRadius: const BorderRadius.all(
-                                const Radius.circular(24.0)),
+                              Radius.circular(24.0),
+                            ),
                           ),
                           child: const Center(),
                         ),
@@ -668,7 +669,7 @@ class _LoadingUserProfileState extends State<LoadingUserProfile>
             ),
             builder: (ctx, child) {
               return ShaderMask(
-                shaderCallback: (Rect bounds) {
+                shaderCallback: (bounds) {
                   final gradient = LinearGradient(
                     begin: Alignment(gradientPosition.value, 0),
                     end: Alignment(gradientPosition.value + 1.5, 0),
@@ -689,9 +690,7 @@ class _LoadingUserProfileState extends State<LoadingUserProfile>
               );
             },
           ),
-          const Center(
-            child: const LoadingAnimated(),
-          ),
+          const Center(child: LoadingAnimated()),
         ],
       ),
     );

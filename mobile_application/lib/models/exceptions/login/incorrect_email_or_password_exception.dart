@@ -6,7 +6,7 @@ class IncorrectEmailOrPasswordException extends LoginException {
   IncorrectEmailOrPasswordException() : super('Incorrect email or password.');
 
   @override
-  updateLoginForm(LoginFormModel registrationForm) {
+  void updateLoginForm(LoginFormModel registrationForm) {
     registrationForm.errorEmail = getMessage();
     registrationForm.errorPassword = getMessage();
   }

@@ -16,7 +16,7 @@ class ImageWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return imageUrl == null
         ? Image.asset(
-            "assets/images/" + assetPath,
+            "assets/images/$assetPath",
             fit: boxFit,
           )
         : CachedNetworkImage(
@@ -31,7 +31,7 @@ class ImageWrapper extends StatelessWidget {
               ),
             ),
             errorWidget: (context, url, error) => Image.asset(
-              "assets/images/" + assetPath,
+              "assets/images/$assetPath",
               fit: boxFit,
             ),
           );
@@ -39,16 +39,16 @@ class ImageWrapper extends StatelessWidget {
 }
 
 extension AssetImages on ImageWrapper {
-  static const String WORK = "job_128.png";
-  static const String EDUCATION = "degree_128.png";
+  static const String work = "job_128.png";
+  static const String education = "degree_128.png";
 
-  static const String USER = "user.png";
-  static const String BACK_ARROW = "back_arrow.png";
-  static const String MESSAGE = "message.png";
-  static const String SETTINGS = "settings.png";
+  static const String user = "user.png";
+  static const String backArrow = "back_arrow.png";
+  static const String message = "message.png";
+  static const String settings = "settings.png";
 
-  static String socialAssets(String social) => social + ".png";
+  static String socialAssets(String social) => "$social.png";
 
-  static const String DELETE = "ic_delete.png";
-  static const String LOGO = "logo.png";
+  static const String delete = "ic_delete.png";
+  static const String logo = "logo.png";
 }

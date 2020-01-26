@@ -30,11 +30,11 @@ class UserDataProvider with ChangeNotifier {
         onCorrectStatusCode: (_) {
           switch (kind) {
             case UserKind.Mentee:
-              this.behavior =
+              behavior =
                   MenteeUIData(user: Mentee.fromJson(behavior.user.toJson()));
               break;
             case UserKind.Mentor:
-              this.behavior =
+              behavior =
                   MentorUIData(user: Mentor.fromJson(behavior.user.toJson()));
               break;
           }
@@ -56,15 +56,13 @@ class UserDataProvider with ChangeNotifier {
         onCorrectStatusCode: (response) async {
           switch (response.data["kind"]) {
             case "Mentee":
-              this.behavior =
-                  MenteeUIData(user: Mentee.fromJson(response.data));
+              behavior = MenteeUIData(user: Mentee.fromJson(response.data));
               break;
             case "Mentor":
-              this.behavior =
-                  MentorUIData(user: Mentor.fromJson(response.data));
+              behavior = MentorUIData(user: Mentor.fromJson(response.data));
               break;
             case "User":
-              this.behavior = UserUIData(user: User.fromJson(response.data));
+              behavior = UserUIData(user: User.fromJson(response.data));
               break;
             default:
               throw SomethingWentWrongException.message(
@@ -87,7 +85,7 @@ class UserDataProvider with ChangeNotifier {
     }
 
     return await httpRequestWrapper.request<User>(
-        url: "/users/profile/" + id,
+        url: "/users/profile/$id",
         typeHttpRequest: TypeHttpRequest.get,
         correctStatusCode: 200,
         onCorrectStatusCode: (response) async {

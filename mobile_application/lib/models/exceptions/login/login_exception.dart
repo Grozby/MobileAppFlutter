@@ -5,7 +5,7 @@ class LoginException extends SomethingWentWrongException {
   LoginException(String t) : super.message(t);
 
   @override
-  getMessage() => text;
+  String getMessage() => text;
 
-  updateLoginForm(LoginFormModel registrationForm) {}
+  void updateLoginForm(LoginFormModel registrationForm) {}
 }

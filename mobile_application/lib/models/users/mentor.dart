@@ -1,10 +1,15 @@
+import 'dart:collection';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../providers/theming/theme_provider.dart';
+import 'experiences/job.dart';
+import 'experiences/past_experience.dart';
 import 'mentor_question/mentor_question.dart';
+import 'question.dart';
+import 'socials/social_account.dart';
 import 'user.dart';
 
 part 'mentor.g.dart';
@@ -22,15 +27,15 @@ class Mentor extends User {
   List<MentorQuestion> questionsForAcceptingRequest;
 
   Mentor({
-    @required name,
-    @required surname,
-    @required pictureUrl,
-    @required location,
-    @required bio,
-    @required questions,
-    @required experiences,
-    @required socialAccounts,
-    @required currentJob,
+    @required String name,
+    @required String surname,
+    @required String pictureUrl,
+    @required String location,
+    @required String bio,
+    @required List<Question> questions,
+    @required List<PastExperience> experiences,
+    @required HashMap<String, SocialAccount> socialAccounts,
+    @required Job currentJob,
     @required this.workingSpecialization,
     @required this.questionsForAcceptingRequest,
   }) : super(
@@ -45,7 +50,7 @@ class Mentor extends User {
           currentJob: currentJob,
         );
 
-  bool get needsToAnswerQuestions => questionsForAcceptingRequest.length != 0;
+  bool get needsToAnswerQuestions => questionsForAcceptingRequest.isNotEmpty;
 
   int get howManyQuestionsToAnswer => questionsForAcceptingRequest.length;
 
@@ -65,15 +70,16 @@ class Mentor extends User {
 
   Map<String, dynamic> toJson() => _$MentorToJson(this);
 
-  static List<String> getWorkingSpecializationFromJson(json) {
-    return json?.map<String>((e) => e as String)?.toList() ?? <String>[];
+  static List<String> getWorkingSpecializationFromJson(dynamic json) {
+    return json?.map<String>((e) => e as String)?.toList() as List<String> ??
+        <String>[];
   }
 
   static List<MentorQuestion> getQuestionsForAcceptingRequestFromJson(json) {
     return json
             ?.map<MentorQuestion>(
                 (e) => e == null ? null : MentorQuestion.fromJson(e as Map))
-            ?.toList() ??
+            ?.toList() as List<MentorQuestion> ??
         <MentorQuestion>[];
   }
 }

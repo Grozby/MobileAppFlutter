@@ -25,7 +25,6 @@ mixin TimeConverter {
   }
 }
 
-
 class AudioWidget extends StatefulWidget {
   final String audioFilePath;
   final ChangeNotifier notifier;
@@ -52,7 +51,7 @@ class _AudioWidgetState extends State<AudioWidget>
   int _recorderDuration = 0;
 
   String get _recorderTxt => timeToString(_recorderDuration);
-  List<double> _dbLevels = List();
+  List<double> _dbLevels = [];
 
   StreamSubscription _recorderSubscription;
   StreamSubscription _dbPeakSubscription;
@@ -128,7 +127,7 @@ class _AudioWidgetState extends State<AudioWidget>
 
     ///Setting this earlier to avoid double taps.
     _isRecording = true;
-    _dbLevels = List();
+    _dbLevels = [];
 
     try {
       /// If the player is active, we first proceed in stopping it.
@@ -174,7 +173,7 @@ class _AudioWidgetState extends State<AudioWidget>
           .then((info) => info["duration"].toInt());
 
       final double cap = 40;
-      List<double> results = List();
+      List<double> results = [];
       final int averageLength = (_dbLevels.length / cap).ceil();
 
       for (int i = 0; i < _dbLevels.length; i += averageLength) {
@@ -186,14 +185,14 @@ class _AudioWidgetState extends State<AudioWidget>
                         ? (i + averageLength)
                         : averageLength,
                   )
-                  .reduce((double x1, double x2) => x1 + x2) /
+                  .reduce((x1, x2) => x1 + x2) /
               averageLength);
         } else {
           results.add(_dbLevels[i]);
         }
       }
 
-      this._dbLevels = results;
+      _dbLevels = results;
 
       setState(() => _recorderDuration = duration);
     } catch (err) {
@@ -389,7 +388,7 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
     _playerSubscription?.cancel();
   }
 
-  Future<void> startPlayer(bool resetState) async {
+  Future<void> startPlayer({bool resetState}) async {
     try {
       if (await fileExists(widget.filePath)) {
         String path = await widget.flutterSound.startPlayer(widget.filePath);
@@ -415,7 +414,7 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
     }
   }
 
-  Future<void> pausePlayer(bool resetState) async {
+  Future<void> pausePlayer({bool resetState}) async {
     try {
       await widget.flutterSound.pausePlayer();
       removePlayerStreams();
@@ -435,9 +434,8 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
   String timeToShow() {
     return widget.flutterSound.audioState != t_AUDIO_STATE.IS_STOPPED ||
             (sliderCurrentPosition != maxDuration && sliderCurrentPosition != 0)
-        ? timeToString(sliderCurrentPosition.toInt()) +
-            "/" +
-            timeToString(widget.audioDuration)
+        ? "${timeToString(sliderCurrentPosition.toInt())}"
+            "/${timeToString(widget.audioDuration)}"
         : timeToString(widget.audioDuration);
   }
 
@@ -447,9 +445,7 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
       key: ValueKey("RecordedAudio"),
       direction: DismissDirection.endToStart,
       child: ClipRRect(
-        borderRadius: const BorderRadius.all(
-          const Radius.circular(24),
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(24)),
         child: Container(
           color: Colors.white,
           child: Container(
@@ -472,7 +468,8 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
                             child: CircularButton(
                               assetPath: "ic_pause.png",
                               alignment: Alignment.center,
-                              onPressFunction: () => pausePlayer(true),
+                              onPressFunction: () =>
+                                  pausePlayer(resetState: true),
                               height: 50,
                               width: 50,
                             ),
@@ -482,7 +479,8 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
                             child: CircularButton(
                               assetPath: "ic_play.png",
                               alignment: Alignment.center,
-                              onPressFunction: () => startPlayer(true),
+                              onPressFunction: () =>
+                                  startPlayer(resetState: true),
                               height: 50,
                               width: 50,
                             ),
@@ -510,7 +508,7 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
                             max: maxDuration.toDouble(),
                             onChangeStart: (newValue) async {
                               if (_isPlaying) {
-                                await pausePlayer(false);
+                                await pausePlayer(resetState: false);
                               }
                             },
                             onChanged: (newValue) {
@@ -522,7 +520,7 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
                               if (_isPlaying) {
                                 await widget.flutterSound.seekToPlayer(
                                     sliderCurrentPosition.toInt());
-                                await startPlayer(false);
+                                await startPlayer(resetState: false);
                               }
                             },
                           ),
@@ -544,7 +542,7 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(
-            const Radius.circular(24),
+            Radius.circular(24),
           ),
           color: Colors.red,
         ),
@@ -555,7 +553,7 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
             Container(
               height: 35,
               width: 35,
-              child: ImageWrapper(assetPath: AssetImages.DELETE),
+              child: ImageWrapper(assetPath: AssetImages.delete),
             ),
           ],
         ),

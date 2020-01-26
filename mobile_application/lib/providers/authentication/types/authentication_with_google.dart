@@ -30,7 +30,7 @@ class AuthenticationWithGoogle extends AuthenticationMode {
 
   ///The function authenticate accepts a BuildContext, used for aesthetic reasons.
   @override
-  Future<bool> authenticate(data) async {
+  Future<bool> authenticate(dynamic data) async {
     GoogleSignIn googleSignIn = GoogleSignIn(scopes: [
       'profile',
       'email',
@@ -86,9 +86,9 @@ class AuthenticationWithGoogle extends AuthenticationMode {
   OverlayEntry _createOverlay(BuildContext context) {
     double _value = 10;
     return OverlayEntry(
-      builder: (context) => new Stack(
+      builder: (context) => Stack(
         children: <Widget>[
-          new BackdropFilter(
+          BackdropFilter(
             filter: ImageFilter.blur(sigmaX: _value, sigmaY: _value),
             child: Container(
               color: Colors.black26,

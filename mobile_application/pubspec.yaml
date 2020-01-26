@@ -40,6 +40,7 @@ dependencies:
   rxdart: ^0.23.1
 
 
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
@@ -48,6 +49,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^1.7.1
+  effective_dart: ^1.0.0
+  pedantic: ^1.0.0
 
 
 # For information on the generic Dart part of this file, see the

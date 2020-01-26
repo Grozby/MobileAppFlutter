@@ -4,5 +4,5 @@ class NoUserProfileException extends SomethingWentWrongException {
   NoUserProfileException() : super();
 
   @override
-  getMessage() => "Oops. Couldn't retrive the user!";
+  String getMessage() => "Oops. Couldn't retrive the user!";
 }

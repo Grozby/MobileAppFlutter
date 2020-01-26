@@ -1,8 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:mobile_application/models/exceptions/something_went_wrong_exception.dart';
 
 import '../models/exceptions/no_internet_exception.dart';
-
+import '../models/exceptions/something_went_wrong_exception.dart';
 
 enum TypeHttpRequest { post, get }
 
@@ -49,7 +48,7 @@ class HttpRequestWrapper {
     int correctStatusCode = 200,
     dynamic Function(DioError) onUnknownDioError,
     postBody,
-    dioOptions,
+    Options dioOptions,
   }) async {
     Future<T> parsedResponse;
 

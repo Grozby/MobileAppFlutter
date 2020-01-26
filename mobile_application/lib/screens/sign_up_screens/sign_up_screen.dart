@@ -9,7 +9,8 @@ class SignUpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userType = ModalRoute.of(context).settings.arguments as UserRegistration;
+    final userType =
+        ModalRoute.of(context).settings.arguments as UserRegistration;
     final scrollController = ScrollController();
     final form = SignUpForm(
       userType: userType,
@@ -35,7 +36,7 @@ class SignUpScreen extends StatelessWidget {
                         child: Container(
                           child: const Align(
                             alignment: Alignment.bottomLeft,
-                            child: const BackButtonCustomized(),
+                            child: BackButtonCustomized(),
                           ),
                         ),
                       ),

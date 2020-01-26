@@ -2,14 +2,14 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:mobile_application/helpers/http_request_wrapper.dart';
-import 'package:mobile_application/models/chat/contact_mentor.dart';
-import 'package:mobile_application/models/chat/message.dart';
-import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
-import 'package:mobile_application/models/exceptions/something_went_wrong_exception.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 
+import '../../helpers/http_request_wrapper.dart';
+import '../../models/chat/contact_mentor.dart';
+import '../../models/chat/message.dart';
+import '../../models/exceptions/no_internet_exception.dart';
+import '../../models/exceptions/something_went_wrong_exception.dart';
 import '../configuration.dart';
 
 class TypingNotifier {
@@ -62,7 +62,7 @@ class ChatProvider with ChangeNotifier {
   PublishSubject getTypingNotifierStream(String id) =>
       _mapTypingStreams[id].typingNotifierStream;
 
-  void clearTypingMapStreams() {
+  void _clearTypingMapStreams() {
     _mapTypingStreams.forEach((_, t) => t.dispose());
     _mapTypingStreams.clear();
   }
@@ -78,13 +78,13 @@ class ChatProvider with ChangeNotifier {
 
     _initializeSocket();
 
-    fetchChatContacts();
+    await fetchChatContacts();
   }
 
   Future<void> fetchChatContacts() async {
     try {
       _loadedContactsNotifier.sink.add(false);
-      _mapTypingStreams.clear();
+      _clearTypingMapStreams();
 
       contacts = await httpRequestWrapper.request<List<ContactMentor>>(
           url: getContactsUrl,
@@ -123,8 +123,9 @@ class ChatProvider with ChangeNotifier {
           "forceNew": true,
         },
       );
-    } else
+    } else {
       socket.connect();
+    }
 
     socket.on('connect', (_) => connectionStatus(true));
     socket.on('connect_error', (_) => connectionStatus(false));
@@ -146,7 +147,7 @@ class ChatProvider with ChangeNotifier {
     ///Messages methods
     socket.on('typing', (data) {
       if (data["userId"] != userId) {
-        if(!isTyping){
+        if (!isTyping) {
           isTyping = true;
           _mapTypingStreams[data["chatId"]].setNotifier(isTyping);
         } else {
@@ -157,7 +158,6 @@ class ChatProvider with ChangeNotifier {
           isTyping = false;
           _mapTypingStreams[data["chatId"]].setNotifier(isTyping);
         });
-
       }
     });
 
@@ -195,9 +195,6 @@ class ChatProvider with ChangeNotifier {
     });
   }
 
-  ///
-  ///
-  ///
   List<ContactMentor> filteredChats({StatusRequest status}) {
     if (status == null) {
       return contacts;

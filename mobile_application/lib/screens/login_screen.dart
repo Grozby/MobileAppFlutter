@@ -29,9 +29,9 @@ class LoginScreen extends StatelessWidget {
                     children: <Widget>[
                       const Flexible(
                         fit: FlexFit.loose,
-                        child: const Align(
+                        child: Align(
                           alignment: Alignment.bottomLeft,
-                          child: const BackButtonCustomized(),
+                          child: BackButtonCustomized(),
                         ),
                       ),
                       Flexible(
@@ -41,7 +41,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                       const Flexible(
                         fit: FlexFit.loose,
-                        child: const Center(),
+                        child: Center(),
                       ),
                     ],
                   ),

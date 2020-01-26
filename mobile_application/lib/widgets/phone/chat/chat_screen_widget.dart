@@ -44,7 +44,7 @@ class InfoBarWidget extends StatelessWidget {
         children: <Widget>[
           Expanded(
             child: CircularButton(
-              assetPath: AssetImages.BACK_ARROW,
+              assetPath: AssetImages.backArrow,
               alignment: Alignment.centerLeft,
               width: 55,
               height: 55,
@@ -71,7 +71,7 @@ class InfoBarWidget extends StatelessWidget {
           ),
           Expanded(
             child: CircularButton(
-              assetPath: AssetImages.SETTINGS,
+              assetPath: AssetImages.settings,
               alignment: Alignment.centerRight,
               width: 55,
               height: 55,
@@ -171,7 +171,7 @@ class _MessageListState extends State<MessageList> with ChatTimeConverter {
               SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (ctx, int index) => ChatTile(chat: listChats[0]),
-                  childCount: 10 * listChats.length,
+                  childCount: listChats.length,
                 ),
               )
             ],
@@ -198,107 +198,108 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        right: 12,
-        top: 4,
-        bottom: 4,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-            width: 12,
-            height: 60,
-            padding: const EdgeInsets.only(right: 6),
-            child: Container(
-              width: 6,
-              color: statusColor[chat.status],
-            ),
-          ),
-          Container(
-            width: 60,
-            height: 60,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(const Radius.circular(60)),
-              child: ImageWrapper(
-                assetPath: AssetImages.USER,
-                imageUrl: chat.user.pictureUrl,
-                boxFit: BoxFit.cover,
+    return GestureDetector(
+      child: Padding(
+        padding: const EdgeInsets.only(
+          right: 12,
+          top: 4,
+          bottom: 4,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Container(
+              width: 12,
+              height: 60,
+              padding: const EdgeInsets.only(right: 6),
+              child: Container(
+                width: 6,
+                color: statusColor[chat.status],
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(width: 1.0, color: Colors.grey.shade300),
+            Container(
+              width: 60,
+              height: 60,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(60)),
+                child: ImageWrapper(
+                  assetPath: AssetImages.user,
+                  imageUrl: chat.user.pictureUrl,
+                  boxFit: BoxFit.cover,
                 ),
               ),
-              child: StreamBuilder<bool>(
-                  stream: Provider.of<ChatProvider>(context, listen: false)
-                      .getTypingNotificationStream(chat.id),
-                  builder: (context, snapshot) {
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Container(
-                          height: 60,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                child: AutoSizeText(
-                                  chat.user.completeName,
-                                  style: Provider.of<ThemeProvider>(context)
-                                      .getTheme()
-                                      .textTheme
-                                      .display1,
-                                  maxLines: 1,
-                                ),
-                              ),
-                              Container(
-                                child: AutoSizeText(
-                                  (snapshot.hasData && snapshot.data)
-                                      ? "Typing..."
-                                      : chat.messages.isNotEmpty
-                                          ? chat.messages[0].content
-                                          : "Contact ${chat.user.completeName} now!",
-                                  style: Provider.of<ThemeProvider>(context)
-                                      .getTheme()
-                                      .textTheme
-                                      .subhead,
-                                  maxLines: 1,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Flexible(
-                            fit: FlexFit.loose, child: const Center()),
-                        Container(
-                          alignment: Alignment.topRight,
-                          width: 50,
-                          child: AutoSizeText(
-                            (snapshot.hasData && snapshot.data)
-                                ? ""
-                                : timeToString(
-                                    chat.messages.isNotEmpty
-                                        ? chat.messages[0].createdAt
-                                        : chat.createdAt,
-                                  ),
-                            maxLines: 1,
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(width: 1.0, color: Colors.grey.shade300),
+                  ),
+                ),
+                child: StreamBuilder<bool>(
+                    stream: Provider.of<ChatProvider>(context, listen: false)
+                        .getTypingNotificationStream(chat.id),
+                    builder: (context, snapshot) {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Container(
+                            height: 60,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  child: AutoSizeText(
+                                    chat.user.completeName,
+                                    style: Provider.of<ThemeProvider>(context)
+                                        .getTheme()
+                                        .textTheme
+                                        .display1,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                                Container(
+                                  child: AutoSizeText(
+                                    (snapshot.hasData && snapshot.data)
+                                        ? "Typing..."
+                                        : chat.messages.isNotEmpty
+                                            ? chat.messages[0].content
+                                            : "Contact ${chat.user.completeName} now!",
+                                    style: Provider.of<ThemeProvider>(context)
+                                        .getTheme()
+                                        .textTheme
+                                        .subhead,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Flexible(fit: FlexFit.loose, child: Center()),
+                          Container(
+                            alignment: Alignment.topRight,
+                            width: 50,
+                            child: AutoSizeText(
+                              (snapshot.hasData && snapshot.data)
+                                  ? ""
+                                  : timeToString(
+                                      chat.messages.isNotEmpty
+                                          ? chat.messages[0].createdAt
+                                          : chat.createdAt,
+                                    ),
+                              maxLines: 1,
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

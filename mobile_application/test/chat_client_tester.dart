@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_application/main.dart';
@@ -13,7 +12,7 @@ import 'package:mobile_application/providers/chat/chat_provider.dart';
 import 'package:mobile_application/providers/configuration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences.setMockInitialValues({});
 
@@ -30,7 +29,7 @@ main() async {
       parseJson;
 
   SecurityContext securityContext = SecurityContext.defaultContext;
-  List bytes = utf8.encode(
+  List<int> bytes = utf8.encode(
     """-----BEGIN CERTIFICATE-----
 MIIEGzCCAwOgAwIBAgIUBTe6TF/7odAsZUM1FE1MxMyd83EwDQYJKoZIhvcNAQEL
 BQAwgY8xCzAJBgNVBAYTAmFhMQ8wDQYDVQQIDAZyYW5kb20xDzANBgNVBAcMBnJh
@@ -63,8 +62,8 @@ vvYJ516ZsHNR9HvvKiQFFmkeYlQgOzUGv6sB9GkJCKVmgDY2isJTRTNVR3Zibfe2
       .onHttpClientCreate = (client) => HttpClient(context: securityContext);
 
   var authenticationProvider = AuthenticationProvider(_httpManager);
-  authenticationProvider.setToken(
-      "68eac7d55c2877ecf9e6153e393efef2218a768b8086dc5bdf2faa11d9600bb9c710edbe4d8fc9d740fe65eab1386a68f9519a7d2262bac7d0ad2b4eec98773165bc9e5be7ec925a0958a470a67ed218f3a94eb23edf1e2e1715c538e661849ed5ac22ad84235b793e6395d018ae2aba82eefa51d27f3453385e8886f86f0755bbeb63cc5159c2446b32057967e3923e1a467410b82b520b8c9d61d924093b512d5f18e80b17d60ac166ac6394b8567c018d6ef708c43ebd38295dc4fea2958625fdef1b4ba92fc4a105d8bb4de523b9b591a63ca05f26430424b8f5ccb18ef15428c24aea86ccc06e7578fd7f0970da39756753d9ff66bb7d8f7a8611ae04de");
+  authenticationProvider.token =
+      "68eac7d55c2877ecf9e6153e393efef2218a768b8086dc5bdf2faa11d9600bb9c710edbe4d8fc9d740fe65eab1386a68f9519a7d2262bac7d0ad2b4eec98773165bc9e5be7ec925a0958a470a67ed218f3a94eb23edf1e2e1715c538e661849ed5ac22ad84235b793e6395d018ae2aba82eefa51d27f3453385e8886f86f0755bbeb63cc5159c2446b32057967e3923e1a467410b82b520b8c9d61d924093b512d5f18e80b17d60ac166ac6394b8567c018d6ef708c43ebd38295dc4fea2958625fdef1b4ba92fc4a105d8bb4de523b9b591a63ca05f26430424b8f5ccb18ef15428c24aea86ccc06e7578fd7f0970da39756753d9ff66bb7d8f7a8611ae04de";
   var chatProvider = ChatProvider(authenticationProvider.httpRequestWrapper);
   await chatProvider.initializeChatProvider(
     authToken:

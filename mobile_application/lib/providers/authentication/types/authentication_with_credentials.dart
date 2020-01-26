@@ -1,18 +1,20 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mobile_application/helpers/http_request_wrapper.dart';
 
+import '../../../helpers/http_request_wrapper.dart';
 import '../../../models/exceptions/login/incorrect_email_or_password_exception.dart';
 import '../../../models/exceptions/login/login_exception.dart';
 import '../../../providers/authentication/types/authentication_mode.dart';
+import '../authentication_provider.dart';
 
 class AuthenticationWithCredentials extends AuthenticationMode {
   AuthenticationWithCredentials({
-    @required httpManager,
-    @required authenticationProvider,
+    @required Dio httpManager,
+    @required AuthenticationProvider authenticationProvider,
   }) : super(
-            httpManager: httpManager,
-            authenticationProvider: authenticationProvider);
+          httpManager: httpManager,
+          authenticationProvider: authenticationProvider,
+        );
 
   @override
   Future<bool> authenticate(dynamic data) async {
@@ -29,13 +31,14 @@ class AuthenticationWithCredentials extends AuthenticationMode {
         ),
         correctStatusCode: 200,
         onCorrectStatusCode: (response) async {
-          token = response.data["access_token"];
+          token = response.data["access_token"] as String;
           await authenticationProvider.saveAuthenticationData();
           return true;
         },
         onIncorrectStatusCode: (_) {
           throw LoginException(
-            'Something went wrong. We couldn\'t validate the account. Try again later.',
+            'Something went wrong.'
+            ' We couldn\'t validate the account. Try again later.',
           );
         },
         onUnknownDioError: (_) {

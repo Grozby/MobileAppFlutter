@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
+
+import '../../providers/theming/theme_provider.dart';
 
 class LoadingAnimated extends StatefulWidget {
   const LoadingAnimated();
@@ -50,7 +51,7 @@ class _LoadingAnimatedState extends State<LoadingAnimated>
       ),
       builder: (ctx, child) {
         return ShaderMask(
-          shaderCallback: (Rect bounds) {
+          shaderCallback: (bounds) {
             final gradient = LinearGradient(
               begin: Alignment(gradientPosition.value, 0),
               end: Alignment(gradientPosition.value - 2, 0),

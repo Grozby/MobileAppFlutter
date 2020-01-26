@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
-import 'package:mobile_application/models/exceptions/something_went_wrong_exception.dart';
 
+import '../../models/exceptions/no_internet_exception.dart';
+import '../../models/exceptions/something_went_wrong_exception.dart';
 import 'button_styled.dart';
 import 'custom_alert_dialog.dart';
 

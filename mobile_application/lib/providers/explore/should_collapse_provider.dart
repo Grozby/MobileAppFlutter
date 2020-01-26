@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 /// collapse themselves.
 ///
 class ShouldCollapseProvider with ChangeNotifier {
-  final changeNotifier = StreamController.broadcast();
+  final StreamController changeNotifier = StreamController.broadcast();
 
   void shouldCollapseElements() {
     changeNotifier.sink.add(null);

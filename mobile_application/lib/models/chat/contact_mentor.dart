@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mobile_application/models/users/answer.dart';
-import 'package:mobile_application/models/users/user_minimal.dart';
 
+import '../users/answer.dart';
+import '../users/user_minimal.dart';
 import 'message.dart';
 
 part 'contact_mentor.g.dart';

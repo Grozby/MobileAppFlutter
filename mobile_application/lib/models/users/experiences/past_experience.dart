@@ -26,10 +26,8 @@ abstract class PastExperience {
 
   String get haveDone;
 
-  String get durationExperience =>
-      DateFormat.yMMMd().format(fromDate) +
-      " - " +
-      DateFormat.yMMMd().format(toDate);
+  String get durationExperience => "${DateFormat.yMMMd().format(fromDate)} - "
+      "${DateFormat.yMMMd().format(toDate)}";
 
   ///
   /// Serializable methods

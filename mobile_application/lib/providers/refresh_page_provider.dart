@@ -2,9 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-
 class RefreshPageProvider with ChangeNotifier {
-  final changeNotifier = StreamController.broadcast();
+  final StreamController changeNotifier = StreamController.broadcast();
 
   Future<void> refresh() async {
     /// A stream is used for notify the provider that the refresh procedure
@@ -15,6 +14,7 @@ class RefreshPageProvider with ChangeNotifier {
     /// the its child to refresh the content, and then call
     /// [RefreshController.refreshComplete()].
     StreamController internStream = StreamController.broadcast();
+
     /// We pass a simple callback that immediately close a stream.
     changeNotifier.sink.add(internStream.close);
     await for (dynamic _ in internStream.stream) {}

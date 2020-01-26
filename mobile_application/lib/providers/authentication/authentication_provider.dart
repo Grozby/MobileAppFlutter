@@ -24,7 +24,7 @@ class AuthenticationProvider with ChangeNotifier {
   HttpRequestWrapper httpRequestWrapper;
   bool wasLogged = false;
 
-  void setToken(String token) => _authenticationMode.token = token;
+  set token(String token) => _authenticationMode.token = token;
 
   AuthenticationProvider(this._httpManager) {
     _authenticationMode = AuthenticationMode.getAuthenticationMode(
@@ -45,7 +45,7 @@ class AuthenticationProvider with ChangeNotifier {
           if (gotAToken()) {
             options.headers.putIfAbsent(
               HttpHeaders.authorizationHeader,
-              () => "Bearer " + _authenticationMode.token,
+              () => "Bearer ${_authenticationMode.token}",
             );
             return options;
           }
@@ -79,11 +79,11 @@ class AuthenticationProvider with ChangeNotifier {
     if (storedData.containsKey('loginData')) {
       var loginData = json.decode(storedData.getString('loginData'));
       _authenticationMode = AuthenticationMode.getAuthenticationMode(
-        loginData["type"],
+        loginData["type"] as String,
         _httpManager,
         this,
       );
-      _authenticationMode.token = loginData["token"];
+      _authenticationMode.token = loginData["token"] as String;
       wasLogged = false;
     }
   }
@@ -129,7 +129,7 @@ class AuthenticationProvider with ChangeNotifier {
     );
 
     if (!isLogged) {
-      removeAuthenticationData();
+      await removeAuthenticationData();
     }
 
     return isLogged;

@@ -3,6 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import '../../../models/users/experiences/past_experience.dart';
 import '../../../widgets/general/image_wrapper.dart';
+import 'institution.dart';
 
 part 'academic_degree.g.dart';
 
@@ -12,11 +13,11 @@ class AcademicDegree extends PastExperience {
   String fieldOfStudy;
 
   AcademicDegree({
-    @required institution,
+    @required Institution institution,
     @required this.degreeLevel,
     @required this.fieldOfStudy,
-    @required fromDate,
-    toDate,
+    @required DateTime fromDate,
+    DateTime toDate,
   }) : super(
           institution: institution,
           fromDate: fromDate,
@@ -24,10 +25,10 @@ class AcademicDegree extends PastExperience {
         );
 
   @override
-  String get haveDone => degreeLevel + " in " + fieldOfStudy;
+  String get haveDone => "$degreeLevel in $fieldOfStudy";
 
   @override
-  String get assetPath => AssetImages.EDUCATION;
+  String get assetPath => AssetImages.education;
 
   ///
   /// Serializable methods

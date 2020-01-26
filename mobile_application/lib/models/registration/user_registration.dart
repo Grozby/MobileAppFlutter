@@ -11,5 +11,5 @@ abstract class UserRegistration {
 
   Color get color;
 
-  getBodyRegistration(SignUpFormModel registrationForm);
+  Map<String, String> getBodyRegistration(SignUpFormModel registrationForm);
 }

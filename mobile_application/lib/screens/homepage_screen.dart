@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/screens/initialization_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/overglow_less_scroll_behavior.dart';
@@ -9,6 +8,7 @@ import '../widgets/general/loading_error.dart';
 import '../widgets/general/refresh_content_widget.dart';
 import '../widgets/phone/explore/explore_screen_widgets.dart' as phone;
 import '../widgets/transition/loading_animated.dart';
+import 'initialization_screen.dart';
 
 class HomepageScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -139,9 +139,10 @@ class _HomepageWidgetState extends State<HomepageWidget>
   @override
   void didUpdateWidget(HomepageWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     /// Used to distinguish whether the RefreshWidget was the one to call the
     /// one to refresh the widget.
-    if (oldWidget.refreshCompleted != this.widget.refreshCompleted) {
+    if (oldWidget.refreshCompleted != widget.refreshCompleted) {
       loadExploreSection();
     }
   }
@@ -156,11 +157,9 @@ class _HomepageWidgetState extends State<HomepageWidget>
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _loadExploreSection,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
+      builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: const LoadingAnimated(),
-          );
+          return const Center(child: LoadingAnimated());
         }
 
         widget.refreshCompleted();
@@ -168,9 +167,7 @@ class _HomepageWidgetState extends State<HomepageWidget>
         if (snapshot.hasError) {
           return LoadingError(
             exception: snapshot.error,
-            retry: () => setState(() {
-              loadExploreSection();
-            }),
+            retry: () => setState(loadExploreSection),
             buildContext: context,
           );
         }

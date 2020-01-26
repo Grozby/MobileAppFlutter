@@ -8,8 +8,6 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../providers/refresh_page_provider.dart';
 
-typedef VoidFunction = void Function();
-typedef WidgetBuilder = Widget Function(VoidFunction refreshComplete);
 
 ///
 /// Widget that allows its child to refresh its content.
@@ -26,7 +24,7 @@ typedef WidgetBuilder = Widget Function(VoidFunction refreshComplete);
 /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ///
 class RefreshWidget extends StatefulWidget {
-  final WidgetBuilder builder;
+  final Widget Function(void Function() refreshComplete) builder;
 
   RefreshWidget({@required this.builder});
 
@@ -70,7 +68,7 @@ class _RefreshWidgetState extends State<RefreshWidget> {
     return ChangeNotifierProvider(
       create: (_) => _provider,
       child: NotificationListener<OverscrollNotification>(
-        onNotification: (OverscrollNotification scrollInfo) {
+        onNotification: (scrollInfo) {
           if (scrollInfo.depth != 0) {
             if (!isOverScrolling) {
               isOverScrolling = true;
@@ -129,7 +127,7 @@ class _RefreshWidgetState extends State<RefreshWidget> {
 }
 
 class RefreshedWidget extends StatefulWidget {
-  final WidgetBuilder builder;
+  final Widget Function(void Function() refreshComplete) builder;
 
   RefreshedWidget({@required this.builder});
 

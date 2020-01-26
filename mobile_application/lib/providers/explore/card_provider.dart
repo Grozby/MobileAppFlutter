@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:mobile_application/providers/explore/questions_provider.dart';
 
 import '../../helpers/http_request_wrapper.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
@@ -7,6 +6,7 @@ import '../../models/users/answer.dart';
 import '../../models/users/mentee.dart';
 import '../../models/users/mentor.dart';
 import '../../models/users/user.dart';
+import '../../providers/explore/questions_provider.dart';
 
 class UserContainer {
   User user;
@@ -19,7 +19,7 @@ class UserContainer {
 /// Provider used to obtain the Mentor/Mentee information
 ///
 class CardProvider with ChangeNotifier {
-  List<UserContainer> users = List();
+  List<UserContainer> users = [];
   final HttpRequestWrapper httpRequestWrapper;
 
   CardProvider(this.httpRequestWrapper);
@@ -84,7 +84,7 @@ class CardProvider with ChangeNotifier {
               mentorId: toAdd.id),
         );
       }
-    }).toList();
+    }).toList() as List<UserContainer>;
   }
 
   Future<void> sendRequestToMentor(List<Answer> answers, String message) async {

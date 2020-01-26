@@ -25,7 +25,7 @@ class InfoBarWidget extends StatelessWidget {
                 child: Consumer<UserDataProvider>(
                   builder: (context, userProvider, child) {
                     return CircularButton(
-                      assetPath: AssetImages.USER,
+                      assetPath: AssetImages.user,
                       imageUrl: userProvider.user.pictureUrl,
                       alignment: Alignment.centerLeft,
                       width: 55,
@@ -46,7 +46,7 @@ class InfoBarWidget extends StatelessWidget {
               ),
               Expanded(
                 child: CircularButton(
-                  assetPath: AssetImages.MESSAGE,
+                  assetPath: AssetImages.message,
                   alignment: Alignment.centerRight,
                   width: 55,
                   height: 55,
@@ -65,7 +65,7 @@ class InfoBarWidget extends StatelessWidget {
   }
 
   void goToMessages(BuildContext context) {
-    Navigator.of(context).pushNamed(MessagesScreen.routeName);
+    Navigator.of(context).pushNamed(ChatListScreen.routeName);
   }
 }
 
@@ -155,7 +155,7 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
           controller: pageController,
           scrollDirection: Axis.horizontal,
           itemCount: cardProvider.numberAvailableUsers,
-          itemBuilder: (BuildContext context, int index) {
+          itemBuilder: (context, index) {
             return AnimatedBuilder(
               animation: controllerAnimation,
               child: Container(

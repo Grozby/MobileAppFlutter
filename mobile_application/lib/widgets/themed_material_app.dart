@@ -14,6 +14,7 @@ import '../screens/login_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/sign_up_screens/sign_up_choice_screen.dart';
 import '../screens/sign_up_screens/sign_up_screen.dart';
+import '../screens/single_chat_screen.dart';
 import '../screens/user_profile_screen.dart';
 import '../screens/waiting_screen.dart';
 import '../widgets/general/loading_error.dart';
@@ -37,7 +38,7 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
         debugShowCheckedModeBanner: false,
         home: FutureBuilder(
           future: authenticationProvider.checkAuthentication() ?? null,
-          builder: (BuildContext ctx, AsyncSnapshot snapshot) {
+          builder: (ctx, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
                 return const WaitingScreen();
@@ -69,7 +70,7 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
                   }
                 }
 
-                if (snapshot.data) {
+                if (snapshot.data as bool) {
                   //If true is returned, we are logged in
                   return const HomepageScreen();
                 } else {
@@ -96,10 +97,12 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
           SettingsScreen.routeName: (_) => SettingsScreen(),
           SignUpChoiceScreen.routeName: (_) => SignUpChoiceScreen(),
           SignUpScreen.routeName: (_) => SignUpScreen(),
-          UserProfileScreen.routeName: (ctx) =>
-              UserProfileScreen(ModalRoute.of(ctx).settings.arguments),
+          UserProfileScreen.routeName: (ctx) => UserProfileScreen(
+              ModalRoute.of(ctx).settings.arguments as UserProfileArguments),
           InitializationScreen.routeName: (_) => InitializationScreen(),
-          MessagesScreen.routeName: (_) => MessagesScreen(),
+          ChatListScreen.routeName: (_) => ChatListScreen(),
+          SingleChatScreen.routeName: (ctx) => SingleChatScreen(
+              ModalRoute.of(ctx).settings.arguments as SingleChatArguments),
         },
       ),
     );

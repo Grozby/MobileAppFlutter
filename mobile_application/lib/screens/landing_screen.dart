@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import './../models/exceptions/something_went_wrong_exception.dart';
@@ -41,26 +40,26 @@ class _LandingScreenState extends State<LandingScreen> {
         child: Container(
           child: Column(
             children: <Widget>[
-              const Expanded(child: const Center()),
+              const Expanded(child: Center()),
               Expanded(
                 flex: 1,
                 child: Container(
                   child: ImageWrapper(
-                    assetPath: AssetImages.LOGO,
+                    assetPath: AssetImages.logo,
                     boxFit: BoxFit.cover,
                   ),
                 ),
               ),
               const Expanded(
                 flex: 1,
-                child: const Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: const AnimatedCompanyNames(),
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: AnimatedCompanyNames(),
                 ),
               ),
               const Expanded(
                 flex: 4,
-                child: const Center(),
+                child: Center(),
               ),
               Expanded(
                 child: ButtonStyled(
@@ -110,7 +109,7 @@ class _LandingScreenState extends State<LandingScreen> {
                   color: ThemeProvider.loginButtonColor,
                 ),
               ),
-              const Expanded(child: const Center()),
+              const Expanded(child: Center()),
             ],
           ),
         ),

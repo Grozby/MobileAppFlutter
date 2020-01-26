@@ -1,21 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mobile_application/providers/user/user_data_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/authentication/authentication_provider.dart';
 import '../providers/chat/chat_provider.dart';
+import '../providers/user/user_data_provider.dart';
 import '../widgets/phone/chat/chat_screen_widget.dart' as phone;
 
-class MessagesScreen extends StatefulWidget {
+class ChatListScreen extends StatefulWidget {
   static const routeName = '/chat';
 
   @override
-  _MessagesScreenState createState() => _MessagesScreenState();
+  _ChatListScreenState createState() => _ChatListScreenState();
 }
 
-class _MessagesScreenState extends State<MessagesScreen> {
+class _ChatListScreenState extends State<ChatListScreen> {
   @override
   Widget build(BuildContext context) {
     var mediaQuery = MediaQuery.of(context);
@@ -69,7 +69,7 @@ class _ChatWidgetState extends State<ChatWidget>
     chatProviderReference = Provider.of<ChatProvider>(context, listen: false);
     if (chatProviderReference != null) {
       _errorStreamSubscription = chatProviderReference.errorNotifierStream
-          .listen((message) => print(message));
+          .listen(print);
 
       chatProviderReference.initializeChatProvider(
         authToken:
@@ -77,10 +77,6 @@ class _ChatWidgetState extends State<ChatWidget>
         userId: Provider.of<UserDataProvider>(context, listen: false).user.id,
       );
     }
-  }
-
-  void refreshChatProvider() async {
-    await Provider.of<ChatProvider>(context, listen: false).fetchChatContacts();
   }
 
   @override

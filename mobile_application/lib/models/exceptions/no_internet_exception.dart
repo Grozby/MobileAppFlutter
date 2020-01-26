@@ -4,5 +4,5 @@ class NoInternetException extends SomethingWentWrongException {
   NoInternetException(String t) : super.message(t);
 
   @override
-  getMessage() => text;
+  String getMessage() => text;
 }

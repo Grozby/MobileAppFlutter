@@ -1,5 +1,6 @@
-import '../../../models/users/socials/social_account.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../../models/users/socials/social_account.dart';
 
 part 'github_account.g.dart';
 

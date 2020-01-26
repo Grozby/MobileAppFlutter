@@ -3,8 +3,9 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/providers/explore/should_collapse_provider.dart';
 import 'package:provider/provider.dart';
+
+import '../../providers/explore/should_collapse_provider.dart';
 
 ///
 /// Support widget that allows its [child] to be expandable. The starting height
@@ -117,11 +118,12 @@ class _ExpandableWidgetState extends State<ExpandableWidget>
   }
 
   void collapse() {
-    if (_isExpanded)
+    if (_isExpanded) {
       setState(() {
         _isExpanded = false;
         _controller.reverse();
       });
+    }
   }
 
   @override

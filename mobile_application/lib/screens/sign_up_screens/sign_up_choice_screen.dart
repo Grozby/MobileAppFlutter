@@ -23,7 +23,7 @@ class SignUpChoiceScreen extends StatelessWidget {
                 child: Container(
                   child: const Align(
                     alignment: Alignment.bottomLeft,
-                    child: const BackButtonCustomized(),
+                    child: BackButtonCustomized(),
                   ),
                 ),
               ),

@@ -1,5 +1,6 @@
-import '../../../models/users/socials/social_account.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../../../models/users/socials/social_account.dart';
 
 part 'instagram_account.g.dart';
 
@@ -13,7 +14,8 @@ class InstagramAccount extends SocialAccount {
   ///
   /// Serializable methods
   ///
-  factory InstagramAccount.fromJson(Map json) => _$InstagramAccountFromJson(json);
+  factory InstagramAccount.fromJson(Map json) =>
+      _$InstagramAccountFromJson(json);
 
   Map<String, dynamic> toJson() => _$InstagramAccountToJson(this);
 }

@@ -15,10 +15,10 @@ class CardContainer extends StatelessWidget {
     @required this.child,
     @required this.onLongPress,
     this.canExpand = true,
-    startingColor,
+    Color startingColor,
   })  : assert(child != null),
         assert(onLongPress != null),
-        this.startingColor = startingColor != null
+        startingColor = startingColor != null
             ? startingColor
             : ThemeProvider.primaryColor.withOpacity(0.10);
 
@@ -38,7 +38,7 @@ class CardContainer extends StatelessWidget {
           minHeight: height - padding * 2,
         ),
         decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(const Radius.circular(24.0)),
+          borderRadius: const BorderRadius.all(Radius.circular(24.0)),
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,

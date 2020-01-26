@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/screens/user_profile_screen.dart';
-import 'package:mobile_application/widgets/general/audio_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -13,6 +11,8 @@ import '../../../providers/explore/card_provider.dart';
 import '../../../providers/explore/questions_provider.dart';
 import '../../../providers/explore/should_collapse_provider.dart';
 import '../../../providers/theming/theme_provider.dart';
+import '../../../screens/user_profile_screen.dart';
+import '../../../widgets/general/audio_widget.dart';
 import '../../../widgets/general/custom_alert_dialog.dart';
 import '../../../widgets/general/expandable_widget.dart';
 import '../../../widgets/general/image_wrapper.dart';
@@ -64,7 +64,7 @@ class _MentorCardState extends State<MentorCard> {
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 1000),
-      transitionBuilder: (Widget child, Animation<double> animation) {
+      transitionBuilder: (child, animation) {
         bool isShowing = _isFrontCardShowing && child.key == ValueKey(1) ||
             !_isFrontCardShowing && child.key == ValueKey(2);
         return RotationTransitionUpgraded(
@@ -174,7 +174,7 @@ class _FrontCardMentorState extends State<_FrontCardMentor> with GetMentor {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.red.withOpacity(0.3),
-          borderRadius: const BorderRadius.all(const Radius.circular(10)),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
         padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
         child: AutoSizeText(
@@ -195,7 +195,7 @@ class _FrontCardMentorState extends State<_FrontCardMentor> with GetMentor {
           child: ImageWrapper(assetPath: experience.assetPath),
         ),
         AutoSizeText(
-          experience.haveDone + " @",
+          "${experience.haveDone} @",
           style: Theme.of(context).textTheme.overline,
           textAlign: TextAlign.center,
           maxLines: 2,
@@ -236,10 +236,10 @@ class _CompanyInformationBar extends StatelessWidget with GetMentor {
             color: Colors.transparent,
           ),
           child: ClipRRect(
-            borderRadius: const BorderRadius.all(const Radius.circular(100)),
+            borderRadius: const BorderRadius.all(Radius.circular(100)),
             child: ImageWrapper(
               imageUrl: mentor.currentJob?.pictureUrl,
-              assetPath: AssetImages.WORK,
+              assetPath: AssetImages.work,
             ),
           ),
         ),
@@ -311,7 +311,7 @@ class _MentorBasicInformationAvatar extends StatelessWidget with GetMentor {
     return Container(
       alignment: Alignment.center,
       child: CircularButton(
-        assetPath: AssetImages.USER,
+        assetPath: AssetImages.user,
         imageUrl: mentor.pictureUrl,
         alignment: Alignment.center,
         onPressFunction: onImageMentorLongPress,
@@ -349,7 +349,7 @@ class _MentorBasicInformationText extends StatelessWidget with GetMentor {
               text: TextSpan(
                 children: <TextSpan>[
                   TextSpan(
-                    text: mentor.currentJob.workingRole + " @ ",
+                    text: "${mentor.currentJob.workingRole} @ ",
                     style: Theme.of(context).textTheme.overline,
                   ),
                   TextSpan(
@@ -452,7 +452,7 @@ class _FavoriteLanguages extends StatelessWidget with GetMentor {
 class _BackCardMentor extends StatefulWidget {
   final Function rotateCard;
 
-  _BackCardMentor({@required this.rotateCard, key}) : super(key: key);
+  _BackCardMentor({@required this.rotateCard, Key key}) : super(key: key);
 
   @override
   __BackCardMentorState createState() => __BackCardMentorState();
@@ -507,7 +507,7 @@ class QuestionsWidget extends StatefulWidget {
 
 class QuestionsWidgetState extends State<QuestionsWidget>
     with TimeConverter, ChangeNotifier, GetMentor {
-  final textController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
   String audioPath;
   bool canWriteAnswer = true;
   bool hasStartedAnswering = false;
@@ -580,13 +580,13 @@ class QuestionsWidgetState extends State<QuestionsWidget>
     int parsedMinutes = int.tryParse(time.substring(0, 2));
 
     if (parsedMinutes != 0) {
-      timeToShow += "$parsedMinutes minute" + (parsedMinutes != 1 ? "s" : "");
+      timeToShow += "$parsedMinutes minute${parsedMinutes != 1 ? "s" : ""}";
     }
 
     if (int.tryParse(time.substring(3, 5)) != 0) {
-      timeToShow += (timeToShow != "" ? "and " : "") +
-          "$parsedSeconds second" +
-          (parsedSeconds != 1 ? "s" : "");
+      timeToShow += "${timeToShow != "" ? "and " : ""}"
+          "$parsedSeconds second"
+          "${(parsedSeconds != 1 ? "s" : "")}";
     }
     return timeToShow != null ? timeToShow : "1 minute";
   }
@@ -631,8 +631,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   decoration: BoxDecoration(
-                    borderRadius:
-                        const BorderRadius.all(const Radius.circular(12)),
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
                     border: Border.all(
                       width: 1,
                       color: Colors.grey.shade300,
@@ -657,7 +656,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
                   listen: false,
                 ).getAudioFilePath(),
                 notifier: this,
-                setPathInParent: (newPath) => audioPath = newPath,
+                setPathInParent: (String newPath) => audioPath = newPath,
               ),
               const SizedBox(height: 16),
               Container(
@@ -705,7 +704,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
               ),
               const Expanded(
                 flex: 1,
-                child: const Text("Start when you are ready!"),
+                child: Text("Start when you are ready!"),
               ),
               const SizedBox(height: 16),
               Container(
@@ -865,7 +864,7 @@ class _ContactMentorState extends State<ContactMentor> with GetMentor {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(const Radius.circular(12)),
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
               border: Border.all(
                 width: 1,
                 color: Colors.grey.shade300,

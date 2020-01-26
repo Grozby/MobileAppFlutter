@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/widgets/general/image_wrapper.dart';
+
+import '../../general/image_wrapper.dart';
 
 class CircularButton extends StatelessWidget {
   final String assetPath;
@@ -8,7 +9,7 @@ class CircularButton extends StatelessWidget {
   final double height;
   final double reduceFactor;
   final Alignment alignment;
-  final Function onPressFunction;
+  final void Function() onPressFunction;
 
   CircularButton({
     @required this.assetPath,
@@ -34,7 +35,7 @@ class CircularButton extends StatelessWidget {
             heightFactor: reduceFactor,
             widthFactor: reduceFactor,
             child: ClipRRect(
-              borderRadius: const BorderRadius.all(const Radius.circular(100)),
+              borderRadius: const BorderRadius.all(Radius.circular(100)),
               child: ImageWrapper(
                 imageUrl: imageUrl,
                 assetPath: assetPath,

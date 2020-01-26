@@ -4,10 +4,8 @@ import '../something_went_wrong_exception.dart';
 class RegistrationException extends SomethingWentWrongException {
   RegistrationException(String t) : super.message(t);
 
-
   @override
-  getMessage() => text;
+  String getMessage() => text;
 
-  updateRegistrationForm(SignUpFormModel registrationForm) {}
-
+  void updateRegistrationForm(SignUpFormModel registrationForm) {}
 }

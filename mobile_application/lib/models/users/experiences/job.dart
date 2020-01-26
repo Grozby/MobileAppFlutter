@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../../../models/users/experiences/institution.dart';
 import '../../../models/users/experiences/past_experience.dart';
 import '../../../widgets/general/image_wrapper.dart';
 
@@ -12,9 +13,9 @@ class Job extends PastExperience {
 
   Job({
     @required this.workingRole,
-    @required institution,
-    @required fromDate,
-    toDate,
+    @required Institution institution,
+    @required DateTime fromDate,
+    DateTime toDate,
   }) : super(
           institution: institution,
           fromDate: fromDate,
@@ -26,7 +27,7 @@ class Job extends PastExperience {
 
   //TODO Change how we manage this on the widget!!
   @override
-  String get assetPath => AssetImages.WORK;
+  String get assetPath => AssetImages.work;
 
   ///
   /// Serializable methods

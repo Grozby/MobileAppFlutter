@@ -17,7 +17,7 @@ class UserMinimal {
     this.pictureUrl,
   });
 
-  String get completeName => name + " " + surname;
+  String get completeName => "$name $surname";
   ///
   /// Serializable methods
   ///
