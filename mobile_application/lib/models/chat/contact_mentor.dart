@@ -28,6 +28,8 @@ class ContactMentor {
     this.messages,
   });
 
+  int get unreadMessages => messages.where((e) => !e.isRead).toList().length;
+
   ///
   /// Serializable methods
   ///

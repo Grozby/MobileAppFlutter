@@ -52,7 +52,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             return ScopedModel<AvailableSizes>(
               //-100 used for [CardContainer] to define the available size
               // to occupy.
-              model: AvailableSizes(constraints.maxHeight - 100),
+              model: AvailableSizes(height: constraints.maxHeight - 100),
               child: RefreshWidget(
                 builder: (refreshCompleted) => UserProfileBuilder(
                   maxWidth: constraints.maxWidth,

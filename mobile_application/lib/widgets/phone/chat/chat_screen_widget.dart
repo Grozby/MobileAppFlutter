@@ -2,7 +2,9 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_application/models/utility/available_sizes.dart';
 import 'package:provider/provider.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 import '../../../models/chat/contact_mentor.dart';
 import '../../../providers/chat/chat_provider.dart';
@@ -106,41 +108,45 @@ class _ChatContentWidgetState extends State<ChatContentWidget> {
     return DefaultTabController(
       length: 4,
       child: LayoutBuilder(builder: (ctx, constraints) {
-        return Container(
-          height: constraints.maxHeight,
-          child: Column(
-            children: <Widget>[
-              TabBar(
-                indicatorColor: ThemeProvider.primaryColor,
-                labelColor: ThemeProvider.primaryColor,
-                tabs: [
-                  const Tab(text: "All"),
-                  const Tab(text: "Accepted"),
-                  const Tab(text: "Pending"),
-                  const Tab(text: "Refused"),
-                ],
-              ),
-              Expanded(
-                child: StreamBuilder<bool>(
-                    stream: Provider.of<ChatProvider>(context, listen: false)
-                        .loadedContactsStream,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting ||
-                          snapshot.data == false) {
-                        return Center(child: CircularProgressIndicator());
-                      }
+        return ScopedModel<AvailableSizes>(
+          model: AvailableSizes(width: constraints.maxWidth),
+          child: Container(
+            height: constraints.maxHeight,
+            child: Column(
+              children: <Widget>[
+                TabBar(
+                  indicatorColor: ThemeProvider.primaryColor,
+                  labelColor: ThemeProvider.primaryColor,
+                  tabs: [
+                    const Tab(text: "All"),
+                    const Tab(text: "Accepted"),
+                    const Tab(text: "Pending"),
+                    const Tab(text: "Refused"),
+                  ],
+                ),
+                Expanded(
+                  child: StreamBuilder<bool>(
+                      stream: Provider.of<ChatProvider>(context, listen: false)
+                          .loadedContactsStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                                ConnectionState.waiting ||
+                            snapshot.data == false) {
+                          return Center(child: CircularProgressIndicator());
+                        }
 
-                      return TabBarView(
-                        children: [
-                          MessageList(),
-                          MessageList(status: StatusRequest.accepted),
-                          MessageList(status: StatusRequest.pending),
-                          MessageList(status: StatusRequest.refused),
-                        ],
-                      );
-                    }),
-              ),
-            ],
+                        return TabBarView(
+                          children: [
+                            MessageList(),
+                            MessageList(status: StatusRequest.accepted),
+                            MessageList(status: StatusRequest.pending),
+                            MessageList(status: StatusRequest.refused),
+                          ],
+                        );
+                      }),
+                ),
+              ],
+            ),
           ),
         );
       }),
@@ -198,8 +204,14 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme =
+        Provider.of<ThemeProvider>(context).getTheme().textTheme;
+
+    double maxWidth = ScopedModel.of<AvailableSizes>(context).width;
+
     return GestureDetector(
-      child: Padding(
+      child: Container(
+        width: maxWidth,
         padding: const EdgeInsets.only(
           right: 12,
           top: 4,
@@ -230,7 +242,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
               ),
             ),
             const SizedBox(width: 12),
-            Expanded(
+            Flexible(
               child: Container(
                 decoration: BoxDecoration(
                   border: Border(
@@ -242,55 +254,77 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                         .getTypingNotificationStream(chat.id),
                     builder: (context, snapshot) {
                       return Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Container(
-                            height: 60,
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Container(
-                                  child: AutoSizeText(
-                                    chat.user.completeName,
-                                    style: Provider.of<ThemeProvider>(context)
-                                        .getTheme()
-                                        .textTheme
-                                        .display1,
-                                    maxLines: 1,
+                          Flexible(
+                            child: Container(
+                              height: 60,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Container(
+                                    child: AutoSizeText(
+                                      chat.user.completeName,
+                                      style: textTheme.display1,
+                                      maxLines: 1,
+                                    ),
                                   ),
-                                ),
-                                Container(
-                                  child: AutoSizeText(
-                                    (snapshot.hasData && snapshot.data)
-                                        ? "Typing..."
-                                        : chat.messages.isNotEmpty
-                                            ? chat.messages[0].content
-                                            : "Contact ${chat.user.completeName} now!",
-                                    style: Provider.of<ThemeProvider>(context)
-                                        .getTheme()
-                                        .textTheme
-                                        .subhead,
-                                    maxLines: 1,
+                                  Container(
+                                    child: AutoSizeText(
+                                      (snapshot.hasData && snapshot.data)
+                                          ? "Typing..."
+                                          : chat.messages.isNotEmpty
+                                              ? chat.messages[0].content
+                                              : "Contact ${chat.user.completeName} now!",
+                                      style: textTheme.subhead,
+                                      minFontSize: textTheme.subhead.fontSize,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                          const Flexible(fit: FlexFit.loose, child: Center()),
                           Container(
-                            alignment: Alignment.topRight,
+                            alignment: Alignment.center,
+                            height: 60,
                             width: 50,
-                            child: AutoSizeText(
-                              (snapshot.hasData && snapshot.data)
-                                  ? ""
-                                  : timeToString(
-                                      chat.messages.isNotEmpty
-                                          ? chat.messages[0].createdAt
-                                          : chat.createdAt,
-                                    ),
-                              maxLines: 1,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                const SizedBox(height: 8),
+                                AutoSizeText(
+                                  (snapshot.hasData && snapshot.data)
+                                      ? ""
+                                      : timeToString(
+                                          chat.messages.isNotEmpty
+                                              ? chat.messages[0].createdAt
+                                              : chat.createdAt,
+                                        ),
+                                  maxLines: 1,
+                                ),
+                                chat.unreadMessages != 0
+                                    ? Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.green,
+                                        ),
+                                        child: AutoSizeText(
+                                          "${chat.unreadMessages}",
+                                          style: textTheme.subhead.copyWith(
+                                            fontSize: 14,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                          maxLines: 1,
+                                        ),
+                                      )
+                                    : Container()
+                              ],
                             ),
                           ),
                         ],
@@ -302,33 +336,5 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
         ),
       ),
     );
-  }
-}
-
-class PreviewMessage extends StatelessWidget {
-  final ContactMentor chat;
-
-  PreviewMessage(this.chat);
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<bool>(
-        stream: Provider.of<ChatProvider>(context, listen: false)
-            .getTypingNotificationStream(chat.id),
-        builder: (context, snapshot) {
-          return Container(
-            child: Text(
-              (snapshot.hasData && snapshot.data)
-                  ? "Typing..."
-                  : chat.messages.isNotEmpty
-                      ? chat.messages[0].content
-                      : "Contact ${chat.user.completeName} now!",
-              style: Provider.of<ThemeProvider>(context)
-                  .getTheme()
-                  .textTheme
-                  .subhead,
-            ),
-          );
-        });
   }
 }

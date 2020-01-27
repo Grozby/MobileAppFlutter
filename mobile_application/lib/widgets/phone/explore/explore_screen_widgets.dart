@@ -166,7 +166,7 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                   primary: false,
                   physics: const ScrollPhysics(),
                   child: ScopedModel<AvailableSizes>(
-                    model: AvailableSizes(constraints.minHeight),
+                    model: AvailableSizes(height: constraints.minHeight),
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: ExploreCard(indexUser: index),
