@@ -38,6 +38,9 @@ dependencies:
   flutter_ffmpeg: ^0.2.8
   socket_io_client: ^0.9.7+2
   rxdart: ^0.23.1
+  console: ^3.1.0
+
+
 
 
 
@@ -46,6 +49,9 @@ dependencies:
   cupertino_icons: ^0.1.2
 
 dev_dependencies:
+  flutter_driver:
+    sdk: flutter
+  test: any
   flutter_test:
     sdk: flutter
   build_runner: ^1.7.1

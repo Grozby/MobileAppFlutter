@@ -209,7 +209,7 @@ class ChatProvider with ChangeNotifier {
     _loadedContactsNotifier.close();
     _errorNotifier.close();
     _connectionNotifier.close();
-    timeoutTypingNotification.cancel();
+    timeoutTypingNotification?.cancel();
 
     socket.clearListeners();
     socket.close();
