@@ -16,7 +16,7 @@ class TypingNotifier {
   StreamController<bool> typingNotification = BehaviorSubject();
   StreamController<bool> typingNotifier = PublishSubject();
 
-  void setNotifier(bool value) => typingNotification.sink.add(value);
+  void setTypingNotifier(bool value) => typingNotification.sink.add(value);
 
   void sendNotification(bool value) => typingNotifier.sink.add(value);
 
@@ -45,12 +45,13 @@ class ChatProvider with ChangeNotifier {
 
   StreamController<String> _errorNotifier = StreamController.broadcast();
   StreamController<bool> _connectionNotifier = BehaviorSubject();
-  BehaviorSubject<bool> _loadedContactsNotifier = BehaviorSubject();
+  StreamController<bool> _updateScreenNotifier = BehaviorSubject();
+  BehaviorSubject<bool> _updateContactsNotifier = BehaviorSubject();
   Map<String, TypingNotifier> _mapTypingStreams = HashMap();
 
   ChatProvider(this.httpRequestWrapper);
 
-  Stream get loadedContactsStream => _loadedContactsNotifier.stream;
+  Stream get updateContactsStream => _updateContactsNotifier.stream;
 
   Stream get errorNotifierStream => _errorNotifier.stream;
 
@@ -73,7 +74,7 @@ class ChatProvider with ChangeNotifier {
 
     _errorNotifier = StreamController.broadcast();
     _connectionNotifier = BehaviorSubject();
-    _loadedContactsNotifier = BehaviorSubject();
+    _updateContactsNotifier = BehaviorSubject();
     _mapTypingStreams = HashMap();
 
     _initializeSocket();
@@ -83,7 +84,7 @@ class ChatProvider with ChangeNotifier {
 
   Future<void> fetchChatContacts() async {
     try {
-      _loadedContactsNotifier.sink.add(false);
+      _updateContactsNotifier.sink.add(false);
       _clearTypingMapStreams();
 
       contacts = await httpRequestWrapper.request<List<ContactMentor>>(
@@ -93,7 +94,7 @@ class ChatProvider with ChangeNotifier {
             return jsonArray.data.map<ContactMentor>((json) {
               ContactMentor c = ContactMentor.fromJson(json);
               _mapTypingStreams[c.id] = TypingNotifier();
-              _mapTypingStreams[c.id].setNotifier(false);
+              _mapTypingStreams[c.id].setTypingNotifier(false);
               return c;
             }).toList();
           },
@@ -103,7 +104,7 @@ class ChatProvider with ChangeNotifier {
             );
           });
 
-      _loadedContactsNotifier.sink.add(true);
+      _updateContactsNotifier.sink.add(true);
     } on NoInternetException catch (e) {
       print(e);
     }
@@ -150,14 +151,14 @@ class ChatProvider with ChangeNotifier {
       if (data["userId"] != userId) {
         if (!isTyping) {
           isTyping = true;
-          _mapTypingStreams[data["chatId"]].setNotifier(isTyping);
+          _mapTypingStreams[data["chatId"]].setTypingNotifier(isTyping);
         } else {
           timeoutTypingNotification.cancel();
         }
 
         timeoutTypingNotification = Timer(Duration(seconds: typingTimeout), () {
           isTyping = false;
-          _mapTypingStreams[data["chatId"]].setNotifier(isTyping);
+          _mapTypingStreams[data["chatId"]].setTypingNotifier(isTyping);
         });
       }
     });
@@ -177,9 +178,16 @@ class ChatProvider with ChangeNotifier {
 
       timeoutTypingNotification.cancel();
       isTyping = false;
-      _mapTypingStreams[data["chatId"]].setNotifier(isTyping);
+      _mapTypingStreams[data["chatId"]].setTypingNotifier(isTyping);
     });
 
+    socket.on('updated_contact_request', (data) {
+      contacts.where((c) => data["chatId"] == c.id).first.status =
+          (data["status"] == 'accepted'
+              ? StatusRequest.accepted
+              : StatusRequest.refused);
+      _updateContactsNotifier.sink.add(true);
+    });
   }
 
   void connectionStatus(bool status) {
@@ -192,14 +200,12 @@ class ChatProvider with ChangeNotifier {
   void chatWith(String chatId) {
     socket.emit("new_chat", {
       "chatId": chatId,
-      "userId": userId,
     });
   }
 
   void sendTypingNotification(String chatId) {
     socket.emit("typing", {
       "chatId": chatId,
-      "userId": userId,
     });
   }
 
@@ -214,10 +220,12 @@ class ChatProvider with ChangeNotifier {
   void closeConnections() {
     isConnected = false;
     isTyping = false;
-    _loadedContactsNotifier.close();
+    _updateContactsNotifier.close();
     _errorNotifier.close();
     _connectionNotifier.close();
+    _updateScreenNotifier.close();
     timeoutTypingNotification?.cancel();
+
 
     socket.clearListeners();
     socket.close();

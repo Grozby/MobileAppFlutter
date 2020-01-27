@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -127,7 +128,7 @@ class _ChatContentWidgetState extends State<ChatContentWidget> {
                 Expanded(
                   child: StreamBuilder<bool>(
                       stream: Provider.of<ChatProvider>(context, listen: false)
-                          .loadedContactsStream,
+                          .updateContactsStream,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                                 ConnectionState.waiting ||
@@ -202,6 +203,26 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
 
   ChatTile({@required this.chat, this.selectChat});
 
+  String getMessagePreview() {
+    if (chat.messages.isNotEmpty) {
+      return chat.messages[0].content;
+    } else {
+      String response;
+      switch (chat.status) {
+        case StatusRequest.accepted:
+          response = "Contact ${chat.user.completeName} now!";
+          break;
+        case StatusRequest.pending:
+          response = "Waiting for ${chat.user.completeName} response.";
+          break;
+        case StatusRequest.refused:
+          response = "${chat.user.completeName} refused the request.";
+          break;
+      }
+      return response;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme =
@@ -254,13 +275,15 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                         .getTypingNotificationStream(chat.id),
                     builder: (context, snapshot) {
                       return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Flexible(
                             child: Container(
                               height: 60,
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   Container(
@@ -274,9 +297,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                     child: AutoSizeText(
                                       (snapshot.hasData && snapshot.data)
                                           ? "Typing..."
-                                          : chat.messages.isNotEmpty
-                                              ? chat.messages[0].content
-                                              : "Contact ${chat.user.completeName} now!",
+                                          : getMessagePreview(),
                                       style: textTheme.subhead,
                                       minFontSize: textTheme.subhead.fontSize,
                                       maxLines: 1,
@@ -306,7 +327,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                         ),
                                   maxLines: 1,
                                 ),
-                                chat.unreadMessages != 0
+                                chat.numberUnreadMessages != 0
                                     ? Container(
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
@@ -314,7 +335,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                           color: Colors.green,
                                         ),
                                         child: AutoSizeText(
-                                          "${chat.unreadMessages}",
+                                          "${chat.numberUnreadMessages}",
                                           style: textTheme.subhead.copyWith(
                                             fontSize: 14,
                                             color: Colors.white,
