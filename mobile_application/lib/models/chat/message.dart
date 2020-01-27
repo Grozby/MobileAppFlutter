@@ -10,12 +10,14 @@ class Message {
   String kind;
   @JsonKey(fromJson: getDateTimeFromString)
   DateTime createdAt;
+  bool isRead;
 
   Message({
     @required this.userId,
     @required this.content,
     @required this.kind,
     @required this.createdAt,
+    @required this.isRead,
   });
 
   ///

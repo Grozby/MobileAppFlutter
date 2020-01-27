@@ -146,6 +146,7 @@ class ChatProvider with ChangeNotifier {
 
     ///Messages methods
     socket.on('typing', (data) {
+      print("typing");
       if (data["userId"] != userId) {
         if (!isTyping) {
           isTyping = true;
@@ -162,16 +163,23 @@ class ChatProvider with ChangeNotifier {
     });
 
     socket.on('message', (data) {
-      contacts.where((c) => data.chatId == c.id).first.messages.insert(
+      print("messagione");
+      contacts.where((c) => data["chatId"] == c.id).first.messages.insert(
             0,
             Message.fromJson({
-              "userId": data.userId,
-              "content": data.content,
-              "kind": data.kind,
-              "createdAt": data.createdAt,
+              "userId": data["userId"],
+              "content": data["content"],
+              "kind": data["kind"],
+              "createdAt": data["createdAt"].toString(),
+              "isRead": data["isRead"]
             }),
           );
+
+      timeoutTypingNotification.cancel();
+      isTyping = false;
+      _mapTypingStreams[data["chatId"]].setNotifier(isTyping);
     });
+
   }
 
   void connectionStatus(bool status) {
