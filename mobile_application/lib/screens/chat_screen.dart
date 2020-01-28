@@ -3,9 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/authentication/authentication_provider.dart';
 import '../providers/chat/chat_provider.dart';
-import '../providers/user/user_data_provider.dart';
 import '../widgets/phone/chat/chat_screen_widget.dart' as phone;
 
 class ChatListScreen extends StatefulWidget {

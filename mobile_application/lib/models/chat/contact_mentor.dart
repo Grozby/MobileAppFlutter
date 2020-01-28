@@ -29,11 +29,6 @@ class ContactMentor {
     this.messages,
   });
 
-  int get numberUnreadMessages =>
-      messages.where((e) => !e.isRead).toList().length +
-      unreadMessages -
-      ((messages.isNotEmpty && messages[0].isRead) ? 1 : 0);
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

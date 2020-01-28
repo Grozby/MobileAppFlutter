@@ -42,6 +42,7 @@ class ChatProvider with ChangeNotifier {
   bool isTyping = false;
   List<ContactMentor> contacts;
   Timer timeoutTypingNotification;
+  String currentActiveChatId;
 
   StreamController<String> _errorNotifier = StreamController.broadcast();
   StreamController<bool> _connectionNotifier = BehaviorSubject();
@@ -124,7 +125,9 @@ class ChatProvider with ChangeNotifier {
           });
 
       _numberUnreadMessagesNotifier.sink.add(
-        contacts.where((c) => c.numberUnreadMessages != 0).length,
+        contacts
+            .where((c) => c.unreadMessages != 0)
+            .length,
       );
 
       _updateContactsNotifier.sink.add(true);
@@ -173,23 +176,33 @@ class ChatProvider with ChangeNotifier {
           "forceNew": true,
         },
       );
+    } else {
+      socket.connect();
     }
 
-    socket.on('connect', (_) => connectionStatus(true));
+    socket.on('connect', (_) {
+      connectionStatus(true);
+    });
     socket.on('connect_error', (_) => connectionStatus(false));
     socket.on('disconnect', (_) => connectionStatus(false));
 
+    socket.on('had_active_chad', (_) {
+      if(currentActiveChatId != null){
+        joinChatWith(currentActiveChatId);
+      }
+    });
+
     socket.on(
       'connect_timeout',
-      (errorMessage) => _errorNotifier.sink.add("Timeout."),
+          (errorMessage) => _errorNotifier.sink.add("Timeout."),
     );
     socket.on(
       'error',
-      (errorMessage) => _errorNotifier.sink.add(errorMessage),
+          (errorMessage) => _errorNotifier.sink.add(errorMessage),
     );
     socket.on(
       'exception',
-      (errorMessage) => _errorNotifier.sink.add(errorMessage),
+          (errorMessage) => _errorNotifier.sink.add(errorMessage),
     );
 
     ///Messages methods
@@ -212,30 +225,38 @@ class ChatProvider with ChangeNotifier {
 
     socket.on('message', (data) {
       print("messagione");
-      contacts.firstWhere((c) => data["chatId"] == c.id).messages.insert(
-            0,
-            Message.fromJson({
-              "userId": data["userId"],
-              "content": data["content"],
-              "kind": data["kind"],
-              "createdAt": data["createdAt"].toString(),
-              "isRead": data["isRead"]
-            }),
-          );
+      ContactMentor c = contacts.firstWhere((c) => data["chatId"] == c.id);
+
+      c.messages.insert(
+        0,
+        Message.fromJson({
+          "userId": data["userId"],
+          "content": data["content"],
+          "kind": data["kind"],
+          "createdAt": data["createdAt"].toString(),
+          "isRead": data["isRead"]
+        }),
+      );
+      c.unreadMessages += 1;
 
       timeoutTypingNotification.cancel();
       isTyping = false;
       _mapTypingStreams[data["chatId"]].setTypingNotifier(isTyping);
+
       _numberUnreadMessagesNotifier.sink.add(
-        contacts.where((c) => c.numberUnreadMessages != 0).length,
+        contacts
+            .where((c) => c.unreadMessages != 0)
+            .length,
       );
     });
 
     socket.on('updated_contact_request', (data) {
-      contacts.firstWhere((c) => data["chatId"] == c.id).status =
-          (data["status"] == 'accepted'
-              ? StatusRequest.accepted
-              : StatusRequest.refused);
+      contacts
+          .firstWhere((c) => data["chatId"] == c.id)
+          .status =
+      (data["status"] == 'accepted'
+          ? StatusRequest.accepted
+          : StatusRequest.refused);
       _updateContactsNotifier.sink.add(true);
     });
   }
@@ -251,12 +272,14 @@ class ChatProvider with ChangeNotifier {
     socket.emit("new_chat", {
       "chatId": chatId,
     });
+    currentActiveChatId = chatId;
   }
 
   void leaveChatWith(String chatId) {
-    socket.emit("new_chat", {
+    socket.emit("leave_chat", {
       "chatId": chatId,
     });
+    currentActiveChatId = null;
   }
 
   void sendTypingNotification(String chatId) {

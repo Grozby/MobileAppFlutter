@@ -46,16 +46,15 @@ class InfoBarWidget extends StatelessWidget {
       width: width,
       child: Row(
         children: <Widget>[
-          Expanded(
-            child: CircularButton(
-              assetPath: AssetImages.backArrow,
-              alignment: Alignment.centerLeft,
-              width: 55,
-              height: 55,
-              reduceFactor: 0.6,
-              onPressFunction: () => backButton(context),
-            ),
+          CircularButton(
+            assetPath: AssetImages.backArrow,
+            alignment: Alignment.centerLeft,
+            width: 55,
+            height: 55,
+            reduceFactor: 0.6,
+            onPressFunction: () => backButton(context),
           ),
+          const SizedBox(width: 8),
           Expanded(
             child: StreamBuilder(
               stream:
@@ -76,16 +75,15 @@ class InfoBarWidget extends StatelessWidget {
               },
             ),
           ),
-          Expanded(
-            child: CircularButton(
-              assetPath: AssetImages.settings,
-              alignment: Alignment.centerRight,
-              width: 55,
-              height: 55,
-              reduceFactor: 0.6,
-              onPressFunction: () => goToSettingPage(context),
-            ),
-          ),
+          const SizedBox(width: 8),
+          CircularButton(
+            assetPath: AssetImages.settings,
+            alignment: Alignment.centerRight,
+            width: 55,
+            height: 55,
+            reduceFactor: 0.6,
+            onPressFunction: () => goToSettingPage(context),
+          )
         ],
       ),
     );
@@ -341,7 +339,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                         ),
                                   maxLines: 1,
                                 ),
-                                chat.numberUnreadMessages != 0
+                                chat.unreadMessages != 0
                                     ? Container(
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
@@ -349,7 +347,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                           color: Colors.green,
                                         ),
                                         child: AutoSizeText(
-                                          "${chat.numberUnreadMessages}",
+                                          "${chat.unreadMessages}",
                                           style: textTheme.subhead.copyWith(
                                             fontSize: 14,
                                             color: Colors.white,
