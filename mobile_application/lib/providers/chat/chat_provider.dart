@@ -11,20 +11,20 @@ import '../../models/chat/message.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
 import '../configuration.dart';
 
-class TypingNotifier {
-  StreamController<bool> typingNotification = BehaviorSubject();
+class MessagePreviewController {
+  StreamController<bool> updateNotification = BehaviorSubject();
   StreamController<bool> typingNotifier = PublishSubject();
 
-  void setTypingNotifier(bool value) => typingNotification.sink.add(value);
+  void notifiedWith({bool value}) => updateNotification.sink.add(value);
 
   void sendNotification(bool value) => typingNotifier.sink.add(value);
 
-  Stream get typingNotificationStream => typingNotification.stream;
+  Stream get typingNotificationStream => updateNotification.stream;
 
   Stream get typingNotifierStream => typingNotifier.stream;
 
   void dispose() {
-    typingNotification.close();
+    updateNotification.close();
     typingNotifier.close();
   }
 }
@@ -40,16 +40,20 @@ class ChatProvider with ChangeNotifier {
   Socket socket;
   bool isConnected = false;
   bool isTyping = false;
+  bool isInitialized = false;
   List<ContactMentor> contacts;
   Timer timeoutTypingNotification;
   String currentActiveChatId;
 
-  StreamController<String> _errorNotifier = StreamController.broadcast();
-  StreamController<bool> _connectionNotifier = BehaviorSubject();
+  StreamController<String> _errorNotifier;
+  StreamController<bool> _connectionNotifier;
   StreamController<bool> _updateScreenNotifier = BehaviorSubject();
-  BehaviorSubject<bool> _updateContactsNotifier = BehaviorSubject();
-  BehaviorSubject<int> _numberUnreadMessagesNotifier = BehaviorSubject();
-  Map<String, TypingNotifier> _mapTypingStreams = HashMap();
+  /// Used for notify a general update in the stored [contacts].
+  BehaviorSubject<bool> _updateContactsNotifier;
+  /// Used for notify the [InfoBarWidget] of new messages in the home page screen
+  BehaviorSubject<int> _numberUnreadMessagesNotifier;
+  /// Used for notify the [MessageTile] of new messages and typing notification
+  Map<String, StreamController<bool>> _mapMessagePreviewStreams;
 
   ChatProvider(this.httpRequestWrapper);
 
@@ -61,45 +65,40 @@ class ChatProvider with ChangeNotifier {
 
   Stream get numberUnreadMessagesStream => _numberUnreadMessagesNotifier.stream;
 
-  Stream getTypingNotificationStream(String id) =>
-      _mapTypingStreams[id].typingNotificationStream;
-
-  PublishSubject getTypingNotifierStream(String id) =>
-      _mapTypingStreams[id].typingNotifierStream;
+  Stream getMessagePreviewNotificationStream(String id) =>
+      _mapMessagePreviewStreams[id].stream;
 
   void _clearTypingMapStreams() {
-    _mapTypingStreams.forEach((_, t) => t.dispose());
-    _mapTypingStreams.clear();
+    _mapMessagePreviewStreams.forEach((_, t) => t.close());
+    _mapMessagePreviewStreams.clear();
   }
 
-  Future<void> initializeChatProvider({String authToken, String userId}) async {
-    this.authToken = authToken;
-    this.userId = await httpRequestWrapper.request<String>(
-        url: getUserIdUri,
-        correctStatusCode: 200,
-        onCorrectStatusCode: (json) async {
-          return json.data["id"];
-        },
-        onIncorrectStatusCode: (_) {
-          throw SomethingWentWrongException.message(
-            "Couldn't load the messages. Try again later.",
-          );
-        });
+  Future<void> initializeChatProvider({String authToken}) async {
+    if (!isInitialized) {
+      isInitialized = true;
+      this.authToken = authToken;
+      this.userId = await httpRequestWrapper.request<String>(
+          url: getUserIdUri,
+          correctStatusCode: 200,
+          onCorrectStatusCode: (json) async {
+            return json.data["id"];
+          },
+          onIncorrectStatusCode: (_) {
+            throw SomethingWentWrongException.message(
+              "Couldn't load the messages. Try again later.",
+            );
+          });
 
-    _connectionNotifier = BehaviorSubject();
+      _connectionNotifier = BehaviorSubject();
+      _numberUnreadMessagesNotifier = BehaviorSubject();
+      _updateContactsNotifier = BehaviorSubject();
+      _errorNotifier = StreamController.broadcast();
+      _mapMessagePreviewStreams = HashMap();
 
-    _initializeSocket();
+      _initializeSocket();
 
-    await fetchChatContacts();
-  }
-
-  Future<void> initializeForChatScreen() async {
-    _errorNotifier = StreamController.broadcast();
-    _updateContactsNotifier = BehaviorSubject();
-    _mapTypingStreams = HashMap();
-
-    _initializeSocket();
-    await fetchChatContacts();
+      await fetchChatContacts();
+    }
   }
 
   Future<void> fetchChatContacts() async {
@@ -113,8 +112,8 @@ class ChatProvider with ChangeNotifier {
           onCorrectStatusCode: (jsonArray) async {
             return jsonArray.data.map<ContactMentor>((json) {
               ContactMentor c = ContactMentor.fromJson(json);
-              _mapTypingStreams[c.id] = TypingNotifier();
-              _mapTypingStreams[c.id].setTypingNotifier(false);
+              _mapMessagePreviewStreams[c.id] = BehaviorSubject();
+              _mapMessagePreviewStreams[c.id].sink.add(false);
               return c;
             }).toList();
           },
@@ -125,9 +124,7 @@ class ChatProvider with ChangeNotifier {
           });
 
       _numberUnreadMessagesNotifier.sink.add(
-        contacts
-            .where((c) => c.unreadMessages != 0)
-            .length,
+        contacts.where((c) => c.unreadMessages != 0).length,
       );
 
       _updateContactsNotifier.sink.add(true);
@@ -162,6 +159,17 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
+  void addSocketListener(String event, void Function(dynamic) callback,
+      {forceBind: false}) {
+    if (!socket.hasListeners(event) || forceBind) {
+      print("Correctly added Event: $event");
+      socket.on(event, (data) {
+        print("Event: $event");
+        callback(data);
+      });
+    }
+  }
+
   ///
   /// Socket methods
   ///
@@ -180,51 +188,53 @@ class ChatProvider with ChangeNotifier {
       socket.connect();
     }
 
-    socket.on('connect', (_) {
-      connectionStatus(true);
-    });
-    socket.on('connect_error', (_) => connectionStatus(false));
-    socket.on('disconnect', (_) => connectionStatus(false));
+    addSocketListener(
+      'connect',
+      (_) => connectionStatus(status: true),
+      forceBind: true,
+    );
+    addSocketListener('reconnect', (_) => connectionStatus(status: true));
+    addSocketListener('connect_error', (_) => connectionStatus(status: false));
+    addSocketListener('disconnect', (_) => connectionStatus(status: false));
 
-    socket.on('had_active_chad', (_) {
-      if(currentActiveChatId != null){
+    addSocketListener('had_active_chat', (_) {
+      if (currentActiveChatId != null) {
         joinChatWith(currentActiveChatId);
       }
     });
 
-    socket.on(
+    addSocketListener(
       'connect_timeout',
-          (errorMessage) => _errorNotifier.sink.add("Timeout."),
+      (errorMessage) => _errorNotifier.sink.add("Timeout."),
     );
-    socket.on(
+    addSocketListener(
       'error',
-          (errorMessage) => _errorNotifier.sink.add(errorMessage),
+      (errorMessage) => _errorNotifier.sink.add(errorMessage),
     );
-    socket.on(
+    addSocketListener(
       'exception',
-          (errorMessage) => _errorNotifier.sink.add(errorMessage),
+      (errorMessage) => _errorNotifier.sink.add(errorMessage),
     );
 
     ///Messages methods
-    socket.on('typing', (data) {
-      print("typing");
+
+    addSocketListener('typing', (data) {
       if (data["userId"] != userId) {
         if (!isTyping) {
           isTyping = true;
-          _mapTypingStreams[data["chatId"]].setTypingNotifier(isTyping);
+          _mapMessagePreviewStreams[data["chatId"]].sink.add(isTyping);
         } else {
           timeoutTypingNotification.cancel();
         }
 
         timeoutTypingNotification = Timer(Duration(seconds: typingTimeout), () {
           isTyping = false;
-          _mapTypingStreams[data["chatId"]].setTypingNotifier(isTyping);
+          _mapMessagePreviewStreams[data["chatId"]].sink.add(isTyping);
         });
       }
     });
 
-    socket.on('message', (data) {
-      print("messagione");
+    addSocketListener('message', (data) {
       ContactMentor c = contacts.firstWhere((c) => data["chatId"] == c.id);
 
       c.messages.insert(
@@ -237,31 +247,27 @@ class ChatProvider with ChangeNotifier {
           "isRead": data["isRead"]
         }),
       );
-      c.unreadMessages += 1;
+      c.unreadMessages += data["isRead"] ? 0 : 1;
 
       timeoutTypingNotification.cancel();
       isTyping = false;
-      _mapTypingStreams[data["chatId"]].setTypingNotifier(isTyping);
+      _mapMessagePreviewStreams[data["chatId"]].sink.add(isTyping);
 
       _numberUnreadMessagesNotifier.sink.add(
-        contacts
-            .where((c) => c.unreadMessages != 0)
-            .length,
+        contacts.where((c) => c.unreadMessages != 0).length,
       );
     });
 
-    socket.on('updated_contact_request', (data) {
-      contacts
-          .firstWhere((c) => data["chatId"] == c.id)
-          .status =
-      (data["status"] == 'accepted'
-          ? StatusRequest.accepted
-          : StatusRequest.refused);
+    addSocketListener('updated_contact_request', (data) {
+      contacts.firstWhere((c) => data["chatId"] == c.id).status =
+          (data["status"] == 'accepted'
+              ? StatusRequest.accepted
+              : StatusRequest.refused);
       _updateContactsNotifier.sink.add(true);
     });
   }
 
-  void connectionStatus(bool status) {
+  void connectionStatus({bool status}) {
     if (status != isConnected) {
       isConnected = status;
       _connectionNotifier.sink.add(isConnected);
