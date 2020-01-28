@@ -129,7 +129,7 @@ class _ChatContentWidgetState extends State<ChatContentWidget> {
                 ),
                 Expanded(
                   child: StreamBuilder<bool>(
-                      stream: Provider.of<ChatProvider>(context, listen: false)
+                      stream: Provider.of<ChatProvider>(context)
                           .updateContactsStream,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
@@ -284,7 +284,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                 ),
                 child: StreamBuilder<bool>(
                     stream: Provider.of<ChatProvider>(context, listen: false)
-                        .getTypingNotificationStream(chat.id),
+                        .getMessagePreviewNotificationStream(chat.id),
                     builder: (context, snapshot) {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

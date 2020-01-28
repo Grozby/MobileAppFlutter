@@ -5,7 +5,6 @@ import 'package:mobile_application/widgets/phone/chat/single_chat_screen_widget.
     as phone;
 import 'package:provider/provider.dart';
 
-import '../models/chat/contact_mentor.dart';
 import '../providers/chat/chat_provider.dart';
 
 class SingleChatArguments {
@@ -26,12 +25,28 @@ class SingleChatScreen extends StatefulWidget {
 }
 
 class _SingleChatScreenState extends State<SingleChatScreen> {
+  ChatProvider chatProviderReference;
+
+  @override
+  void initState() {
+    super.initState();
+    chatProviderReference = Provider.of<ChatProvider>(context, listen: false);
+    if (chatProviderReference != null) {
+      chatProviderReference.fetchChatContact(widget.arguments.id);
+      chatProviderReference.joinChatWith(widget.arguments.id);
+    }
+  }
+
+  @override
+  void dispose() {
+    chatProviderReference.leaveChatWith(widget.arguments.id);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     var mediaQuery = MediaQuery.of(context);
     var isSmartPhone = mediaQuery.size.shortestSide < 600;
-    ContactMentor c =
-        Provider.of<ChatProvider>(context).getChatById(widget.arguments.id);
 
     return Scaffold(
       body: SafeArea(
@@ -39,26 +54,24 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
           builder: (ctx, constraints) {
             return isSmartPhone
                 ? SingleChatWidget(
-                    chatId: c.id,
                     width: constraints.maxWidth,
                     infoWidget: phone.InfoBarWidget(
+                      chatId: widget.arguments.id,
                       width: constraints.maxWidth * 0.85,
-                      userPictureUrl: c.user.pictureUrl,
-                      userCompleteName: c.user.completeName,
-                      userId: c.user.id,
                     ),
-                    chatContentWidget: phone.SingleChatContentWidget(),
+                    chatContentWidget: phone.SingleChatContentWidget(
+                      chatId: widget.arguments.id,
+                    ),
                   )
                 : SingleChatWidget(
-                    chatId: c.id,
                     width: constraints.maxWidth,
                     infoWidget: phone.InfoBarWidget(
+                      chatId: widget.arguments.id,
                       width: constraints.maxWidth * 0.85,
-                      userPictureUrl: c.user.pictureUrl,
-                      userCompleteName: c.user.completeName,
-                      userId: c.user.id,
                     ),
-                    chatContentWidget: phone.SingleChatContentWidget(),
+                    chatContentWidget: phone.SingleChatContentWidget(
+                      chatId: widget.arguments.id,
+                    ),
                   );
           },
         ),
@@ -70,13 +83,11 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
 class SingleChatWidget extends StatefulWidget {
   final Widget infoWidget;
   final Widget chatContentWidget;
-  final String chatId;
   final double width;
 
   SingleChatWidget({
     @required this.infoWidget,
     @required this.chatContentWidget,
-    @required this.chatId,
     @required this.width,
   });
 
@@ -86,24 +97,6 @@ class SingleChatWidget extends StatefulWidget {
 
 class _SingleChatWidgetState extends State<SingleChatWidget>
     with SingleTickerProviderStateMixin {
-  ChatProvider chatProviderReference;
-
-  @override
-  void initState() {
-    super.initState();
-    chatProviderReference = Provider.of<ChatProvider>(context, listen: false);
-    if (chatProviderReference != null) {
-      chatProviderReference.fetchChatContact(widget.chatId);
-      chatProviderReference.joinChatWith(widget.chatId);
-    }
-  }
-
-  @override
-  void dispose() {
-    chatProviderReference.leaveChatWith(widget.chatId);
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
