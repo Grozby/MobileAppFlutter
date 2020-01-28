@@ -7,6 +7,7 @@ import '../../helpers/custom_route.dart';
 class ThemeProvider with ChangeNotifier {
   ThemeData _themeData;
   SystemUiOverlayStyle _overlayStyle;
+  Map<String, Color> _chatColors;
 
   bool _isLight;
   static const Color _mentorColor = Color.fromRGBO(234, 128, 59, 1);
@@ -20,6 +21,18 @@ class ThemeProvider with ChangeNotifier {
   static const Color _textColor = Color.fromRGBO(68, 86, 108, 1);
   static const Color _greyTextColor = Color.fromRGBO(161, 170, 181, 1);
   static const Color _lightGreyTextColor = Color.fromRGBO(211, 220, 231, 1);
+
+  static const Map<String, Color> _lightChatColors = {
+    "currentUser": _primaryColor,
+    "otherUser": Colors.white,
+    "border": Color(0xFFE0E0E0),
+  };
+
+  static const Map<String, Color> _darkChatColors = {
+    "currentUserColorChat": _primaryColor,
+    "otherUserColorChat": Colors.white,
+    "border": Colors.white,
+  };
 
   static const SystemUiOverlayStyle _lightOverlayStyle = SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent,
@@ -53,39 +66,45 @@ class ThemeProvider with ChangeNotifier {
     ),
     cursorColor: Colors.grey,
     textTheme: ThemeData.light().textTheme.copyWith(
-        display3: TextStyle(
-          fontSize: 32.0,
-          fontWeight: FontWeight.bold,
-          color: _textColor,
+          display3: TextStyle(
+            fontSize: 32.0,
+            fontWeight: FontWeight.bold,
+            color: _textColor,
+          ),
+          display2: TextStyle(
+            fontSize: 24.0,
+            color: _textColor,
+            fontWeight: FontWeight.w700,
+          ),
+          display1: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.w600,
+          ),
+          subhead: TextStyle(
+            fontSize: 16,
+            color: _greyTextColor,
+          ),
+          title: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: _textColor,
+          ),
+          overline: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: _greyTextColor,
+            letterSpacing: 0,
+          ),
+          body1: TextStyle(
+            fontSize: 16,
+            color: Color.fromRGBO(105, 120, 137, 1),
+          ),
+          body2: TextStyle(
+            fontSize: 16,
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        display2: TextStyle(
-          fontSize: 24.0,
-          color: _textColor,
-          fontWeight: FontWeight.w700,
-        ),
-        display1: TextStyle(
-          fontSize: 18.0,
-          fontWeight: FontWeight.w600,
-        ),
-        subhead: TextStyle(
-          fontSize: 16,
-          color: _greyTextColor,
-        ),
-        title: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: _textColor,
-        ),
-        overline: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: _greyTextColor,
-          letterSpacing: 0,
-        ),
-        body1: TextStyle(
-          fontSize: 16,
-          color: Color.fromRGBO(105, 120, 137, 1),
-        )),
   );
 
   ThemeData _darkTheme = ThemeData.dark().copyWith(
@@ -102,39 +121,45 @@ class ThemeProvider with ChangeNotifier {
     ),
     cursorColor: Colors.grey,
     textTheme: ThemeData.light().textTheme.copyWith(
-        display3: TextStyle(
-          fontSize: 32.0,
-          fontWeight: FontWeight.bold,
-          color: _lightGreyTextColor,
+          display3: TextStyle(
+            fontSize: 32.0,
+            fontWeight: FontWeight.bold,
+            color: _lightGreyTextColor,
+          ),
+          display2: TextStyle(
+            fontSize: 24.0,
+            color: _lightGreyTextColor,
+            fontWeight: FontWeight.w700,
+          ),
+          display1: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.w600,
+          ),
+          subhead: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+          ),
+          title: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: _lightGreyTextColor,
+          ),
+          overline: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: _lightGreyTextColor,
+            letterSpacing: 0,
+          ),
+          body1: TextStyle(
+            fontSize: 16,
+            color: Color.fromRGBO(105, 120, 137, 1),
+          ),
+          body2: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        display2: TextStyle(
-          fontSize: 24.0,
-          color: _lightGreyTextColor,
-          fontWeight: FontWeight.w700,
-        ),
-        display1: TextStyle(
-          fontSize: 18.0,
-          fontWeight: FontWeight.w600,
-        ),
-        subhead: TextStyle(
-          fontSize: 16,
-          color: Colors.white,
-        ),
-        title: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: _lightGreyTextColor,
-        ),
-        overline: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: _lightGreyTextColor,
-          letterSpacing: 0,
-        ),
-        body1: TextStyle(
-          fontSize: 16,
-          color: Color.fromRGBO(105, 120, 137, 1),
-        )),
   );
 
   /*----------
@@ -144,6 +169,8 @@ class ThemeProvider with ChangeNotifier {
   ThemeData getTheme() => _themeData;
 
   SystemUiOverlayStyle get overlayStyle => _overlayStyle;
+
+  Map<String, Color> get chatColors => _chatColors;
 
   static Color get primaryColor => _primaryColor;
 
@@ -175,10 +202,12 @@ class ThemeProvider with ChangeNotifier {
         preferences.getString('theme') == "dark") {
       _themeData = _darkTheme;
       _overlayStyle = _darkOverlayStyle;
+      _chatColors = _darkChatColors;
       _isLight = false;
     } else {
       _themeData = _lightTheme;
       _overlayStyle = _lightOverlayStyle;
+      _chatColors = _lightChatColors;
       _isLight = true;
     }
   }
@@ -187,9 +216,11 @@ class ThemeProvider with ChangeNotifier {
     if (_isLight) {
       _themeData = _darkTheme;
       _overlayStyle = _darkOverlayStyle;
+      _chatColors = _lightChatColors;
     } else {
       _themeData = _lightTheme;
       _overlayStyle = _lightOverlayStyle;
+      _chatColors = _darkChatColors;
     }
 
     _isLight = !_isLight;
