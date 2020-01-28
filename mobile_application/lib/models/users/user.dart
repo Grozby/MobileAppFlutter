@@ -74,10 +74,10 @@ class User {
 
   Color get cardColor => Colors.grey;
 
-  List<Job> get jobExperiences => experiences.whereType<Job>();
+  List<Job> get jobExperiences => experiences.whereType<Job>().toList();
 
   List<AcademicDegree> get academicExperiences =>
-      experiences.whereType<AcademicDegree>();
+      experiences.whereType<AcademicDegree>().toList();
 
   ///
   /// Serializable methods
