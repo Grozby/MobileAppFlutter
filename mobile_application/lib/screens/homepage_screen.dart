@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/authentication/authentication_provider.dart';
+import 'package:mobile_application/providers/chat/chat_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/overglow_less_scroll_behavior.dart';
@@ -116,10 +118,15 @@ class _HomepageWidgetState extends State<HomepageWidget>
   }
 
   void loadExploreSection() {
+    AuthenticationProvider auth =
+        Provider.of<AuthenticationProvider>(context, listen: false);
     _loadExploreSection = Future.wait([
       //TODO may implement a reduced version
       Provider.of<UserDataProvider>(context, listen: false).loadUserData(),
       Provider.of<CardProvider>(context, listen: false).loadCardProvider(),
+      Provider.of<ChatProvider>(context, listen: false).initializeChatProvider(
+        authToken: auth.token,
+      )
     ]).catchError((err) {
       /// There may two ways this future can fail. One is provoked by
       /// [loadCardProvider]. When the user is not finalized (as when logged

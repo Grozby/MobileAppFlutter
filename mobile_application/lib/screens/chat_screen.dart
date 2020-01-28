@@ -68,14 +68,10 @@ class _ChatWidgetState extends State<ChatWidget>
     super.initState();
     chatProviderReference = Provider.of<ChatProvider>(context, listen: false);
     if (chatProviderReference != null) {
-      _errorStreamSubscription = chatProviderReference.errorNotifierStream
-          .listen(print);
+      _errorStreamSubscription =
+          chatProviderReference.errorNotifierStream.listen(print);
 
-      chatProviderReference.initializeChatProvider(
-        authToken:
-            Provider.of<AuthenticationProvider>(context, listen: false).token,
-        userId: Provider.of<UserDataProvider>(context, listen: false).user.id,
-      );
+      chatProviderReference.fetchChatContacts();
     }
   }
 
