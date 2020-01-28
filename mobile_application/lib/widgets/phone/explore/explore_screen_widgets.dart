@@ -1,5 +1,8 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:mobile_application/providers/chat/chat_provider.dart';
+import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -15,6 +18,8 @@ import 'explore_card.dart';
 class InfoBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    ThemeData themeData = Provider.of<ThemeProvider>(context).getTheme();
+
     return LayoutBuilder(
       builder: (ctx, constraints) {
         return Container(
@@ -39,18 +44,49 @@ class InfoBarWidget extends StatelessWidget {
                 child: Center(
                   child: Text(
                     "Explore",
-                    style: Theme.of(context).textTheme.display3,
+                    style: themeData.textTheme.display3,
                   ),
                 ),
                 flex: 2,
               ),
               Expanded(
-                child: CircularButton(
-                  assetPath: AssetImages.message,
-                  alignment: Alignment.centerRight,
-                  width: 55,
-                  height: 55,
-                  onPressFunction: () => goToMessages(context),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.deferToChild,
+                  child: Stack(
+                    children: <Widget>[
+                      CircularButton(
+                        assetPath: AssetImages.message,
+                        alignment: Alignment.centerRight,
+                        width: 55,
+                        height: 55,
+                        onPressFunction: () => goToMessages(context),
+                      ),
+                      Positioned(
+                        right: 4,
+                        bottom: 4,
+                        child: StreamBuilder<int>(
+                            stream: Provider.of<ChatProvider>(context)
+                                .numberUnreadMessagesStream,
+                            builder: (context, snapshot) {
+                              return snapshot.hasData && snapshot.data != 0
+                                  ? Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: themeData.primaryColor,
+                                      ),
+                                      child: AutoSizeText(
+                                        "${snapshot.data}",
+                                        style: themeData.textTheme.title
+                                            .copyWith(color: Colors.white),
+                                        maxLines: 1,
+                                      ),
+                                    )
+                                  : Center();
+                            }),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

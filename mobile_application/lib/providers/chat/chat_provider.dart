@@ -8,7 +8,6 @@ import 'package:socket_io_client/socket_io_client.dart';
 import '../../helpers/http_request_wrapper.dart';
 import '../../models/chat/contact_mentor.dart';
 import '../../models/chat/message.dart';
-import '../../models/exceptions/no_internet_exception.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
 import '../configuration.dart';
 
@@ -32,6 +31,7 @@ class TypingNotifier {
 
 class ChatProvider with ChangeNotifier {
   static const String getContactsUrl = "/users/contactrequest";
+  static const String getUserIdUri = "/users/userid";
   static const int typingTimeout = 2;
 
   HttpRequestWrapper httpRequestWrapper;
@@ -47,6 +47,7 @@ class ChatProvider with ChangeNotifier {
   StreamController<bool> _connectionNotifier = BehaviorSubject();
   StreamController<bool> _updateScreenNotifier = BehaviorSubject();
   BehaviorSubject<bool> _updateContactsNotifier = BehaviorSubject();
+  BehaviorSubject<int> _numberUnreadMessagesNotifier = BehaviorSubject();
   Map<String, TypingNotifier> _mapTypingStreams = HashMap();
 
   ChatProvider(this.httpRequestWrapper);
@@ -56,6 +57,8 @@ class ChatProvider with ChangeNotifier {
   Stream get errorNotifierStream => _errorNotifier.stream;
 
   Stream get connectionNotifierStream => _connectionNotifier.stream;
+
+  Stream get numberUnreadMessagesStream => _numberUnreadMessagesNotifier.stream;
 
   Stream getTypingNotificationStream(String id) =>
       _mapTypingStreams[id].typingNotificationStream;
@@ -70,15 +73,31 @@ class ChatProvider with ChangeNotifier {
 
   Future<void> initializeChatProvider({String authToken, String userId}) async {
     this.authToken = authToken;
-    this.userId = userId;
+    this.userId = await httpRequestWrapper.request<String>(
+        url: getUserIdUri,
+        correctStatusCode: 200,
+        onCorrectStatusCode: (json) async {
+          return json.data["id"];
+        },
+        onIncorrectStatusCode: (_) {
+          throw SomethingWentWrongException.message(
+            "Couldn't load the messages. Try again later.",
+          );
+        });
 
-    _errorNotifier = StreamController.broadcast();
     _connectionNotifier = BehaviorSubject();
+
+    _initializeSocket();
+
+    await fetchChatContacts();
+  }
+
+  Future<void> initializeForChatScreen() async {
+    _errorNotifier = StreamController.broadcast();
     _updateContactsNotifier = BehaviorSubject();
     _mapTypingStreams = HashMap();
 
     _initializeSocket();
-
     await fetchChatContacts();
   }
 
@@ -104,8 +123,38 @@ class ChatProvider with ChangeNotifier {
             );
           });
 
+      _numberUnreadMessagesNotifier.sink.add(
+        contacts.where((c) => c.numberUnreadMessages != 0).length,
+      );
+
       _updateContactsNotifier.sink.add(true);
-    } on NoInternetException catch (e) {
+    } on SomethingWentWrongException catch (e) {
+      _updateContactsNotifier.sink.addError(e);
+      print(e);
+    }
+  }
+
+  Future<void> fetchChatContact(String chatId) async {
+    try {
+      _updateContactsNotifier.sink.add(false);
+
+      await httpRequestWrapper.request<void>(
+          url: "$getContactsUrl/$chatId",
+          correctStatusCode: 200,
+          onCorrectStatusCode: (json) async {
+            ContactMentor c = ContactMentor.fromJson(json.data);
+            contacts[contacts.indexOf(c)] = c;
+            return;
+          },
+          onIncorrectStatusCode: (_) {
+            throw SomethingWentWrongException.message(
+              "Couldn't load the messages. Try again later.",
+            );
+          });
+
+      _updateContactsNotifier.sink.add(true);
+    } on SomethingWentWrongException catch (e) {
+      _updateContactsNotifier.sink.addError(e);
       print(e);
     }
   }
@@ -124,8 +173,6 @@ class ChatProvider with ChangeNotifier {
           "forceNew": true,
         },
       );
-    } else {
-      socket.connect();
     }
 
     socket.on('connect', (_) => connectionStatus(true));
@@ -165,7 +212,7 @@ class ChatProvider with ChangeNotifier {
 
     socket.on('message', (data) {
       print("messagione");
-      contacts.where((c) => data["chatId"] == c.id).first.messages.insert(
+      contacts.firstWhere((c) => data["chatId"] == c.id).messages.insert(
             0,
             Message.fromJson({
               "userId": data["userId"],
@@ -179,10 +226,13 @@ class ChatProvider with ChangeNotifier {
       timeoutTypingNotification.cancel();
       isTyping = false;
       _mapTypingStreams[data["chatId"]].setTypingNotifier(isTyping);
+      _numberUnreadMessagesNotifier.sink.add(
+        contacts.where((c) => c.numberUnreadMessages != 0).length,
+      );
     });
 
     socket.on('updated_contact_request', (data) {
-      contacts.where((c) => data["chatId"] == c.id).first.status =
+      contacts.firstWhere((c) => data["chatId"] == c.id).status =
           (data["status"] == 'accepted'
               ? StatusRequest.accepted
               : StatusRequest.refused);
@@ -197,7 +247,13 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  void chatWith(String chatId) {
+  void joinChatWith(String chatId) {
+    socket.emit("new_chat", {
+      "chatId": chatId,
+    });
+  }
+
+  void leaveChatWith(String chatId) {
     socket.emit("new_chat", {
       "chatId": chatId,
     });
@@ -213,21 +269,29 @@ class ChatProvider with ChangeNotifier {
     if (status == null) {
       return contacts;
     }
-
     return contacts.where((e) => e.status == status).toList();
+  }
+
+  ContactMentor getChatById(String chatId) {
+    return contacts.firstWhere((e) => e.id == chatId);
   }
 
   void closeConnections() {
     isConnected = false;
     isTyping = false;
+  }
+
+  @override
+  void dispose() {
+    _connectionNotifier.close();
     _updateContactsNotifier.close();
     _errorNotifier.close();
-    _connectionNotifier.close();
     _updateScreenNotifier.close();
     timeoutTypingNotification?.cancel();
-
-
     socket.clearListeners();
     socket.close();
+    socket.destroy();
+
+    super.dispose();
   }
 }

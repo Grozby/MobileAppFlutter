@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_application/models/utility/available_sizes.dart';
+import 'package:mobile_application/screens/single_chat_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -63,9 +64,12 @@ class InfoBarWidget extends StatelessWidget {
                 return Center(
                   child: AutoSizeText(
                     (!snapshot.hasData || !snapshot.data)
-                        ? "Connecting..."
+                        ? "Waiting for connection..."
                         : "Connected.",
-                    style: Theme.of(context).textTheme.display3,
+                    style: Provider.of<ThemeProvider>(context)
+                        .getTheme()
+                        .textTheme
+                        .display3,
                     maxLines: 1,
                   ),
                 );
@@ -177,7 +181,7 @@ class _MessageListState extends State<MessageList> with ChatTimeConverter {
             slivers: <Widget>[
               SliverList(
                 delegate: SliverChildBuilderDelegate(
-                  (ctx, int index) => ChatTile(chat: listChats[0]),
+                  (ctx, int index) => ChatTile(chat: listChats[index]),
                   childCount: listChats.length,
                 ),
               )
@@ -223,6 +227,15 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
     }
   }
 
+  void goToSingleChatPage(BuildContext context) {
+    if (chat.status == StatusRequest.accepted) {
+      Navigator.of(context).pushNamed(
+        SingleChatScreen.routeName,
+        arguments: SingleChatArguments(chat.id),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme =
@@ -231,6 +244,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
     double maxWidth = ScopedModel.of<AvailableSizes>(context).width;
 
     return GestureDetector(
+      onTap: () => goToSingleChatPage(context),
       child: Container(
         width: maxWidth,
         padding: const EdgeInsets.only(

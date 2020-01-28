@@ -34,6 +34,13 @@ class ContactMentor {
       unreadMessages -
       ((messages.isNotEmpty && messages[0].isRead) ? 1 : 0);
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ContactMentor &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
   ///
   /// Serializable methods
   ///
