@@ -1,7 +1,11 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/chat/contact_mentor.dart';
@@ -12,7 +16,31 @@ import '../../../screens/user_profile_screen.dart';
 import '../../../widgets/general/image_wrapper.dart';
 import '../../../widgets/phone/explore/circular_button.dart';
 
-class InfoBarWidget extends StatelessWidget {
+String timeToString(DateTime date) {
+  DateTime now = DateTime.now();
+
+  if (now.year > date.year) {
+    return DateFormat.yMd().format(date);
+  }
+
+  if (now.month > date.month || now.day > date.day) {
+    return DateFormat.MMMd('en_US').format(date);
+  }
+
+  return DateFormat.Hm().format(date);
+}
+
+mixin ChatTimeConverter {
+  Future<String> timeToString(DateTime date) async {
+    return await compute(timeToString, date);
+  }
+
+  String timeToStringHours(DateTime date) {
+    return DateFormat.Hm().format(date);
+  }
+}
+
+class InfoBarWidget extends StatefulWidget {
   final double width;
   final String chatId;
 
@@ -22,13 +50,28 @@ class InfoBarWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    ThemeData themeData = Provider.of<ThemeProvider>(context).getTheme();
-    TextTheme textTheme = themeData.textTheme;
-    ContactMentor c = Provider.of<ChatProvider>(context).getChatById(chatId);
+  _InfoBarWidgetState createState() => _InfoBarWidgetState();
+}
 
+class _InfoBarWidgetState extends State<InfoBarWidget> {
+  ThemeData themeData;
+  TextTheme textTheme;
+  ChatProvider chatProvider;
+  ContactMentor c;
+
+  @override
+  void initState() {
+    super.initState();
+    themeData = Provider.of<ThemeProvider>(context, listen: false).getTheme();
+    textTheme = themeData.textTheme;
+    chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    c = chatProvider.getChatById(widget.chatId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      width: width,
+      width: widget.width,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -37,15 +80,14 @@ class InfoBarWidget extends StatelessWidget {
             alignment: Alignment.centerLeft,
             width: 55,
             height: 55,
-            reduceFactor: 0.6,
+            reduceFactor: 0.5,
             onPressFunction: () => backButton(context),
           ),
           const SizedBox(width: 8),
           Flexible(
             fit: FlexFit.tight,
             child: StreamBuilder(
-              stream:
-                  Provider.of<ChatProvider>(context).connectionNotifierStream,
+              stream: chatProvider.connectionNotifierStream,
               builder: (context, snapshot) {
                 return (!snapshot.hasData || !snapshot.data)
                     ? Center(
@@ -64,11 +106,12 @@ class InfoBarWidget extends StatelessWidget {
                             children: <Widget>[
                               const SizedBox(width: 4),
                               Container(
-                                width: 40,
-                                height: 40,
+                                width: 50,
+                                height: 50,
                                 child: ClipRRect(
                                   borderRadius: const BorderRadius.all(
-                                      Radius.circular(40)),
+                                    Radius.circular(40),
+                                  ),
                                   child: ImageWrapper(
                                     assetPath: AssetImages.user,
                                     imageUrl: c.user.pictureUrl,
@@ -76,12 +119,30 @@ class InfoBarWidget extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 8),
                               Expanded(
-                                child: AutoSizeText(
-                                  c.user.completeName,
-                                  style: textTheme.display2,
-                                  maxLines: 2,
+                                child: Container(
+                                  height: 50,
+                                  alignment: Alignment.centerLeft,
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      AutoSizeText(
+                                        c.user.completeName,
+                                        style: textTheme.display2,
+                                        maxLines: 2,
+                                      ),
+                                      IsTypingWidget(
+                                        chatProvider
+                                            .getMessagePreviewNotificationStream(
+                                          widget.chatId,
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 4),
@@ -110,15 +171,63 @@ class InfoBarWidget extends StatelessWidget {
   }
 }
 
-class SingleChatContentWidget extends StatelessWidget {
+class IsTypingWidget extends StatefulWidget {
+  final Stream isTypingStream;
+
+  IsTypingWidget(this.isTypingStream);
+
+  @override
+  _IsTypingWidgetState createState() => _IsTypingWidgetState();
+}
+
+class _IsTypingWidgetState extends State<IsTypingWidget> {
+  TextTheme textTheme;
+
+  @override
+  void initState() {
+    super.initState();
+    textTheme =
+        Provider.of<ThemeProvider>(context, listen: false).getTheme().textTheme;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<bool>(
+        stream: widget.isTypingStream,
+        builder: (context, snapshot) {
+          return AutoSizeText(
+            (snapshot.hasData && snapshot.data) ? "Typing..." : "",
+            style: textTheme.subhead,
+            minFontSize: textTheme.subhead.fontSize,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
+        });
+  }
+}
+
+class SingleChatContentWidget extends StatefulWidget {
   final String chatId;
 
   SingleChatContentWidget({this.chatId});
 
   @override
-  Widget build(BuildContext context) {
-    ChatProvider chatProvider = Provider.of<ChatProvider>(context);
+  _SingleChatContentWidgetState createState() =>
+      _SingleChatContentWidgetState();
+}
 
+class _SingleChatContentWidgetState extends State<SingleChatContentWidget> {
+  ChatProvider chatProvider;
+  ContactMentor contact;
+
+  @override
+  void initState() {
+    super.initState();
+    chatProvider = Provider.of<ChatProvider>(context, listen: false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return StreamBuilder<bool>(
         stream: chatProvider.updateContactsStream,
         builder: (context, snapshot) {
@@ -127,30 +236,42 @@ class SingleChatContentWidget extends StatelessWidget {
             return Center(child: CircularProgressIndicator());
           }
 
-          ContactMentor c = chatProvider.getChatById(chatId);
+          contact = chatProvider.getChatById(widget.chatId);
 
-          return CustomScrollView(
-            physics: const ClampingScrollPhysics(),
-            slivers: <Widget>[
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (ctx, int index) {
-                    return MessageTile(
-                      message: c.messages[c.messages.length - index - 1],
-                      whichUser:
-                          c.messages[c.messages.length - index - 1].userId !=
+          return Stack(
+            children: <Widget>[
+              Container(
+                width: double.infinity,
+                child: ImageWrapper(
+                  assetPath:
+                      Provider.of<ThemeProvider>(context).backgroundImage,
+                  boxFit: BoxFit.cover,
+                ),
+              ),
+              CustomScrollView(
+                reverse: true,
+                physics: const ClampingScrollPhysics(),
+                slivers: <Widget>[
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (ctx, int index) {
+                        return MessageTile(
+                          message: contact.messages[index],
+                          whichUser: contact.messages[index].userId !=
                                   chatProvider.userId
                               ? WhichUser.other
                               : WhichUser.current,
-                      sameUserAsBefore: index == 0
-                          ? true
-                          : c.messages[c.messages.length - index - 1].userId ==
-                              c.messages[c.messages.length - index].userId,
-                    );
-                  },
-                  childCount: c.messages.length,
-                ),
-              )
+                          sameUserAsBefore: index == 0
+                              ? true
+                              : contact.messages[index].userId ==
+                                  contact.messages[index - 1].userId,
+                        );
+                      },
+                      childCount: contact.messages.length,
+                    ),
+                  )
+                ],
+              ),
             ],
           );
         });
@@ -159,30 +280,55 @@ class SingleChatContentWidget extends StatelessWidget {
 
 enum WhichUser { current, other }
 
-class MessageTile extends StatelessWidget {
+class MessageTile extends StatefulWidget {
   final Message message;
   final WhichUser whichUser;
   final bool sameUserAsBefore;
 
-  MessageTile({
+  const MessageTile({
     this.message,
     this.whichUser,
     this.sameUserAsBefore,
   });
 
   @override
-  Widget build(BuildContext context) {
-    ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
-    ThemeData themeData = themeProvider.getTheme();
-    Map<String, Color> chatColors = themeProvider.chatColors;
+  _MessageTileState createState() => _MessageTileState();
+}
 
-    double top = sameUserAsBefore ? 4 : 8;
-    double bottom = sameUserAsBefore ? 4 : 8;
-    double right = whichUser == WhichUser.current ? 16 : 8;
-    double left = whichUser == WhichUser.other ? 16 : 8;
+class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
+  ThemeProvider themeProvider;
+  ThemeData themeData;
+  double top, bottom, right, left;
+  CustomPainter painter;
+
+  @override
+  void initState() {
+    super.initState();
+    themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    themeData = themeProvider.getTheme();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    top = widget.sameUserAsBefore ? 4 : 8;
+    bottom = widget.sameUserAsBefore ? 4 : 8;
+    right = widget.whichUser == WhichUser.current ? 16 : 8;
+    left = widget.whichUser == WhichUser.other ? 16 : 8;
+
+    painter = widget.whichUser == WhichUser.current
+        ? MessageCurrent(
+            radius: 8,
+            fill: themeProvider.currentUserChatColor,
+            border: themeProvider.currentUserBorderChatColor,
+          )
+        : MessageOtherUser(
+            radius: 8,
+            fill: themeProvider.otherUserChatColor,
+            border: themeProvider.otherUserBorderChatColor,
+          );
 
     return Container(
-      alignment: whichUser == WhichUser.current
+      alignment: widget.whichUser == WhichUser.current
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: Padding(
@@ -193,23 +339,36 @@ class MessageTile extends StatelessWidget {
           left: left,
         ),
         child: CustomPaint(
-          painter: whichUser == WhichUser.current
-              ? MessageCurrent(
-                  radius: 8,
-                  fill: chatColors["currentUser"],
-                  border: chatColors["border"],
-                )
-              : MessageOtherUser(
-                  radius: 8,
-                  fill: chatColors["otherUser"],
-                  border: chatColors["border"],
-                ),
+          painter: painter,
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-            child: AutoSizeText(
-              message.content,
-              style: themeData.textTheme.body2,
-              minFontSize: themeData.textTheme.body1.fontSize,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: AutoSizeText(
+                      widget.message.content,
+                      style: themeData.textTheme.body2,
+                      minFontSize: themeData.textTheme.body1.fontSize,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 4),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 1),
+                  child: AutoSizeText(
+                    timeToStringHours(widget.message.createdAt),
+                    style: themeData.textTheme.overline.copyWith(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
         ),
@@ -235,7 +394,7 @@ class MessageOtherUser extends CustomPainter {
           ..style = PaintingStyle.stroke,
         fillPaint = Paint()
           ..isAntiAlias = true
-          ..color = fill.withOpacity(0.5)
+          ..color = fill
           ..style = PaintingStyle.fill;
 
   @override
@@ -285,7 +444,7 @@ class MessageCurrent extends CustomPainter {
           ..style = PaintingStyle.stroke,
         fillPaint = Paint()
           ..isAntiAlias = true
-          ..color = fill.withOpacity(0.5)
+          ..color = fill
           ..style = PaintingStyle.fill;
 
   @override

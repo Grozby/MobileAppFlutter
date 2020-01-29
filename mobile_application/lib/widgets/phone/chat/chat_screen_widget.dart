@@ -51,7 +51,7 @@ class InfoBarWidget extends StatelessWidget {
             alignment: Alignment.centerLeft,
             width: 55,
             height: 55,
-            reduceFactor: 0.6,
+            reduceFactor: 0.5,
             onPressFunction: () => backButton(context),
           ),
           const SizedBox(width: 8),
@@ -81,7 +81,7 @@ class InfoBarWidget extends StatelessWidget {
             alignment: Alignment.centerRight,
             width: 55,
             height: 55,
-            reduceFactor: 0.6,
+            reduceFactor: 0.5,
             onPressFunction: () => goToSettingPage(context),
           )
         ],

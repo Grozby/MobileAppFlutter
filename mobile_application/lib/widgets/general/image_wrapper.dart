@@ -17,6 +17,7 @@ class ImageWrapper extends StatelessWidget {
     return imageUrl == null
         ? Image.asset(
             "assets/images/$assetPath",
+
             fit: boxFit,
           )
         : CachedNetworkImage(
@@ -51,4 +52,6 @@ extension AssetImages on ImageWrapper {
 
   static const String delete = "ic_delete.png";
   static const String logo = "logo.png";
+
+  static const String lightBackground = "light.png";
 }

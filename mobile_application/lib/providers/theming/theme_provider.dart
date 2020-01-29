@@ -3,11 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/custom_route.dart';
+import '../../widgets/general/image_wrapper.dart';
 
 class ThemeProvider with ChangeNotifier {
   ThemeData _themeData;
   SystemUiOverlayStyle _overlayStyle;
-  Map<String, Color> _chatColors;
+  Map<String, dynamic> _chatColors;
 
   bool _isLight;
   static const Color _mentorColor = Color.fromRGBO(234, 128, 59, 1);
@@ -22,16 +23,20 @@ class ThemeProvider with ChangeNotifier {
   static const Color _greyTextColor = Color.fromRGBO(161, 170, 181, 1);
   static const Color _lightGreyTextColor = Color.fromRGBO(211, 220, 231, 1);
 
-  static const Map<String, Color> _lightChatColors = {
-    "currentUser": _primaryColor,
+  static const Map<String, dynamic> _lightChatColors = {
+    "currentUser": Color(0xFFFFCF89),
     "otherUser": Colors.white,
-    "border": Color(0xFFE0E0E0),
+    "borderCurrentUser": _primaryColor,
+    "borderOtherUser": Color(0xFFE0E0E0),
+    "backgroundImage": AssetImages.lightBackground,
   };
 
-  static const Map<String, Color> _darkChatColors = {
+  static const Map<String, dynamic> _darkChatColors = {
     "currentUserColorChat": _primaryColor,
     "otherUserColorChat": Colors.white,
-    "border": Colors.white,
+    "borderCurrentUser": Colors.white,
+    "borderOtherUser": Color(0xFFE0E0E0),
+    "backgroundImage": AssetImages.lightBackground, //TODO change
   };
 
   static const SystemUiOverlayStyle _lightOverlayStyle = SystemUiOverlayStyle(
@@ -102,7 +107,7 @@ class ThemeProvider with ChangeNotifier {
           body2: TextStyle(
             fontSize: 16,
             color: Colors.black,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
         ),
   );
@@ -157,7 +162,7 @@ class ThemeProvider with ChangeNotifier {
           body2: TextStyle(
             fontSize: 16,
             color: Colors.white,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
         ),
   );
@@ -170,7 +175,15 @@ class ThemeProvider with ChangeNotifier {
 
   SystemUiOverlayStyle get overlayStyle => _overlayStyle;
 
-  Map<String, Color> get chatColors => _chatColors;
+  Color get currentUserChatColor => _chatColors["currentUser"] as Color;
+
+  Color get otherUserChatColor => _chatColors["otherUser"] as Color;
+
+  Color get currentUserBorderChatColor => _chatColors["borderCurrentUser"] as Color;
+
+  Color get otherUserBorderChatColor => _chatColors["borderOtherUser"] as Color;
+
+  String get backgroundImage => _chatColors["backgroundImage"] as String;
 
   static Color get primaryColor => _primaryColor;
 

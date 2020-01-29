@@ -12,20 +12,22 @@ import '../../models/exceptions/something_went_wrong_exception.dart';
 import '../configuration.dart';
 
 class MessagePreviewController {
-  StreamController<bool> updateNotification = BehaviorSubject();
-  StreamController<bool> typingNotifier = PublishSubject();
+  StreamController<bool> _updateNotification = BehaviorSubject();
+  bool _isTyping;
 
-  void notifiedWith({bool value}) => updateNotification.sink.add(value);
+  void notifiedWith({bool value}) => _updateNotification.sink.add(value);
 
-  void sendNotification(bool value) => typingNotifier.sink.add(value);
+  Stream get stream => _updateNotification.stream;
 
-  Stream get typingNotificationStream => updateNotification.stream;
+  bool get isTyping => _isTyping;
 
-  Stream get typingNotifierStream => typingNotifier.stream;
+  void add({bool value}) {
+    _isTyping = value;
+    _updateNotification.sink.add(value);
+  }
 
   void dispose() {
-    updateNotification.close();
-    typingNotifier.close();
+    _updateNotification.close();
   }
 }
 
@@ -39,7 +41,6 @@ class ChatProvider with ChangeNotifier {
   String userId;
   Socket socket;
   bool isConnected = false;
-  bool isTyping = false;
   bool isInitialized = false;
   List<ContactMentor> contacts;
   Timer timeoutTypingNotification;
@@ -48,12 +49,16 @@ class ChatProvider with ChangeNotifier {
   StreamController<String> _errorNotifier;
   StreamController<bool> _connectionNotifier;
   StreamController<bool> _updateScreenNotifier = BehaviorSubject();
+
   /// Used for notify a general update in the stored [contacts].
   BehaviorSubject<bool> _updateContactsNotifier;
+
   /// Used for notify the [InfoBarWidget] of new messages in the home page screen
   BehaviorSubject<int> _numberUnreadMessagesNotifier;
-  /// Used for notify the [MessageTile] of new messages and typing notification
-  Map<String, StreamController<bool>> _mapMessagePreviewStreams;
+
+  /// Used for notify the [ChatTile] and [MessageTile]
+  /// of new messages and typing notification
+  Map<String, MessagePreviewController> _mapMessagePreviewStreams;
 
   ChatProvider(this.httpRequestWrapper);
 
@@ -69,7 +74,7 @@ class ChatProvider with ChangeNotifier {
       _mapMessagePreviewStreams[id].stream;
 
   void _clearTypingMapStreams() {
-    _mapMessagePreviewStreams.forEach((_, t) => t.close());
+    _mapMessagePreviewStreams.forEach((_, t) => t.dispose());
     _mapMessagePreviewStreams.clear();
   }
 
@@ -112,8 +117,8 @@ class ChatProvider with ChangeNotifier {
           onCorrectStatusCode: (jsonArray) async {
             return jsonArray.data.map<ContactMentor>((json) {
               ContactMentor c = ContactMentor.fromJson(json);
-              _mapMessagePreviewStreams[c.id] = BehaviorSubject();
-              _mapMessagePreviewStreams[c.id].sink.add(false);
+              _mapMessagePreviewStreams[c.id] = MessagePreviewController();
+              _mapMessagePreviewStreams[c.id].add(value: false);
               return c;
             }).toList();
           },
@@ -220,16 +225,14 @@ class ChatProvider with ChangeNotifier {
 
     addSocketListener('typing', (data) {
       if (data["userId"] != userId) {
-        if (!isTyping) {
-          isTyping = true;
-          _mapMessagePreviewStreams[data["chatId"]].sink.add(isTyping);
+        if (!_mapMessagePreviewStreams[data["chatId"]].isTyping) {
+          _mapMessagePreviewStreams[data["chatId"]].add(value: true);
         } else {
           timeoutTypingNotification.cancel();
         }
 
         timeoutTypingNotification = Timer(Duration(seconds: typingTimeout), () {
-          isTyping = false;
-          _mapMessagePreviewStreams[data["chatId"]].sink.add(isTyping);
+          _mapMessagePreviewStreams[data["chatId"]].add(value: false);
         });
       }
     });
@@ -250,12 +253,15 @@ class ChatProvider with ChangeNotifier {
       c.unreadMessages += data["isRead"] ? 0 : 1;
 
       timeoutTypingNotification.cancel();
-      isTyping = false;
-      _mapMessagePreviewStreams[data["chatId"]].sink.add(isTyping);
+      _mapMessagePreviewStreams[data["chatId"]].add(value: false);
 
       _numberUnreadMessagesNotifier.sink.add(
         contacts.where((c) => c.unreadMessages != 0).length,
       );
+
+      if (currentActiveChatId != null) {
+        _updateContactsNotifier.sink.add(true);
+      }
     });
 
     addSocketListener('updated_contact_request', (data) {
@@ -307,7 +313,6 @@ class ChatProvider with ChangeNotifier {
 
   void closeConnections() {
     isConnected = false;
-    isTyping = false;
   }
 
   @override
