@@ -10,9 +10,9 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' hide TextDirection;
-import 'package:mobile_application/helpers/overglow_less_scroll_behavior.dart';
 import 'package:provider/provider.dart';
 
+import '../../../helpers/overglow_less_scroll_behavior.dart';
 import '../../../models/chat/contact_mentor.dart';
 import '../../../models/chat/message.dart';
 import '../../../providers/chat/chat_provider.dart';
@@ -28,11 +28,7 @@ String timeToString(DateTime date) {
     return DateFormat.yMd().format(date);
   }
 
-  if (now.month > date.month || now.day > date.day) {
-    return DateFormat.MMMd('en_US').format(date);
-  }
-
-  return DateFormat.Hm().format(date);
+  return DateFormat.MMMMd('en_US').format(date);
 }
 
 mixin ChatTimeConverter {
@@ -127,7 +123,7 @@ class _InfoBarWidgetState extends State<InfoBarWidget> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Container(
-                                  height: 50,
+                                  height: 45,
                                   alignment: Alignment.centerLeft,
                                   child: Column(
                                     mainAxisAlignment:
@@ -198,16 +194,17 @@ class _IsTypingWidgetState extends State<IsTypingWidget> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<bool>(
-        stream: widget.isTypingStream,
-        builder: (context, snapshot) {
-          return AutoSizeText(
-            (snapshot.hasData && snapshot.data) ? "Typing..." : "",
-            style: textTheme.subhead,
-            minFontSize: textTheme.subhead.fontSize,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          );
-        });
+      stream: widget.isTypingStream,
+      builder: (context, snapshot) {
+        return AutoSizeText(
+          (snapshot.hasData && snapshot.data) ? "Typing..." : "",
+          style: textTheme.overline,
+          minFontSize: textTheme.overline.fontSize,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        );
+      },
+    );
   }
 }
 
@@ -232,6 +229,27 @@ class _SingleChatContentWidgetState extends State<SingleChatContentWidget> {
     chatProvider = Provider.of<ChatProvider>(context, listen: false);
   }
 
+  WhichUser whichUser(int index) =>
+      contact.messages[index].userId != chatProvider.userId
+          ? WhichUser.other
+          : WhichUser.current;
+
+  bool sameUserAsPreviousMessage(int index) => index == 0
+      ? true
+      : contact.messages[index].userId == contact.messages[index - 1].userId;
+
+  DateTime maintainDate(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
+
+  bool dayHasChanged(int index) => index == contact.messages.length - 1
+      ? true
+      : (contact.messages[index].createdAt.year >
+              contact.messages[index + 1].createdAt.year ||
+          contact.messages[index].createdAt.month >
+              contact.messages[index + 1].createdAt.month ||
+          contact.messages[index].createdAt.day >
+              contact.messages[index + 1].createdAt.day);
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<bool>(
@@ -254,33 +272,40 @@ class _SingleChatContentWidgetState extends State<SingleChatContentWidget> {
                   boxFit: BoxFit.cover,
                 ),
               ),
-              ScrollConfiguration(
-                behavior: OverglowLessScrollBehavior(),
-                child: CustomScrollView(
-                  reverse: true,
-                  physics: const ClampingScrollPhysics(),
-                  slivers: <Widget>[
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (ctx, int index) {
-                          return MessageTile(
-                            message: contact.messages[index],
-                            width: widget.width,
-                            whichUser: contact.messages[index].userId !=
-                                    chatProvider.userId
-                                ? WhichUser.other
-                                : WhichUser.current,
-                            sameUserAsBefore: index == 0
-                                ? true
-                                : contact.messages[index].userId ==
-                                    contact.messages[index - 1].userId,
-                          );
-                        },
-                        childCount: contact.messages.length,
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Expanded(
+                    flex: 10,
+                    child: ScrollConfiguration(
+                      behavior: OverglowLessScrollBehavior(),
+                      child: CustomScrollView(
+                        reverse: true,
+                        physics: const ClampingScrollPhysics(),
+                        slivers: <Widget>[
+                          SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (ctx, int index) {
+                                return MessageTile(
+                                  message: contact.messages[index],
+                                  width: widget.width,
+                                  whichUser: whichUser(index),
+                                  sameUserAsBefore:
+                                      sameUserAsPreviousMessage(index),
+                                  dayHasChanged: dayHasChanged(index),
+                                );
+                              },
+                              childCount: contact.messages.length,
+                            ),
+                          )
+                        ],
                       ),
-                    )
-                  ],
-                ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(),
+                  )
+                ],
               ),
             ],
           );
@@ -295,12 +320,14 @@ class MessageTile extends StatefulWidget {
   final double width;
   final WhichUser whichUser;
   final bool sameUserAsBefore;
+  final bool dayHasChanged;
 
   const MessageTile({
     this.message,
     this.width,
     this.whichUser,
     this.sameUserAsBefore,
+    this.dayHasChanged,
   });
 
   @override
@@ -314,9 +341,7 @@ class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
   int numberLines;
   CustomPainter painter;
 
-
-
-  void initialize(){
+  void initialize() {
     top = widget.sameUserAsBefore ? 4 : 8;
     bottom = widget.sameUserAsBefore ? 4 : 8;
     right = widget.whichUser == WhichUser.current ? 16 : 8;
@@ -324,15 +349,15 @@ class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
 
     painter = widget.whichUser == WhichUser.current
         ? MessageCurrent(
-      radius: 8,
-      fill: themeProvider.currentUserChatColor,
-      border: themeProvider.currentUserBorderChatColor,
-    )
+            radius: 8,
+            fill: themeProvider.currentUserChatColor,
+            border: themeProvider.currentUserBorderChatColor,
+          )
         : MessageOtherUser(
-      radius: 8,
-      fill: themeProvider.otherUserChatColor,
-      border: themeProvider.otherUserBorderChatColor,
-    );
+            radius: 8,
+            fill: themeProvider.otherUserChatColor,
+            border: themeProvider.otherUserBorderChatColor,
+          );
 
     final messagePainter = TextPainter(
       text: TextSpan(
@@ -341,8 +366,8 @@ class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
       ),
       textDirection: TextDirection.ltr,
     )..layout(
-      maxWidth: widget.width - 24,
-    );
+        maxWidth: widget.width - 24,
+      );
     final List<LineMetrics> metrics = messagePainter.computeLineMetrics();
     lastLineWidth = metrics.last.width;
     numberLines = metrics.length;
@@ -369,66 +394,79 @@ class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
     initialize();
   }
 
-
   @override
   void didUpdateWidget(MessageTile oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if(oldWidget.message.createdAt != widget.message.createdAt){
+    if (oldWidget.message.createdAt != widget.message.createdAt) {
       initialize();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
-    return Container(
-      alignment: widget.whichUser == WhichUser.current
-          ? Alignment.centerRight
-          : Alignment.centerLeft,
-      child: Container(
-        padding: EdgeInsets.only(
-          top: top,
-          bottom: bottom,
-          right: right,
-          left: left,
-        ),
-        child: Stack(
-          children: <Widget>[
-            CustomPaint(
-              painter: painter,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  top: 4,
-                  bottom: ((lastLineWidth + hoursWidth - 4) < widget.width - 24)
-                      ? 4
-                      : 12,
-                  left: 8,
-                  right: (numberLines == 1 &&
-                          (lastLineWidth + hoursWidth - 4) < widget.width - 24)
-                      ? 8 + hoursWidth + 4
-                      : 8,
-                ),
-                child: AutoSizeText(
-                  widget.message.content,
-                  style: themeData.textTheme.body2,
-                ),
-              ),
+    return Column(
+      children: <Widget>[
+        if (widget.dayHasChanged)
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+            decoration: BoxDecoration(
+              color: themeProvider.dayNotifierBackgroundColor,
+              borderRadius: const BorderRadius.all(Radius.circular(16)),
             ),
-            Positioned(
-              right: 4,
-              bottom: 4,
-              child: AutoSizeText(
-                timeToStringHours(widget.message.createdAt),
-                style: themeData.textTheme.overline.copyWith(
-                  fontSize: 13,
-                  height: 0,
-                  fontWeight: FontWeight.w400,
+            child: Text(timeToString(widget.message.createdAt)),
+          ),
+        Container(
+          alignment: widget.whichUser == WhichUser.current
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
+          child: Container(
+            padding: EdgeInsets.only(
+              top: top,
+              bottom: bottom,
+              right: right,
+              left: left,
+            ),
+            child: Stack(
+              children: <Widget>[
+                CustomPaint(
+                  painter: painter,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: 4,
+                      bottom:
+                          ((lastLineWidth + hoursWidth - 4) < widget.width - 24)
+                              ? 4
+                              : 12,
+                      left: 8,
+                      right: (numberLines == 1 &&
+                              (lastLineWidth + hoursWidth - 4) <
+                                  widget.width - 24)
+                          ? 8 + hoursWidth + 4
+                          : 8,
+                    ),
+                    child: AutoSizeText(
+                      widget.message.content,
+                      style: themeData.textTheme.body2,
+                    ),
+                  ),
                 ),
-              ),
-            )
-          ],
+                Positioned(
+                  right: 4,
+                  bottom: 4,
+                  child: AutoSizeText(
+                    timeToStringHours(widget.message.createdAt),
+                    style: themeData.textTheme.overline.copyWith(
+                      fontSize: 13,
+                      height: 0,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }

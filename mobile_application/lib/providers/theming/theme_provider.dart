@@ -29,6 +29,7 @@ class ThemeProvider with ChangeNotifier {
     "borderCurrentUser": _primaryColor,
     "borderOtherUser": Color(0xFFE0E0E0),
     "backgroundImage": AssetImages.lightBackground,
+    "dayNotifierBackground": Colors.white,
   };
 
   static const Map<String, dynamic> _darkChatColors = {
@@ -37,6 +38,7 @@ class ThemeProvider with ChangeNotifier {
     "borderCurrentUser": Colors.white,
     "borderOtherUser": Color(0xFFE0E0E0),
     "backgroundImage": AssetImages.lightBackground, //TODO change
+    "dayNotifierBackground": Color(0xFF212121),
   };
 
   static const SystemUiOverlayStyle _lightOverlayStyle = SystemUiOverlayStyle(
@@ -179,9 +181,13 @@ class ThemeProvider with ChangeNotifier {
 
   Color get otherUserChatColor => _chatColors["otherUser"] as Color;
 
-  Color get currentUserBorderChatColor => _chatColors["borderCurrentUser"] as Color;
+  Color get currentUserBorderChatColor =>
+      _chatColors["borderCurrentUser"] as Color;
 
   Color get otherUserBorderChatColor => _chatColors["borderOtherUser"] as Color;
+
+  Color get dayNotifierBackgroundColor =>
+      _chatColors["dayNotifierBackground"] as Color;
 
   String get backgroundImage => _chatColors["backgroundImage"] as String;
 
