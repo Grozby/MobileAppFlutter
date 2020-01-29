@@ -105,9 +105,9 @@ class ThemeProvider with ChangeNotifier {
             color: Color.fromRGBO(105, 120, 137, 1),
           ),
           body2: TextStyle(
-            fontSize: 16,
+            fontSize: 17,
             color: Colors.black,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
           ),
         ),
   );
@@ -160,9 +160,9 @@ class ThemeProvider with ChangeNotifier {
             color: Color.fromRGBO(105, 120, 137, 1),
           ),
           body2: TextStyle(
-            fontSize: 16,
+            fontSize: 17,
             color: Colors.white,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
           ),
         ),
   );

@@ -61,6 +61,7 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                     ),
                     chatContentWidget: phone.SingleChatContentWidget(
                       chatId: widget.arguments.id,
+                      width: constraints.maxWidth,
                     ),
                   )
                 : SingleChatWidget(
@@ -71,6 +72,7 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
                     ),
                     chatContentWidget: phone.SingleChatContentWidget(
                       chatId: widget.arguments.id,
+                      width: constraints.maxWidth,
                     ),
                   );
           },
