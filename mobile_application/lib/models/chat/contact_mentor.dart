@@ -19,7 +19,6 @@ class ContactMentor {
   List<Message> messages;
   @JsonKey(fromJson: getDateTimeFromString)
   DateTime createdAt;
-  int unreadMessages;
 
   ContactMentor({
     this.user,
@@ -35,6 +34,9 @@ class ContactMentor {
       other is ContactMentor &&
           runtimeType == other.runtimeType &&
           id == other.id;
+
+  int unreadMessages(String userId) =>
+      messages.where((m) => m.userId != userId && !m.isRead).length;
 
   ///
   /// Serializable methods

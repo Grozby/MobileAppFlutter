@@ -10,7 +10,9 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:mobile_application/models/utility/available_sizes.dart';
 import 'package:provider/provider.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 import '../../../helpers/overglow_less_scroll_behavior.dart';
 import '../../../models/chat/contact_mentor.dart';
@@ -222,11 +224,13 @@ class SingleChatContentWidget extends StatefulWidget {
 class _SingleChatContentWidgetState extends State<SingleChatContentWidget> {
   ChatProvider chatProvider;
   ContactMentor contact;
+  double availableHeight;
 
   @override
   void initState() {
     super.initState();
     chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    availableHeight = ScopedModel.of<AvailableSizes>(context).height;
   }
 
   WhichUser whichUser(int index) =>
@@ -276,7 +280,6 @@ class _SingleChatContentWidgetState extends State<SingleChatContentWidget> {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Expanded(
-                    flex: 10,
                     child: ScrollConfiguration(
                       behavior: OverglowLessScrollBehavior(),
                       child: CustomScrollView(
@@ -302,9 +305,7 @@ class _SingleChatContentWidgetState extends State<SingleChatContentWidget> {
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: Container(),
-                  )
+                  InputMessage(),
                 ],
               ),
             ],
@@ -577,4 +578,80 @@ class MessageCurrent extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+class InputMessage extends StatefulWidget {
+  @override
+  _InputMessageState createState() => _InputMessageState();
+}
+
+class _InputMessageState extends State<InputMessage> {
+  TextEditingController _controller;
+  ThemeProvider _themeProvider;
+  double _availableHeight;
+  ChatProvider _chatProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller= TextEditingController();
+    _themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    _availableHeight = ScopedModel.of<AvailableSizes>(context).height;
+    _chatProvider = Provider.of<ChatProvider>(context, listen: false);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void sendMessage() {
+    if(_chatProvider.isConnected){
+      _chatProvider.sendMessage(_controller.text);
+      _controller.clear();
+    } else {
+      //TODO
+    }
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Container(
+        padding: const EdgeInsets.only(top: 8),
+        child: Container(
+          color: Colors.white,
+          constraints: BoxConstraints(
+            maxHeight: _availableHeight / 4,
+          ),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                flex: 7,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: TextFormField(
+                    controller: _controller,
+                    style: _themeProvider.getTheme().textTheme.body2,
+                    maxLines: null,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: CircularButton(
+                  height: 45,
+                  width: 45,
+                  alignment: Alignment.center,
+                  assetPath: AssetImages.message,
+                  onPressFunction: sendMessage,
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:socket_io_client/socket_io_client.dart';
@@ -129,7 +130,7 @@ class ChatProvider with ChangeNotifier {
           });
 
       _numberUnreadMessagesNotifier.sink.add(
-        contacts.where((c) => c.unreadMessages != 0).length,
+        contacts.where((c) => c.unreadMessages(userId) != 0).length,
       );
 
       _updateContactsNotifier.sink.add(true);
@@ -250,14 +251,14 @@ class ChatProvider with ChangeNotifier {
           "isRead": data["isRead"]
         }),
       );
-      c.unreadMessages += data["isRead"] ? 0 : 1;
+      if(userId != data["userId"]){
+        timeoutTypingNotification.cancel();
+        _mapMessagePreviewStreams[data["chatId"]].add(value: false);
 
-      timeoutTypingNotification.cancel();
-      _mapMessagePreviewStreams[data["chatId"]].add(value: false);
-
-      _numberUnreadMessagesNotifier.sink.add(
-        contacts.where((c) => c.unreadMessages != 0).length,
-      );
+        _numberUnreadMessagesNotifier.sink.add(
+          contacts.where((c) => c.unreadMessages != 0).length,
+        );
+      }
 
       if (currentActiveChatId != null) {
         _updateContactsNotifier.sink.add(true);
@@ -297,6 +298,16 @@ class ChatProvider with ChangeNotifier {
   void sendTypingNotification(String chatId) {
     socket.emit("typing", {
       "chatId": chatId,
+    });
+  }
+
+  void sendMessage(String message){
+    socket.emit("message", {
+      "chatId": currentActiveChatId,
+      "userId": userId,
+      "content": message,
+      "kind": "text",
+      "createdAt": DateTime.now().toIso8601String(),
     });
   }
 

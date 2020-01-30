@@ -32,8 +32,7 @@ ContactMentor _$ContactMentorFromJson(Map json) {
   )
     ..id = json['_id'] as String
     ..createdAt =
-        ContactMentor.getDateTimeFromString(json['createdAt'] as String)
-    ..unreadMessages = json['unreadMessages'] as int;
+        ContactMentor.getDateTimeFromString(json['createdAt'] as String);
 }
 
 Map<String, dynamic> _$ContactMentorToJson(ContactMentor instance) =>
@@ -45,7 +44,6 @@ Map<String, dynamic> _$ContactMentorToJson(ContactMentor instance) =>
       'answers': instance.answers?.map((e) => e?.toJson())?.toList(),
       'messages': instance.messages?.map((e) => e?.toJson())?.toList(),
       'createdAt': instance.createdAt?.toIso8601String(),
-      'unreadMessages': instance.unreadMessages,
     };
 
 T _$enumDecode<T>(

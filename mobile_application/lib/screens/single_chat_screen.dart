@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/models/utility/available_sizes.dart';
 import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'package:mobile_application/widgets/phone/chat/single_chat_screen_widget.dart'
     as phone;
 import 'package:provider/provider.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 import '../providers/chat/chat_provider.dart';
 
@@ -52,29 +54,32 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (ctx, constraints) {
-            return isSmartPhone
-                ? SingleChatWidget(
-                    width: constraints.maxWidth,
-                    infoWidget: phone.InfoBarWidget(
-                      chatId: widget.arguments.id,
-                      width: constraints.maxWidth * 0.85,
-                    ),
-                    chatContentWidget: phone.SingleChatContentWidget(
-                      chatId: widget.arguments.id,
+            return ScopedModel<AvailableSizes>(
+              model: AvailableSizes(height: constraints.maxHeight),
+              child: isSmartPhone
+                  ? SingleChatWidget(
                       width: constraints.maxWidth,
-                    ),
-                  )
-                : SingleChatWidget(
-                    width: constraints.maxWidth,
-                    infoWidget: phone.InfoBarWidget(
-                      chatId: widget.arguments.id,
-                      width: constraints.maxWidth * 0.85,
-                    ),
-                    chatContentWidget: phone.SingleChatContentWidget(
-                      chatId: widget.arguments.id,
+                      infoWidget: phone.InfoBarWidget(
+                        chatId: widget.arguments.id,
+                        width: constraints.maxWidth * 0.85,
+                      ),
+                      chatContentWidget: phone.SingleChatContentWidget(
+                        chatId: widget.arguments.id,
+                        width: constraints.maxWidth,
+                      ),
+                    )
+                  : SingleChatWidget(
                       width: constraints.maxWidth,
+                      infoWidget: phone.InfoBarWidget(
+                        chatId: widget.arguments.id,
+                        width: constraints.maxWidth * 0.85,
+                      ),
+                      chatContentWidget: phone.SingleChatContentWidget(
+                        chatId: widget.arguments.id,
+                        width: constraints.maxWidth,
+                      ),
                     ),
-                  );
+            );
           },
         ),
       ),
@@ -104,33 +109,30 @@ class _SingleChatWidgetState extends State<SingleChatWidget>
     return Container(
       child: Column(
         children: <Widget>[
-          Flexible(
-            fit: FlexFit.tight,
-            child: Container(
-              width: widget.width,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: [0, 1],
-                  colors: [
-                    Provider.of<ThemeProvider>(context)
-                        .getTheme()
-                        .primaryColor
-                        .withOpacity(0.3),
-                    const Color(0xFFFFFF),
-                  ],
-                ),
-                border: Border(
-                  bottom: BorderSide(width: 1.0, color: Colors.grey.shade300),
-                ),
+          Container(
+            width: widget.width,
+            height: 60,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0, 1],
+                colors: [
+                  Provider.of<ThemeProvider>(context)
+                      .getTheme()
+                      .primaryColor
+                      .withOpacity(0.3),
+                  const Color(0xFFFFFF),
+                ],
               ),
-              child: widget.infoWidget,
+              border: Border(
+                bottom: BorderSide(width: 1.0, color: Colors.grey.shade300),
+              ),
             ),
+            child: widget.infoWidget,
           ),
           Flexible(
-            fit: FlexFit.tight,
-            flex: 8,
+            fit: FlexFit.loose,
             child: widget.chatContentWidget,
           ),
         ],

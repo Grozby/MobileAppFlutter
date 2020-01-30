@@ -240,6 +240,8 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
         Provider.of<ThemeProvider>(context).getTheme().textTheme;
 
     double maxWidth = ScopedModel.of<AvailableSizes>(context).width;
+    int unreadMessages =
+        chat.unreadMessages(Provider.of<ChatProvider>(context).userId);
 
     return GestureDetector(
       onTap: () => goToSingleChatPage(context),
@@ -339,7 +341,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                         ),
                                   maxLines: 1,
                                 ),
-                                chat.unreadMessages != 0
+                                unreadMessages != 0
                                     ? Container(
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
@@ -347,7 +349,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                           color: Colors.green,
                                         ),
                                         child: AutoSizeText(
-                                          "${chat.unreadMessages}",
+                                          "${unreadMessages}",
                                           style: textTheme.subhead.copyWith(
                                             fontSize: 14,
                                             color: Colors.white,
