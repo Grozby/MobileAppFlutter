@@ -75,7 +75,6 @@ class _ChatWidgetState extends State<ChatWidget>
 
   @override
   void dispose() {
-    chatProviderReference.closeConnections();
     _errorStreamSubscription.cancel();
 
     super.dispose();

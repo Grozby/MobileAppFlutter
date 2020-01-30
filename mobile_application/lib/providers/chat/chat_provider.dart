@@ -12,23 +12,39 @@ import '../../models/chat/message.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
 import '../configuration.dart';
 
-class MessagePreviewController {
-  StreamController<bool> _updateNotification = BehaviorSubject();
+/// Class relative to the events of the user we can chat with.
+/// The user can type, send messages, be online/offline.
+class ChatNotifier {
+  StreamController<bool> _typingNotifier = BehaviorSubject();
+  StreamController<bool> _onlineStatusNotifier = BehaviorSubject();
   bool _isTyping;
+  bool _isOnline;
 
-  void notifiedWith({bool value}) => _updateNotification.sink.add(value);
+  ChatNotifier() {
+    isTypingNotifier(value: false);
+    isOnlineNotifier(value: false);
+  }
 
-  Stream get stream => _updateNotification.stream;
+  Stream get typingStream => _typingNotifier.stream;
 
   bool get isTyping => _isTyping;
 
-  void add({bool value}) {
+  void isTypingNotifier({bool value}) {
     _isTyping = value;
-    _updateNotification.sink.add(value);
+    _typingNotifier.sink.add(_isTyping);
+  }
+
+  Stream get onlineStatusStream => _onlineStatusNotifier.stream;
+
+  bool get isOnline => _isOnline;
+
+  void isOnlineNotifier({bool value}) {
+    _isOnline = value;
+    _onlineStatusNotifier.sink.add(_isOnline);
   }
 
   void dispose() {
-    _updateNotification.close();
+    _typingNotifier.close();
   }
 }
 
@@ -59,7 +75,7 @@ class ChatProvider with ChangeNotifier {
 
   /// Used for notify the [ChatTile] and [MessageTile]
   /// of new messages and typing notification
-  Map<String, MessagePreviewController> _mapMessagePreviewStreams;
+  Map<String, ChatNotifier> _mapChatNotifierStreams;
 
   ChatProvider(this.httpRequestWrapper);
 
@@ -71,12 +87,15 @@ class ChatProvider with ChangeNotifier {
 
   Stream get numberUnreadMessagesStream => _numberUnreadMessagesNotifier.stream;
 
-  Stream getMessagePreviewNotificationStream(String id) =>
-      _mapMessagePreviewStreams[id].stream;
+  Stream getTypingNotificationStream(String chatId) =>
+      _mapChatNotifierStreams[chatId].typingStream;
+
+  Stream getOnlineStatusStream(String chatId) =>
+      _mapChatNotifierStreams[chatId].onlineStatusStream;
 
   void _clearTypingMapStreams() {
-    _mapMessagePreviewStreams.forEach((_, t) => t.dispose());
-    _mapMessagePreviewStreams.clear();
+    _mapChatNotifierStreams.forEach((_, t) => t.dispose());
+    _mapChatNotifierStreams.clear();
   }
 
   Future<void> initializeChatProvider({String authToken}) async {
@@ -99,11 +118,12 @@ class ChatProvider with ChangeNotifier {
       _numberUnreadMessagesNotifier = BehaviorSubject();
       _updateContactsNotifier = BehaviorSubject();
       _errorNotifier = StreamController.broadcast();
-      _mapMessagePreviewStreams = HashMap();
+      _mapChatNotifierStreams = HashMap();
 
-      _initializeSocket();
 
       await fetchChatContacts();
+
+      _initializeSocket();
     }
   }
 
@@ -118,8 +138,7 @@ class ChatProvider with ChangeNotifier {
           onCorrectStatusCode: (jsonArray) async {
             return jsonArray.data.map<ContactMentor>((json) {
               ContactMentor c = ContactMentor.fromJson(json);
-              _mapMessagePreviewStreams[c.id] = MessagePreviewController();
-              _mapMessagePreviewStreams[c.id].add(value: false);
+              _mapChatNotifierStreams[c.id] = ChatNotifier();
               return c;
             }).toList();
           },
@@ -129,10 +148,12 @@ class ChatProvider with ChangeNotifier {
             );
           });
 
+      /// Notify the UI of unread messages
       _numberUnreadMessagesNotifier.sink.add(
         contacts.where((c) => c.unreadMessages(userId) != 0).length,
       );
 
+      /// Notify the UI of successful update of the contacts
       _updateContactsNotifier.sink.add(true);
     } on SomethingWentWrongException catch (e) {
       _updateContactsNotifier.sink.addError(e);
@@ -222,18 +243,39 @@ class ChatProvider with ChangeNotifier {
       (errorMessage) => _errorNotifier.sink.add(errorMessage),
     );
 
-    ///Messages methods
+    /// Check online/offline
+    addSocketListener(
+      'online',
+      (data) {
+        if (data["userId"] != userId &&
+            !_mapChatNotifierStreams[data["chatId"]].isOnline) {
+          _mapChatNotifierStreams[data["chatId"]].isOnlineNotifier(value: true);
+        }
+      },
+    );
+    addSocketListener(
+      'offline',
+      (data) {
+        if (data["userId"] != userId &&
+            _mapChatNotifierStreams[data["chatId"]].isOnline) {
+          _mapChatNotifierStreams[data["chatId"]]
+              .isOnlineNotifier(value: false);
+        }
+      },
+    );
 
+    ///Messages methods
     addSocketListener('typing', (data) {
       if (data["userId"] != userId) {
-        if (!_mapMessagePreviewStreams[data["chatId"]].isTyping) {
-          _mapMessagePreviewStreams[data["chatId"]].add(value: true);
+        if (!_mapChatNotifierStreams[data["chatId"]].isTyping) {
+          _mapChatNotifierStreams[data["chatId"]].isTypingNotifier(value: true);
         } else {
           timeoutTypingNotification.cancel();
         }
 
         timeoutTypingNotification = Timer(Duration(seconds: typingTimeout), () {
-          _mapMessagePreviewStreams[data["chatId"]].add(value: false);
+          _mapChatNotifierStreams[data["chatId"]]
+              .isTypingNotifier(value: false);
         });
       }
     });
@@ -253,10 +295,10 @@ class ChatProvider with ChangeNotifier {
       );
       if (userId != data["userId"]) {
         timeoutTypingNotification.cancel();
-        _mapMessagePreviewStreams[data["chatId"]].add(value: false);
+        _mapChatNotifierStreams[data["chatId"]].isTypingNotifier(value: false);
 
         _numberUnreadMessagesNotifier.sink.add(
-          contacts.where((c) => c.unreadMessages != 0).length,
+          contacts.where((c) => c.unreadMessages(data["chatId"]) != 0).length,
         );
       }
 
@@ -320,10 +362,6 @@ class ChatProvider with ChangeNotifier {
 
   ContactMentor getChatById(String chatId) {
     return contacts.firstWhere((e) => e.id == chatId);
-  }
-
-  void closeConnections() {
-    isConnected = false;
   }
 
   @override

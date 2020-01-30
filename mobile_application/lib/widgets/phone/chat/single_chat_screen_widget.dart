@@ -10,13 +10,13 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' hide TextDirection;
-import 'package:mobile_application/models/utility/available_sizes.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../../../helpers/overglow_less_scroll_behavior.dart';
 import '../../../models/chat/contact_mentor.dart';
 import '../../../models/chat/message.dart';
+import '../../../models/utility/available_sizes.dart';
 import '../../../providers/chat/chat_provider.dart';
 import '../../../providers/theming/theme_provider.dart';
 import '../../../screens/user_profile_screen.dart';
@@ -141,12 +141,7 @@ class _InfoBarWidgetState extends State<InfoBarWidget> {
                                         ),
                                         maxLines: 2,
                                       ),
-                                      IsTypingWidget(
-                                        chatProvider
-                                            .getMessagePreviewNotificationStream(
-                                          widget.chatId,
-                                        ),
-                                      )
+                                      IsTypingWidget(chatId: widget.chatId),
                                     ],
                                   ),
                                 ),
@@ -178,15 +173,18 @@ class _InfoBarWidgetState extends State<InfoBarWidget> {
 }
 
 class IsTypingWidget extends StatefulWidget {
-  final Stream isTypingStream;
+  final String chatId;
 
-  IsTypingWidget(this.isTypingStream);
+  IsTypingWidget({@required this.chatId});
 
   @override
   _IsTypingWidgetState createState() => _IsTypingWidgetState();
 }
 
 class _IsTypingWidgetState extends State<IsTypingWidget> {
+  Stream typingStatusStream;
+  Stream onlineStatusStream;
+
   TextTheme textTheme;
 
   @override
@@ -194,20 +192,36 @@ class _IsTypingWidgetState extends State<IsTypingWidget> {
     super.initState();
     textTheme =
         Provider.of<ThemeProvider>(context, listen: false).getTheme().textTheme;
+    typingStatusStream = Provider.of<ChatProvider>(context, listen: false)
+        .getTypingNotificationStream(widget.chatId);
+    onlineStatusStream = Provider.of<ChatProvider>(context, listen: false)
+        .getOnlineStatusStream(widget.chatId);
   }
+
+  String getContactPreviewString({bool isTyping, bool isOnline}) =>
+      isTyping ? "Typing..." : isOnline ? "Online" : "Offline";
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<bool>(
-      stream: widget.isTypingStream,
-      builder: (context, snapshot) {
-        return AutoSizeText(
-          (snapshot.hasData && snapshot.data) ? "Typing..." : "",
-          style: textTheme.overline,
-          minFontSize: textTheme.overline.fontSize,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        );
+      stream: typingStatusStream,
+      builder: (ctx1, isTypingSnap) {
+        return StreamBuilder<bool>(
+            stream: onlineStatusStream,
+            builder: (ctx2, isOnlineSnap) {
+              return AutoSizeText(
+                (isTypingSnap.hasData && isOnlineSnap.hasData)
+                    ? getContactPreviewString(
+                        isTyping: isTypingSnap.data,
+                        isOnline: isOnlineSnap.data,
+                      )
+                    : "",
+                style: textTheme.overline,
+                minFontSize: textTheme.overline.fontSize,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              );
+            });
       },
     );
   }

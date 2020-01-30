@@ -238,6 +238,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
   Widget build(BuildContext context) {
     TextTheme textTheme =
         Provider.of<ThemeProvider>(context).getTheme().textTheme;
+    ChatProvider chatProvider = Provider.of<ChatProvider>(context);
 
     double maxWidth = ScopedModel.of<AvailableSizes>(context).width;
     int unreadMessages =
@@ -264,17 +265,39 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                 color: statusColor[chat.status],
               ),
             ),
-            Container(
-              width: 60,
-              height: 60,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(60)),
-                child: ImageWrapper(
-                  assetPath: AssetImages.user,
-                  imageUrl: chat.user.pictureUrl,
-                  boxFit: BoxFit.cover,
+            Stack(
+              children: <Widget>[
+                Container(
+                  width: 60,
+                  height: 60,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(60)),
+                    child: ImageWrapper(
+                      assetPath: AssetImages.user,
+                      imageUrl: chat.user.pictureUrl,
+                      boxFit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-              ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: StreamBuilder<bool>(
+                      stream: chatProvider.getOnlineStatusStream(chat.id),
+                      builder: (context, snapshot) =>
+                          snapshot.hasData && snapshot.data
+                              ? Container(
+                                  height: 16,
+                                  width: 16,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.white, width: 2),
+                                    shape: BoxShape.circle,
+                                    color: Colors.green,
+                                  ),
+                                )
+                              : const Center()),
+                ),
+              ],
             ),
             const SizedBox(width: 12),
             Flexible(
@@ -285,8 +308,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                   ),
                 ),
                 child: StreamBuilder<bool>(
-                    stream: Provider.of<ChatProvider>(context, listen: false)
-                        .getMessagePreviewNotificationStream(chat.id),
+                    stream: chatProvider.getTypingNotificationStream(chat.id),
                     builder: (context, snapshot) {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
