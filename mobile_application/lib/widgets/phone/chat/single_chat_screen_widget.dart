@@ -95,7 +95,7 @@ class _InfoBarWidgetState extends State<InfoBarWidget> {
                 return (!snapshot.hasData || !snapshot.data)
                     ? Center(
                         child: AutoSizeText(
-                          "Waiting for connection...",
+                          "Waiting for network connection...",
                           style: textTheme.display3,
                           maxLines: 1,
                         ),
@@ -135,7 +135,10 @@ class _InfoBarWidgetState extends State<InfoBarWidget> {
                                     children: <Widget>[
                                       AutoSizeText(
                                         c.user.completeName,
-                                        style: textTheme.display2,
+                                        style: textTheme.display2.copyWith(
+                                          fontSize:
+                                              textTheme.display2.fontSize - 2,
+                                        ),
                                         maxLines: 2,
                                       ),
                                       IsTypingWidget(
@@ -286,6 +289,7 @@ class _SingleChatContentWidgetState extends State<SingleChatContentWidget> {
                         reverse: true,
                         physics: const ClampingScrollPhysics(),
                         slivers: <Widget>[
+                          SliverToBoxAdapter(child: const SizedBox(height: 8)),
                           SliverList(
                             delegate: SliverChildBuilderDelegate(
                               (ctx, int index) {
@@ -300,7 +304,8 @@ class _SingleChatContentWidgetState extends State<SingleChatContentWidget> {
                               },
                               childCount: contact.messages.length,
                             ),
-                          )
+                          ),
+                          SliverToBoxAdapter(child: const SizedBox(height: 8)),
                         ],
                       ),
                     ),
@@ -594,7 +599,7 @@ class _InputMessageState extends State<InputMessage> {
   @override
   void initState() {
     super.initState();
-    _controller= TextEditingController();
+    _controller = TextEditingController();
     _themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     _availableHeight = ScopedModel.of<AvailableSizes>(context).height;
     _chatProvider = Provider.of<ChatProvider>(context, listen: false);
@@ -607,49 +612,45 @@ class _InputMessageState extends State<InputMessage> {
   }
 
   void sendMessage() {
-    if(_chatProvider.isConnected){
+    if (_chatProvider.isConnected) {
       _chatProvider.sendMessage(_controller.text);
       _controller.clear();
     } else {
       //TODO
     }
-
   }
 
   @override
   Widget build(BuildContext context) {
     return IntrinsicHeight(
       child: Container(
-        padding: const EdgeInsets.only(top: 8),
-        child: Container(
-          color: Colors.white,
-          constraints: BoxConstraints(
-            maxHeight: _availableHeight / 4,
-          ),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                flex: 7,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: TextFormField(
-                    controller: _controller,
-                    style: _themeProvider.getTheme().textTheme.body2,
-                    maxLines: null,
-                  ),
+        color: Colors.white,
+        constraints: BoxConstraints(
+          maxHeight: _availableHeight / 4,
+        ),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              flex: 7,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: TextFormField(
+                  controller: _controller,
+                  style: _themeProvider.getTheme().textTheme.body2,
+                  maxLines: null,
                 ),
               ),
-              Expanded(
-                child: CircularButton(
-                  height: 45,
-                  width: 45,
-                  alignment: Alignment.center,
-                  assetPath: AssetImages.message,
-                  onPressFunction: sendMessage,
-                ),
-              )
-            ],
-          ),
+            ),
+            Expanded(
+              child: CircularButton(
+                height: 45,
+                width: 45,
+                alignment: Alignment.center,
+                assetPath: AssetImages.message,
+                onPressFunction: sendMessage,
+              ),
+            )
+          ],
         ),
       ),
     );

@@ -251,7 +251,7 @@ class ChatProvider with ChangeNotifier {
           "isRead": data["isRead"]
         }),
       );
-      if(userId != data["userId"]){
+      if (userId != data["userId"]) {
         timeoutTypingNotification.cancel();
         _mapMessagePreviewStreams[data["chatId"]].add(value: false);
 
@@ -301,7 +301,7 @@ class ChatProvider with ChangeNotifier {
     });
   }
 
-  void sendMessage(String message){
+  void sendMessage(String message) {
     socket.emit("message", {
       "chatId": currentActiveChatId,
       "userId": userId,

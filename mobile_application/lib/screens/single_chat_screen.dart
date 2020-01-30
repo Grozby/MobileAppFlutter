@@ -51,36 +51,55 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
     var isSmartPhone = mediaQuery.size.shortestSide < 600;
 
     return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (ctx, constraints) {
-            return ScopedModel<AvailableSizes>(
-              model: AvailableSizes(height: constraints.maxHeight),
-              child: isSmartPhone
-                  ? SingleChatWidget(
-                      width: constraints.maxWidth,
-                      infoWidget: phone.InfoBarWidget(
-                        chatId: widget.arguments.id,
-                        width: constraints.maxWidth * 0.85,
-                      ),
-                      chatContentWidget: phone.SingleChatContentWidget(
-                        chatId: widget.arguments.id,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0, 0.2],
+            colors: [
+              Provider.of<ThemeProvider>(context)
+                  .getTheme()
+                  .primaryColor
+                  .withOpacity(0.3),
+              const Color(0xFFFFFF),
+            ],
+          ),
+          border: Border(
+            bottom: BorderSide(width: 1.0, color: Colors.grey.shade300),
+          ),
+        ),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (ctx, constraints) {
+              return ScopedModel<AvailableSizes>(
+                model: AvailableSizes(height: constraints.maxHeight),
+                child: isSmartPhone
+                    ? SingleChatWidget(
                         width: constraints.maxWidth,
-                      ),
-                    )
-                  : SingleChatWidget(
-                      width: constraints.maxWidth,
-                      infoWidget: phone.InfoBarWidget(
-                        chatId: widget.arguments.id,
-                        width: constraints.maxWidth * 0.85,
-                      ),
-                      chatContentWidget: phone.SingleChatContentWidget(
-                        chatId: widget.arguments.id,
+                        infoWidget: phone.InfoBarWidget(
+                          chatId: widget.arguments.id,
+                          width: constraints.maxWidth * 0.85,
+                        ),
+                        chatContentWidget: phone.SingleChatContentWidget(
+                          chatId: widget.arguments.id,
+                          width: constraints.maxWidth,
+                        ),
+                      )
+                    : SingleChatWidget(
                         width: constraints.maxWidth,
+                        infoWidget: phone.InfoBarWidget(
+                          chatId: widget.arguments.id,
+                          width: constraints.maxWidth * 0.85,
+                        ),
+                        chatContentWidget: phone.SingleChatContentWidget(
+                          chatId: widget.arguments.id,
+                          width: constraints.maxWidth,
+                        ),
                       ),
-                    ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -113,20 +132,8 @@ class _SingleChatWidgetState extends State<SingleChatWidget>
             width: widget.width,
             height: 60,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: [0, 1],
-                colors: [
-                  Provider.of<ThemeProvider>(context)
-                      .getTheme()
-                      .primaryColor
-                      .withOpacity(0.3),
-                  const Color(0xFFFFFF),
-                ],
-              ),
               border: Border(
-                bottom: BorderSide(width: 1.0, color: Colors.grey.shade300),
+                bottom: BorderSide(width: 1.0, color: Colors.grey.shade400),
               ),
             ),
             child: widget.infoWidget,
