@@ -31,7 +31,7 @@ class InfoBarWidget extends StatelessWidget {
                   builder: (context, userProvider, child) {
                     return CircularButton(
                       assetPath: AssetImages.user,
-                      imageUrl: userProvider.user.pictureUrl,
+                      imageUrl: userProvider?.user?.pictureUrl ?? null,
                       alignment: Alignment.centerLeft,
                       width: 55,
                       height: 55,

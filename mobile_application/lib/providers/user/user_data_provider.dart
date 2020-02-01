@@ -111,5 +111,5 @@ class UserDataProvider with ChangeNotifier {
         });
   }
 
-  User get user => behavior.user;
+  User get user => behavior?.user;
 }

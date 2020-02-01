@@ -8,6 +8,7 @@ class DatabaseProvider with ChangeNotifier {
   static const String databaseName = 'mobileAppDB.db';
   static const String contactsTableName = 'contacts';
   static const String messagesTableName = 'messages';
+  static const String userTableName = 'user';
 
   Database _database;
 
@@ -27,6 +28,10 @@ class DatabaseProvider with ChangeNotifier {
         version: 1,
         onOpen: (database) async {
           print("On bois");
+          await database.execute("""CREATE TABLE ${userTableName}(
+            id TEXT PRIMARY KEY,
+            json TEXT
+          )""");
         },
         onCreate: (database, version) async {
           await database.execute("""CREATE TABLE ${contactsTableName}(
@@ -38,6 +43,10 @@ class DatabaseProvider with ChangeNotifier {
             contact_id TEXT,
             json TEXT,
             date INTEGER)""");
+          await database.execute("""CREATE TABLE ${userTableName}(
+            id TEXT PRIMARY KEY,
+            json TEXT
+          )""");
         },
       );
     }

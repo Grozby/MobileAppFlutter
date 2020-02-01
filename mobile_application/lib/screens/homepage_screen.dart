@@ -170,15 +170,7 @@ class _HomepageWidgetState extends State<HomepageWidget>
         }
 
         widget.refreshCompleted();
-
-        if (snapshot.hasError) {
-          return LoadingError(
-            exception: snapshot.error,
-            retry: () => setState(loadExploreSection),
-            buildContext: context,
-          );
-        }
-
+        
         /// Normal app flow. The user is logged and no confirmation is needed.
         controller.forward();
 
@@ -196,7 +188,13 @@ class _HomepageWidgetState extends State<HomepageWidget>
                 Flexible(
                   fit: FlexFit.tight,
                   flex: 8,
-                  child: widget.exploreWidget,
+                  child: snapshot.hasError
+                      ? LoadingError(
+                          exception: snapshot.error,
+                          retry: () => setState(loadExploreSection),
+                          buildContext: context,
+                        )
+                      : widget.exploreWidget,
                 ),
               ],
             ),

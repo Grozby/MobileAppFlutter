@@ -109,6 +109,14 @@ class ChatProvider with ChangeNotifier {
     if (!isInitialized) {
       isInitialized = true;
       this.authToken = authToken;
+
+      _connectionNotifier = BehaviorSubject();
+      _numberUnreadMessagesNotifier = BehaviorSubject();
+      _updateContactsNotifier = BehaviorSubject();
+      _errorNotifier = StreamController.broadcast();
+      _mapChatNotifierStreams = HashMap();
+      contacts = await loadContactMentorsFromDB();
+
       this.userId = await httpRequestWrapper.request<String>(
           url: getUserIdUri,
           correctStatusCode: 200,
@@ -121,12 +129,7 @@ class ChatProvider with ChangeNotifier {
             );
           });
 
-      _connectionNotifier = BehaviorSubject();
-      _numberUnreadMessagesNotifier = BehaviorSubject();
-      _updateContactsNotifier = BehaviorSubject();
-      _errorNotifier = StreamController.broadcast();
-      _mapChatNotifierStreams = HashMap();
-      contacts = await loadContactMentorsFromDB();
+
 
       await fetchChatContacts();
 
@@ -191,8 +194,17 @@ class ChatProvider with ChangeNotifier {
           url: "$getContactsUrl/$chatId",
           correctStatusCode: 200,
           onCorrectStatusCode: (json) async {
-            ContactMentor c = ContactMentor.fromJson(json.data);
-            contacts[contacts.indexOf(c)] = c;
+            ContactMentor newC = ContactMentor.fromJson(json.data);
+            var contactIndex = contacts.indexOf(newC);
+            var messagesToAdd = newC.messages
+                .where((m) => !contacts[contactIndex].messages.contains(m));
+
+            if (messagesToAdd.isNotEmpty) {
+              messagesToAdd.forEach(
+                    (m) => contacts[contactIndex].messages.insert(0, m),
+              );
+              await saveMessagesToDb(messagesToAdd, newC.id);
+            }
             return;
           },
           onIncorrectStatusCode: (_) {
