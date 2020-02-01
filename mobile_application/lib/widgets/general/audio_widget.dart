@@ -44,7 +44,7 @@ class _AudioWidgetState extends State<AudioWidget>
     with TickerProviderStateMixin, TimeConverter {
   String fileName;
 
-  FlutterFFmpeg ffmpeg = FlutterFFmpeg();
+  FlutterFFprobe ffmpeg = FlutterFFprobe();
   bool _canRecord = true;
   bool _isRecording = false;
   String _path;
@@ -137,7 +137,7 @@ class _AudioWidgetState extends State<AudioWidget>
       }
 
       String path = await flutterSound.startRecorder(
-        fileName,
+        uri: fileName,
         codec: t_CODEC.CODEC_AAC,
         sampleRate: 44100,
         bitRate: 128000,
