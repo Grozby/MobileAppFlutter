@@ -13,10 +13,11 @@ Message _$MessageFromJson(Map json) {
     kind: json['kind'] as String,
     createdAt: Message.getDateTimeFromString(json['createdAt'] as String),
     isRead: json['isRead'] as bool,
-  );
+  )..id = json['_id'] as String;
 }
 
 Map<String, dynamic> _$MessageToJson(Message instance) => <String, dynamic>{
+      '_id': instance.id,
       'userId': instance.userId,
       'content': instance.content,
       'kind': instance.kind,

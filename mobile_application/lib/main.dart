@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:mobile_application/providers/database/database_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/authentication/authentication_provider.dart';
@@ -17,7 +18,6 @@ import 'providers/theming/theme_provider.dart';
 import 'providers/user/user_data_provider.dart';
 import 'widgets/themed_material_app.dart';
 
-// Must be top-level function
 _parseAndDecode(String response) => jsonDecode(response);
 
 parseJson(String text) {
@@ -55,12 +55,17 @@ void main() async {
   (_httpManager.httpClientAdapter as DefaultHttpClientAdapter)
       .onHttpClientCreate = (client) => HttpClient(context: securityContext);
 
+  var database = await DatabaseProvider()..getDatabase();
   var themeProvider = ThemeProvider();
   var authenticationProvider = AuthenticationProvider(_httpManager);
-  var userDataProvider =
-      UserDataProvider(authenticationProvider.httpRequestWrapper);
+  var userDataProvider = UserDataProvider(
+    authenticationProvider.httpRequestWrapper,
+  );
   var cardProvider = CardProvider(authenticationProvider.httpRequestWrapper);
-  var chatProvider = ChatProvider(authenticationProvider.httpRequestWrapper);
+  var chatProvider = ChatProvider(
+    httpRequestWrapper: authenticationProvider.httpRequestWrapper,
+    databaseProvider: database,
+  );
 
   await themeProvider.loadThemePreference();
   await authenticationProvider.loadAuthentication();

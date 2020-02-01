@@ -1,16 +1,31 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/database/database_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:socket_io_client/socket_io_client.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../../helpers/http_request_wrapper.dart';
 import '../../models/chat/contact_mentor.dart';
 import '../../models/chat/message.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
 import '../configuration.dart';
+
+_parseAndDecode(String text) => jsonDecode(text);
+
+stringToJson(String text) {
+  return compute(_parseAndDecode, text);
+}
+
+_parseAndEncode(Map<String, dynamic> json) => jsonEncode(json);
+
+jsonToString(Map<String, dynamic> json) {
+  return compute(_parseAndEncode, json);
+}
 
 /// Class relative to the events of the user we can chat with.
 /// The user can type, send messages, be online/offline.
@@ -54,6 +69,8 @@ class ChatProvider with ChangeNotifier {
   static const int typingTimeout = 2;
 
   HttpRequestWrapper httpRequestWrapper;
+  DatabaseProvider databaseProvider;
+
   String authToken;
   String userId;
   Socket socket;
@@ -77,7 +94,7 @@ class ChatProvider with ChangeNotifier {
   /// of new messages and typing notification
   Map<String, ChatNotifier> _mapChatNotifierStreams;
 
-  ChatProvider(this.httpRequestWrapper);
+  ChatProvider({this.httpRequestWrapper, this.databaseProvider});
 
   Stream get updateContactsStream => _updateContactsNotifier.stream;
 
@@ -119,7 +136,9 @@ class ChatProvider with ChangeNotifier {
       _updateContactsNotifier = BehaviorSubject();
       _errorNotifier = StreamController.broadcast();
       _mapChatNotifierStreams = HashMap();
+      contacts = [];
 
+      await loadContactMentorsFromDB();
 
       await fetchChatContacts();
 
@@ -132,15 +151,31 @@ class ChatProvider with ChangeNotifier {
       _updateContactsNotifier.sink.add(false);
       _clearTypingMapStreams();
 
-      contacts = await httpRequestWrapper.request<List<ContactMentor>>(
+      await httpRequestWrapper.request<void>(
           url: getContactsUrl,
           correctStatusCode: 200,
           onCorrectStatusCode: (jsonArray) async {
-            return jsonArray.data.map<ContactMentor>((json) {
-              ContactMentor c = ContactMentor.fromJson(json);
-              _mapChatNotifierStreams[c.id] = ChatNotifier();
-              return c;
-            }).toList();
+            jsonArray.data.forEach((json) async {
+              /// If the mentor is already present, we update its messages
+              /// Otherwise, we simply add the mentor
+              ContactMentor newC = ContactMentor.fromJson(json);
+              if (contacts.contains(newC)) {
+                var contactIndex = contacts.indexOf(newC);
+                var messagesToAdd = newC.messages
+                    .where((m) => !contacts[contactIndex].messages.contains(m));
+
+                if (messagesToAdd.isNotEmpty) {
+                  messagesToAdd.forEach(
+                    (m) => contacts[contactIndex].messages.insert(0, m),
+                  );
+                  await saveMessagesToDb(messagesToAdd, newC.id);
+                }
+              } else {
+                contacts.add(newC);
+                _mapChatNotifierStreams[newC.id] = ChatNotifier();
+                await saveNewContactMentorInDB(newC);
+              }
+            });
           },
           onIncorrectStatusCode: (_) {
             throw SomethingWentWrongException.message(
@@ -362,6 +397,85 @@ class ChatProvider with ChangeNotifier {
 
   ContactMentor getChatById(String chatId) {
     return contacts.firstWhere((e) => e.id == chatId);
+  }
+
+  ///
+  /// Database methods
+  ///
+  Future<List<ContactMentor>> loadContactMentorsFromDB() async {
+    final database = await databaseProvider.getDatabase();
+    var results = await database.query(DatabaseProvider.contactsTableName);
+
+    return Future.wait(results.map<Future<ContactMentor>>(
+      (map) async {
+        var c = ContactMentor.fromJson(await stringToJson(map["json"]));
+        final messagesResult = await database.query(
+            DatabaseProvider.messagesTableName,
+            columns: ['id', 'json'],
+            where: '"contact_id" = ?',
+            whereArgs: [c.id],
+            orderBy: "date DESC");
+
+        c.messages = await Future.wait(
+          messagesResult.map<Future<Message>>(
+            (m) async => await stringToJson(m["json"]),
+          ),
+        );
+
+        _mapChatNotifierStreams[c.id] = ChatNotifier();
+        return c;
+      },
+    ).toList());
+  }
+
+  void saveNewContactMentorInDB(ContactMentor c) async {
+    final database = await databaseProvider.getDatabase();
+    var messages = c.messages;
+    c.messages = null;
+
+    var batch = database.batch();
+    batch.insert(
+      DatabaseProvider.contactsTableName,
+      {
+        "id": c.id,
+        "json": jsonToString(c.toJson()),
+      },
+      conflictAlgorithm: ConflictAlgorithm.fail,
+    );
+
+    for (var message in messages) {
+      batch.insert(
+        DatabaseProvider.messagesTableName,
+        {
+          "id": message.id,
+          "contact_id": c.id,
+          "json": jsonToString(message.toJson()),
+          "date": message.createdAt.millisecondsSinceEpoch,
+        },
+        conflictAlgorithm: ConflictAlgorithm.fail,
+      );
+    }
+
+    await batch.commit(noResult: true);
+  }
+
+  void saveMessagesToDb(List<Message> messages, String chatId) async {
+    final database = await databaseProvider.getDatabase();
+    var batch = database.batch();
+
+    for(var m in messages){
+      batch.insert(
+        DatabaseProvider.messagesTableName,
+        {
+          "id": m.id,
+          "contact_id": chatId,
+          "json": jsonToString(m.toJson()),
+          "date": m.createdAt.millisecondsSinceEpoch,
+        },
+        conflictAlgorithm: ConflictAlgorithm.fail,
+      );
+    }
+    batch.commit(noResult: true);
   }
 
   @override

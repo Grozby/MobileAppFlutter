@@ -5,6 +5,8 @@ part 'message.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class Message {
+  @JsonKey(name: "_id")
+  String id;
   String userId;
   String content;
   String kind;

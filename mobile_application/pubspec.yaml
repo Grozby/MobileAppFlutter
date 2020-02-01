@@ -38,9 +38,8 @@ dependencies:
   flutter_ffmpeg: ^0.2.8
   socket_io_client: ^0.9.7+2
   rxdart: ^0.23.1
-  console: ^3.1.0
-
-
+  sqflite: ^1.2.0
+  path_provider: ^1.6.0
 
 
 
