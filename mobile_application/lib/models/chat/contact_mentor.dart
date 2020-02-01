@@ -21,12 +21,22 @@ class ContactMentor {
   DateTime createdAt;
 
   ContactMentor({
+    this.id,
     this.user,
     this.startingMessage,
     this.status,
     this.answers,
     this.messages,
+    this.createdAt,
   });
+
+  ContactMentor.cloneWithoutMessages(ContactMentor ref)
+      : id = ref.id,
+        user = ref.user,
+        startingMessage = ref.startingMessage,
+        status = ref.status,
+        answers = ref.answers,
+        createdAt = ref.createdAt;
 
   @override
   bool operator ==(Object other) =>

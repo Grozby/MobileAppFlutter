@@ -12,7 +12,7 @@ class DatabaseProvider with ChangeNotifier {
   Database _database;
 
   Future<Database> getDatabase() async {
-    Sqflite.setDebugModeOn();
+    Sqflite.devSetDebugModeOn(true);
 
     if (_database == null) {
       var databasesPath = await getDatabasesPath();
@@ -24,23 +24,21 @@ class DatabaseProvider with ChangeNotifier {
 
       _database = await openDatabase(
         path,
-        onOpen: (database) {
-          print("yay");
+        version: 1,
+        onOpen: (database) async {
+          print("On bois");
         },
         onCreate: (database, version) async {
           await database.execute("""CREATE TABLE ${contactsTableName}(
             id TEXT PRIMARY KEY,
             json TEXT
           )""");
-
           await database.execute("""CREATE TABLE ${messagesTableName}(
             id TEXT PRIMARY KEY,
             contact_id TEXT,
             json TEXT,
-            int date
-          )""");
+            date INTEGER)""");
         },
-        version: 1,
       );
     }
 
