@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
 import 'package:mobile_application/providers/authentication/authentication_provider.dart';
 import 'package:mobile_application/providers/chat/chat_provider.dart';
 import 'package:provider/provider.dart';
@@ -132,13 +133,17 @@ class _HomepageWidgetState extends State<HomepageWidget>
       /// [loadCardProvider]. When the user is not finalized (as when logged
       /// from Google, for example), the /explore request will fail. Therefore,
       /// we need to initialize the profile. The second option is that
-      /// incorrect data have been passed to the [loadUserData]. This case
-      /// will not be considered, and an error will be shown.
+      /// incorrect data have been passed to the [loadUserData], or the
+      /// internet connection is missing.
       var p = Provider.of<UserDataProvider>(context, listen: false);
 
       if (p.behavior != null && !p.behavior.isInitialized) {
         Navigator.of(context)
             .pushReplacementNamed(InitializationScreen.routeName);
+      }
+
+      if(err is NoInternetException){
+        throw err;
       }
     });
   }
@@ -170,7 +175,7 @@ class _HomepageWidgetState extends State<HomepageWidget>
         }
 
         widget.refreshCompleted();
-        
+
         /// Normal app flow. The user is logged and no confirmation is needed.
         controller.forward();
 

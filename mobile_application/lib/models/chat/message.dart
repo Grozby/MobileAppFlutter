@@ -15,12 +15,20 @@ class Message {
   bool isRead;
 
   Message({
+    this.id,
     @required this.userId,
     @required this.content,
     @required this.kind,
     @required this.createdAt,
     @required this.isRead,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is Message &&
+              runtimeType == other.runtimeType &&
+              id == other.id;
 
   ///
   /// Serializable methods
@@ -33,4 +41,6 @@ class Message {
   static DateTime getDateTimeFromString(String string) {
     return string == null ? null : DateTime.parse(string);
   }
+
+
 }

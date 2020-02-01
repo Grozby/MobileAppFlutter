@@ -134,9 +134,12 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
       builder: (context, snapshot) {
         bool isWaiting = snapshot.connectionState == ConnectionState.waiting;
 
-        if (snapshot.hasError && !isWaiting) {
-          widget.refreshCompleted();
+        User user = widget.arguments != null
+            ? snapshot.data as User
+            : Provider.of<UserDataProvider>(context).user;
 
+        if (snapshot.hasError && !isWaiting && user == null) {
+          widget.refreshCompleted();
           return LoadingError(
             exception: snapshot.error,
             buildContext: context,
@@ -159,10 +162,6 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
               ? const Center()
               : Builder(
                   builder: (_) {
-                    User user = widget.arguments != null
-                        ? snapshot.data as User
-                        : Provider.of<UserDataProvider>(context).user;
-
                     /// This is the callback that will notify the parent
                     /// that the refresh procedure has ended.
                     widget.refreshCompleted();

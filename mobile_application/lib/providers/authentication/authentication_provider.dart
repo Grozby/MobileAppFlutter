@@ -54,7 +54,6 @@ class AuthenticationProvider with ChangeNotifier {
         onError: (DioError error) async {
           if (error.response?.statusCode == 401) {
             await removeAuthenticationData();
-            //TODO
           }
 
           return error; //continue

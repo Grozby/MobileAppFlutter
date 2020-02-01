@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
+import 'package:mobile_application/providers/database/database_provider.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../../helpers/http_request_wrapper.dart';
 import '../../models/exceptions/no_user_profile_exception.dart';
@@ -18,8 +23,9 @@ enum UserKind {
 class UserDataProvider with ChangeNotifier {
   UserUIData behavior;
   HttpRequestWrapper httpRequestWrapper;
+  DatabaseProvider databaseProvider;
 
-  UserDataProvider(this.httpRequestWrapper);
+  UserDataProvider({this.httpRequestWrapper, this.databaseProvider});
 
   Future<void> selectUserKind(UserKind kind) async {
     return await httpRequestWrapper.request<void>(
@@ -49,34 +55,39 @@ class UserDataProvider with ChangeNotifier {
   }
 
   Future<void> loadUserData() async {
-    return await httpRequestWrapper.request<bool>(
-        url: "/users/profile",
-        typeHttpRequest: TypeHttpRequest.get,
-        correctStatusCode: 200,
-        onCorrectStatusCode: (response) async {
-          switch (response.data["kind"]) {
-            case "Mentee":
-              behavior = MenteeUIData(user: Mentee.fromJson(response.data));
-              break;
-            case "Mentor":
-              behavior = MentorUIData(user: Mentor.fromJson(response.data));
-              break;
-            case "User":
-              behavior = UserUIData(user: User.fromJson(response.data));
-              break;
-            default:
-              throw SomethingWentWrongException.message(
-                "Some error happened on the server side.",
-              );
-          }
-
-          return;
-        },
-        onIncorrectStatusCode: (_) {
-          throw SomethingWentWrongException.message(
-            "Couldn't load the explore section. Try again later.",
-          );
-        });
+    try {
+      return await httpRequestWrapper.request<bool>(
+          url: "/users/profile",
+          typeHttpRequest: TypeHttpRequest.get,
+          correctStatusCode: 200,
+          onCorrectStatusCode: (response) async {
+            switch (response.data["kind"]) {
+              case "Mentee":
+                behavior = MenteeUIData(user: Mentee.fromJson(response.data));
+                break;
+              case "Mentor":
+                behavior = MentorUIData(user: Mentor.fromJson(response.data));
+                break;
+              case "User":
+                behavior = UserUIData(user: User.fromJson(response.data));
+                break;
+              default:
+                throw SomethingWentWrongException.message(
+                  "Some error happened on the server side.",
+                );
+            }
+            await saveUserToDB();
+            return;
+          },
+          onIncorrectStatusCode: (_) {
+            throw SomethingWentWrongException.message(
+              "Couldn't load the explore section. Try again later.",
+            );
+          });
+    } on NoInternetException catch (e) {
+      await loadUserFromDB();
+      throw e;
+    }
   }
 
   Future<User> loadSpecifiedUserData(String id) async {
@@ -112,4 +123,36 @@ class UserDataProvider with ChangeNotifier {
   }
 
   User get user => behavior?.user;
+
+  ///
+  /// Database methods
+  ///
+  void loadUserFromDB() async {
+    final database = await databaseProvider.getDatabase();
+    var results = await database.query(DatabaseProvider.userTableName);
+
+    behavior = results.isEmpty
+        ? null
+        : results.first["kind"] == "Mentor"
+            ? MentorUIData(
+                user: Mentor.fromJson(jsonDecode(results.first["json"])),
+              )
+            : MenteeUIData(
+                user: Mentee.fromJson(jsonDecode(results.first["json"])),
+              );
+  }
+
+  void saveUserToDB() async {
+    final database = await databaseProvider.getDatabase();
+
+    await database.insert(
+      DatabaseProvider.userTableName,
+      {
+        "id": behavior.user.id,
+        "json": jsonEncode(behavior.user.toJson()),
+        "kind": behavior.user.runtimeType.toString(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
 }

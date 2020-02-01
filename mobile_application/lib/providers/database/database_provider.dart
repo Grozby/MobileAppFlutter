@@ -28,10 +28,6 @@ class DatabaseProvider with ChangeNotifier {
         version: 1,
         onOpen: (database) async {
           print("On bois");
-          await database.execute("""CREATE TABLE ${userTableName}(
-            id TEXT PRIMARY KEY,
-            json TEXT
-          )""");
         },
         onCreate: (database, version) async {
           await database.execute("""CREATE TABLE ${contactsTableName}(
@@ -45,6 +41,7 @@ class DatabaseProvider with ChangeNotifier {
             date INTEGER)""");
           await database.execute("""CREATE TABLE ${userTableName}(
             id TEXT PRIMARY KEY,
+            kind TEXT,
             json TEXT
           )""");
         },
