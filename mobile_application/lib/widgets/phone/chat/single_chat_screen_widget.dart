@@ -10,6 +10,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:mobile_application/widgets/general/custom_alert_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -617,6 +618,8 @@ class _InputMessageState extends State<InputMessage> {
     _themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     _availableHeight = ScopedModel.of<AvailableSizes>(context).height;
     _chatProvider = Provider.of<ChatProvider>(context, listen: false);
+
+    _controller.addListener(sendTypingNotification);
   }
 
   @override
@@ -625,12 +628,25 @@ class _InputMessageState extends State<InputMessage> {
     super.dispose();
   }
 
+  void sendTypingNotification(){
+    if (_chatProvider.isConnected && _controller.text.isEmpty) {
+      _chatProvider.sendTypingNotification();
+    }
+  }
+
   void sendMessage() {
+    if(_controller.text.isEmpty){
+      return;
+    }
+
     if (_chatProvider.isConnected) {
       _chatProvider.sendMessage(_controller.text);
       _controller.clear();
     } else {
-      //TODO
+      showErrorDialog(
+        context,
+        "No internet connection. You can't send the message.",
+      );
     }
   }
 

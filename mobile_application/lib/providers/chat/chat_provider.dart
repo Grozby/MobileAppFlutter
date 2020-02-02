@@ -368,9 +368,9 @@ class ChatProvider with ChangeNotifier {
     currentActiveChatId = null;
   }
 
-  void sendTypingNotification(String chatId) {
+  void sendTypingNotification() {
     socket.emit("typing", {
-      "chatId": chatId,
+      "chatId": currentActiveChatId,
     });
   }
 
