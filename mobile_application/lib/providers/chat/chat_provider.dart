@@ -4,7 +4,6 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/providers/database/database_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:sqflite/sqflite.dart';
@@ -13,9 +12,8 @@ import '../../helpers/http_request_wrapper.dart';
 import '../../models/chat/contact_mentor.dart';
 import '../../models/chat/message.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
+import '../../providers/database/database_provider.dart';
 import '../configuration.dart';
-
-
 
 /// Class relative to the events of the user we can chat with.
 /// The user can type, send messages, be online/offline.
@@ -129,8 +127,6 @@ class ChatProvider with ChangeNotifier {
             );
           });
 
-
-
       await fetchChatContacts();
 
       _initializeSocket();
@@ -152,7 +148,8 @@ class ChatProvider with ChangeNotifier {
               if (contacts.contains(newC)) {
                 var contactIndex = contacts.indexOf(newC);
                 var messagesToAdd = newC.messages
-                    .where((m) => !contacts[contactIndex].messages.contains(m));
+                    .where((m) => !contacts[contactIndex].messages.contains(m))
+                    .toList();
 
                 if (messagesToAdd.isNotEmpty) {
                   messagesToAdd.forEach(
@@ -201,7 +198,7 @@ class ChatProvider with ChangeNotifier {
 
             if (messagesToAdd.isNotEmpty) {
               messagesToAdd.forEach(
-                    (m) => contacts[contactIndex].messages.insert(0, m),
+                (m) => contacts[contactIndex].messages.insert(0, m),
               );
               await saveMessagesToDb(messagesToAdd, newC.id);
             }
@@ -402,6 +399,7 @@ class ChatProvider with ChangeNotifier {
   /// Database methods
   ///
   Future<List<ContactMentor>> loadContactMentorsFromDB() async {
+    debugPrint("DB - Loading contacts");
     final database = await databaseProvider.getDatabase();
     var results = await database.query(DatabaseProvider.contactsTableName);
 
@@ -410,7 +408,8 @@ class ChatProvider with ChangeNotifier {
         : Future.wait(results.map<Future<ContactMentor>>(
             (map) async {
               var c = ContactMentor.fromJson(jsonDecode(map["json"]));
-              print("Creating CM: ${c.id}");
+              debugPrint("DB - Loading CM: ${c.id}");
+              debugPrint("DB - Loading Messages for CM: ${c.id}");
               final messagesResult = await database.query(
                   DatabaseProvider.messagesTableName,
                   columns: ['id', 'json'],
@@ -418,11 +417,12 @@ class ChatProvider with ChangeNotifier {
                   whereArgs: [c.id],
                   orderBy: "date DESC");
 
-              c.messages = await Future.wait(
+              c.messages = (await Future.wait(
                 messagesResult.map<Future<Message>>(
                   (m) async => Message.fromJson(jsonDecode(m["json"])),
                 ),
-              );
+              ))
+                  .toList(growable: true);
 
               _mapChatNotifierStreams[c.id] = ChatNotifier();
               return c;
@@ -431,6 +431,7 @@ class ChatProvider with ChangeNotifier {
   }
 
   void saveNewContactMentorInDB(ContactMentor c) async {
+    debugPrint("DB - Saving CM: ${c.id}");
     final database = await databaseProvider.getDatabase();
 
     var batch = database.batch();
@@ -460,6 +461,7 @@ class ChatProvider with ChangeNotifier {
   }
 
   void saveMessagesToDb(List<Message> messages, String chatId) async {
+    debugPrint("DB - Saving Messages for CM: $chatId");
     final database = await databaseProvider.getDatabase();
     var batch = database.batch();
 
