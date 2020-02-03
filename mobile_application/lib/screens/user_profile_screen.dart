@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/widgets/general/add_photo_widget.dart';
-import 'package:mobile_application/widgets/general/settings_drawer.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,10 +15,12 @@ import '../models/users/user.dart';
 import '../models/utility/available_sizes.dart';
 import '../providers/theming/theme_provider.dart';
 import '../providers/user/user_data_provider.dart';
+import '../screens/user_profile_edit_screen.dart';
 import '../widgets/general/expandable_widget.dart';
 import '../widgets/general/image_wrapper.dart';
 import '../widgets/general/loading_error.dart';
 import '../widgets/general/refresh_content_widget.dart';
+import '../widgets/general/settings_drawer.dart';
 import '../widgets/phone/explore/card_container.dart';
 import '../widgets/phone/explore/circular_button.dart';
 import '../widgets/transition/loading_animated.dart';
@@ -130,7 +131,9 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
     });
   }
 
-  void goToEditPage() {}
+  void goToEditPage() {
+    Navigator.of(context).pushNamed(UserProfileEditScreen.routeName);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -212,6 +215,7 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
                                 width: 36,
                                 alignment: Alignment.center,
                                 assetPath: AssetImages.edit,
+                                onPressFunction: goToEditPage,
                               ),
                             ),
                           )
@@ -464,20 +468,43 @@ class ExperienceElement extends StatelessWidget {
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              AutoSizeText(
-                experience.haveDone,
-                style: textTheme.body1.copyWith(fontWeight: FontWeight.bold),
-                maxLines: 2,
-              ),
-              AutoSizeText(
-                experience.at,
-                style: textTheme.body1,
-                maxLines: 2,
-              ),
-            ],
+          child: Container(
+            height: 48,
+            child: PageView(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    AutoSizeText(
+                      experience.haveDone,
+                      style:
+                          textTheme.body1.copyWith(fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                    ),
+                    AutoSizeText(
+                      experience.at,
+                      style: textTheme.body1,
+                      maxLines: 2,
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    AutoSizeText(
+                      "From ${DateFormat.yMd().format(experience.fromDate)}",
+                      style: textTheme.body1,
+                      maxLines: 1,
+                    ),
+                    AutoSizeText(
+                      "To ${DateFormat.yMd().format(experience.toDate)}",
+                      style: textTheme.body1,
+                      maxLines: 2,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ],
