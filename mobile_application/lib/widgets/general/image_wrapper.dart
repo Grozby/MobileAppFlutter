@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/providers/configuration.dart';
 
 class ImageWrapper extends StatelessWidget {
   final String imageUrl;
@@ -17,13 +18,12 @@ class ImageWrapper extends StatelessWidget {
     return imageUrl == null
         ? Image.asset(
             "assets/images/$assetPath",
-
             fit: boxFit,
           )
         : CachedNetworkImage(
             width: double.infinity,
             height: double.infinity,
-            imageUrl: imageUrl,
+            imageUrl: imageUrl.contains("http") ? imageUrl : "${Configuration.serverUrl}/$imageUrl",
             fadeInDuration: const Duration(milliseconds: 500),
             fit: boxFit,
             placeholder: (context, url) => Container(
