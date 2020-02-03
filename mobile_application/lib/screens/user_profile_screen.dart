@@ -193,27 +193,28 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
                           ],
                         ),
                         UserImage(userPictureUrl: user.pictureUrl),
-                        Positioned(
-                          top: 120,
-                          right: (widget.maxWidth * 0.075) - 8 + 20,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                width: 2,
-                                color: Provider.of<ThemeProvider>(context)
-                                    .getTheme()
-                                    .primaryColorLight,
+                        if (widget.arguments == null)
+                          Positioned(
+                            top: 120,
+                            right: (widget.maxWidth * 0.075) - 8 + 20,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  width: 2,
+                                  color: Provider.of<ThemeProvider>(context)
+                                      .getTheme()
+                                      .primaryColorLight,
+                                ),
+                              ),
+                              child: CircularButton(
+                                height: 36,
+                                width: 36,
+                                alignment: Alignment.center,
+                                assetPath: AssetImages.edit,
                               ),
                             ),
-                            child: CircularButton(
-                              height: 36,
-                              width: 36,
-                              alignment: Alignment.center,
-                              assetPath: AssetImages.edit,
-                            ),
-                          ),
-                        )
+                          )
                       ],
                     );
                   },
@@ -600,7 +601,7 @@ class LoadingUserProfile extends StatefulWidget {
   const LoadingUserProfile({
     @required this.maxHeight,
     @required this.maxWidth,
-  @required this.isAnotherUser,
+    @required this.isAnotherUser,
   });
 
   @override
