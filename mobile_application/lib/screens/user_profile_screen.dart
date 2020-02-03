@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/widgets/general/settings_drawer.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,7 +15,6 @@ import '../models/users/user.dart';
 import '../models/utility/available_sizes.dart';
 import '../providers/theming/theme_provider.dart';
 import '../providers/user/user_data_provider.dart';
-import '../screens/settings_screen.dart';
 import '../widgets/general/expandable_widget.dart';
 import '../widgets/general/image_wrapper.dart';
 import '../widgets/general/loading_error.dart';
@@ -46,6 +46,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawerEdgeDragWidth: 0,
+      endDrawer: SettingsDrawer(),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (ctx, constraints) {
@@ -248,7 +250,7 @@ class TopButtons extends StatelessWidget {
   }
 
   void goToSettingPage(BuildContext context) {
-    Navigator.of(context).pushNamed(SettingsScreen.routeName);
+    Scaffold.of(context).openEndDrawer();
   }
 }
 

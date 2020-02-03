@@ -8,7 +8,7 @@ import '../../widgets/general/image_wrapper.dart';
 class ThemeProvider with ChangeNotifier {
   ThemeData _themeData;
   SystemUiOverlayStyle _overlayStyle;
-  Map<String, dynamic> _chatColors;
+  Map<String, dynamic> _colorsGeneral;
 
   bool _isLight;
   static const Color _mentorColor = Color.fromRGBO(234, 128, 59, 1);
@@ -30,6 +30,8 @@ class ThemeProvider with ChangeNotifier {
     "borderOtherUser": Color(0xFFE0E0E0),
     "backgroundImage": AssetImages.lightBackground,
     "dayNotifierBackground": Colors.white,
+    "drawerMainColor": _primaryColor,
+    "drawerBackgroundColor": Colors.white,
   };
 
   static const Map<String, dynamic> _darkChatColors = {
@@ -39,6 +41,8 @@ class ThemeProvider with ChangeNotifier {
     "borderOtherUser": Color(0xFFE0E0E0),
     "backgroundImage": AssetImages.lightBackground, //TODO change
     "dayNotifierBackground": Color(0xFF212121),
+    "drawerMainColor": Color(0xFF212121),
+    "drawerBackgroundColor": Color(0xFF424242),
   };
 
   static const SystemUiOverlayStyle _lightOverlayStyle = SystemUiOverlayStyle(
@@ -67,6 +71,7 @@ class ThemeProvider with ChangeNotifier {
       },
     ),
     primaryColor: _primaryColor,
+    primaryColorLight: _primaryLighterColor,
     buttonTheme: ButtonThemeData(
       textTheme: ButtonTextTheme.primary,
       buttonColor: Color.fromRGBO(234, 128, 59, 1),
@@ -177,19 +182,25 @@ class ThemeProvider with ChangeNotifier {
 
   SystemUiOverlayStyle get overlayStyle => _overlayStyle;
 
-  Color get currentUserChatColor => _chatColors["currentUser"] as Color;
+  Color get currentUserChatColor => _colorsGeneral["currentUser"] as Color;
 
-  Color get otherUserChatColor => _chatColors["otherUser"] as Color;
+  Color get otherUserChatColor => _colorsGeneral["otherUser"] as Color;
 
   Color get currentUserBorderChatColor =>
-      _chatColors["borderCurrentUser"] as Color;
+      _colorsGeneral["borderCurrentUser"] as Color;
 
-  Color get otherUserBorderChatColor => _chatColors["borderOtherUser"] as Color;
+  Color get otherUserBorderChatColor =>
+      _colorsGeneral["borderOtherUser"] as Color;
 
   Color get dayNotifierBackgroundColor =>
-      _chatColors["dayNotifierBackground"] as Color;
+      _colorsGeneral["dayNotifierBackground"] as Color;
 
-  String get backgroundImage => _chatColors["backgroundImage"] as String;
+  String get backgroundImage => _colorsGeneral["backgroundImage"] as String;
+
+  Color get drawerMainColor => _colorsGeneral["drawerMainColor"] as Color;
+
+  Color get drawerBackgroundColor =>
+      _colorsGeneral["drawerBackgroundColor"] as Color;
 
   static Color get primaryColor => _primaryColor;
 
@@ -221,12 +232,12 @@ class ThemeProvider with ChangeNotifier {
         preferences.getString('theme') == "dark") {
       _themeData = _darkTheme;
       _overlayStyle = _darkOverlayStyle;
-      _chatColors = _darkChatColors;
+      _colorsGeneral = _darkChatColors;
       _isLight = false;
     } else {
       _themeData = _lightTheme;
       _overlayStyle = _lightOverlayStyle;
-      _chatColors = _lightChatColors;
+      _colorsGeneral = _lightChatColors;
       _isLight = true;
     }
   }
@@ -235,17 +246,18 @@ class ThemeProvider with ChangeNotifier {
     if (_isLight) {
       _themeData = _darkTheme;
       _overlayStyle = _darkOverlayStyle;
-      _chatColors = _lightChatColors;
+      _colorsGeneral = _darkChatColors;
     } else {
       _themeData = _lightTheme;
       _overlayStyle = _lightOverlayStyle;
-      _chatColors = _darkChatColors;
+      _colorsGeneral = _lightChatColors;
     }
 
     _isLight = !_isLight;
-    notifyListeners();
 
     final preferences = await SharedPreferences.getInstance();
     await preferences.setString('theme', _isLight ? 'light' : 'dark');
+
+    notifyListeners();
   }
 }

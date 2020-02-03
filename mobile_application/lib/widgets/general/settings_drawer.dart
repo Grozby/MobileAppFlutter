@@ -25,8 +25,8 @@ class _SettingsDrawerState extends State<SettingsDrawer> {
     );
   }
 
-  void switchTheme() {
-    Provider.of<ThemeProvider>(context).switchTheme();
+  void switchTheme() async {
+    await themeProvider.switchTheme();
   }
 
   @override
@@ -60,6 +60,19 @@ class _SettingsDrawerState extends State<SettingsDrawer> {
                   ),
                   ListTile(
                     leading: Icon(
+                      Icons.brightness_6,
+                      color: themeProvider.getTheme().primaryColorLight,
+                    ),
+                    title: Text(
+                      'Change theme',
+                      style: themeProvider.getTheme().textTheme.title.copyWith(
+                            fontWeight: FontWeight.w400,
+                          ),
+                    ),
+                    onTap: switchTheme,
+                  ),
+                  ListTile(
+                    leading: Icon(
                       Icons.exit_to_app,
                       color: themeProvider.getTheme().primaryColorLight,
                     ),
@@ -70,19 +83,6 @@ class _SettingsDrawerState extends State<SettingsDrawer> {
                           ),
                     ),
                     onTap: logout,
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.brightness_6,
-                      color: themeProvider.getTheme().primaryColorLight,
-                    ),
-                    title: Text(
-                      'Change theme',
-                      style: themeProvider.getTheme().textTheme.title.copyWith(
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    onTap: switchTheme,
                   ),
                 ],
               ),
