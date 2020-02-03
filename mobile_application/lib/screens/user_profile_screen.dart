@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_application/widgets/general/add_photo_widget.dart';
 import 'package:mobile_application/widgets/general/settings_drawer.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -129,6 +130,8 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
     });
   }
 
+  void goToEditPage() {}
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -158,6 +161,7 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
             child: LoadingUserProfile(
               maxWidth: widget.maxWidth,
               maxHeight: widget.maxHeight,
+              isAnotherUser: widget.arguments != null,
             ),
           ),
           secondChild: isWaiting
@@ -179,6 +183,7 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
                               alignment: Alignment.center,
                               child: TopButtons(
                                 width: widget.maxWidth * 0.85,
+                                isAnotherUser: widget.arguments != null,
                               ),
                             ),
                             CardContent(
@@ -188,6 +193,27 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
                           ],
                         ),
                         UserImage(userPictureUrl: user.pictureUrl),
+                        Positioned(
+                          top: 120,
+                          right: (widget.maxWidth * 0.075) - 8 + 20,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                width: 2,
+                                color: Provider.of<ThemeProvider>(context)
+                                    .getTheme()
+                                    .primaryColorLight,
+                              ),
+                            ),
+                            child: CircularButton(
+                              height: 36,
+                              width: 36,
+                              alignment: Alignment.center,
+                              assetPath: AssetImages.edit,
+                            ),
+                          ),
+                        )
                       ],
                     );
                   },
@@ -230,14 +256,16 @@ class TopButtons extends StatelessWidget {
               child: const Center(),
             ),
             Expanded(
-              child: CircularButton(
-                assetPath: AssetImages.settings,
-                alignment: Alignment.centerRight,
-                width: 55,
-                height: 55,
-                reduceFactor: 0.6,
-                onPressFunction: () => goToSettingPage(context),
-              ),
+              child: isAnotherUser
+                  ? Center()
+                  : CircularButton(
+                      assetPath: AssetImages.settings,
+                      alignment: Alignment.centerRight,
+                      width: 55,
+                      height: 55,
+                      reduceFactor: 0.6,
+                      onPressFunction: () => goToSettingPage(context),
+                    ),
             ),
           ],
         ),
@@ -299,6 +327,8 @@ class CardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme =
+        Provider.of<ThemeProvider>(context).getTheme().textTheme;
     return Container(
       width: width,
       padding: EdgeInsets.only(bottom: 12.0),
@@ -313,7 +343,7 @@ class CardContent extends StatelessWidget {
             Container(
               child: Text(
                 user.completeName,
-                style: Theme.of(context).textTheme.title,
+                style: textTheme.title,
               ),
             ),
             const SizedBox(height: 8),
@@ -321,13 +351,13 @@ class CardContent extends StatelessWidget {
               user.currentJob != null
                   ? user.currentJob.workingRole
                   : "Not working",
-              style: Theme.of(context).textTheme.overline,
+              style: textTheme.overline,
             ),
             AutoSizeText(
               user.currentJob != null ? "@ ${user.currentJob.at}" : "",
-              style: Theme.of(context).textTheme.overline.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: textTheme.overline.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
             ExpandableWidget(
@@ -337,7 +367,7 @@ class CardContent extends StatelessWidget {
                 alignment: Alignment.topCenter,
                 child: Text(
                   user.bio,
-                  style: Theme.of(context).textTheme.body1,
+                  style: textTheme.body1,
                 ),
               ),
             ),
@@ -386,7 +416,8 @@ class PastExperiencesSection extends StatelessWidget {
         Divider(),
         AutoSizeText(
           title,
-          style: Theme.of(context).textTheme.overline,
+          style:
+              Provider.of<ThemeProvider>(context).getTheme().textTheme.overline,
         ),
         const SizedBox(height: 8),
         Container(
@@ -414,6 +445,9 @@ class ExperienceElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme =
+        Provider.of<ThemeProvider>(context).getTheme().textTheme;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
@@ -434,15 +468,12 @@ class ExperienceElement extends StatelessWidget {
             children: <Widget>[
               AutoSizeText(
                 experience.haveDone,
-                style: Theme.of(context)
-                    .textTheme
-                    .body1
-                    .copyWith(fontWeight: FontWeight.bold),
+                style: textTheme.body1.copyWith(fontWeight: FontWeight.bold),
                 maxLines: 2,
               ),
               AutoSizeText(
                 experience.at,
-                style: Theme.of(context).textTheme.body1,
+                style: textTheme.body1,
                 maxLines: 2,
               ),
             ],
@@ -460,6 +491,9 @@ class QuestionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme =
+        Provider.of<ThemeProvider>(context).getTheme().textTheme;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -470,7 +504,7 @@ class QuestionSection extends StatelessWidget {
                     width: double.infinity,
                     child: Text(
                       question.question,
-                      style: Theme.of(context).textTheme.overline,
+                      style: textTheme.overline,
                       textAlign: TextAlign.left,
                     ),
                   ),
@@ -479,10 +513,8 @@ class QuestionSection extends StatelessWidget {
                     width: double.infinity,
                     child: Text(
                       question.answer,
-                      style: Theme.of(context)
-                          .textTheme
-                          .body1
-                          .copyWith(fontWeight: FontWeight.w700),
+                      style:
+                          textTheme.body1.copyWith(fontWeight: FontWeight.w700),
                       textAlign: TextAlign.right,
                     ),
                   ),
@@ -503,6 +535,9 @@ class Location extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme =
+        Provider.of<ThemeProvider>(context).getTheme().textTheme;
+
     return Column(
       children: <Widget>[
         Divider(),
@@ -510,7 +545,7 @@ class Location extends StatelessWidget {
           width: double.infinity,
           child: Text(
             "Location",
-            style: Theme.of(context).textTheme.overline,
+            style: textTheme.overline,
             textAlign: TextAlign.left,
           ),
         ),
@@ -519,10 +554,7 @@ class Location extends StatelessWidget {
           width: double.infinity,
           child: Text(
             location,
-            style: Theme.of(context)
-                .textTheme
-                .body1
-                .copyWith(fontWeight: FontWeight.w700),
+            style: textTheme.body1.copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.right,
           ),
         ),
@@ -563,10 +595,12 @@ class SocialIcons extends StatelessWidget {
 
 class LoadingUserProfile extends StatefulWidget {
   final double maxHeight, maxWidth;
+  final bool isAnotherUser;
 
   const LoadingUserProfile({
     @required this.maxHeight,
     @required this.maxWidth,
+  @required this.isAnotherUser,
   });
 
   @override
@@ -619,7 +653,10 @@ class _LoadingUserProfileState extends State<LoadingUserProfile>
                     Container(
                       height: 100,
                       alignment: Alignment.center,
-                      child: TopButtons(width: widget.maxWidth * 0.85),
+                      child: TopButtons(
+                        width: widget.maxWidth * 0.85,
+                        isAnotherUser: widget.isAnotherUser,
+                      ),
                     ),
                     Container(
                       width: widget.maxWidth * 0.9,

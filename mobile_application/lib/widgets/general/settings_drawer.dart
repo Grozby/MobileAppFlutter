@@ -36,8 +36,11 @@ class _SettingsDrawerState extends State<SettingsDrawer> {
       child: Row(
         children: <Widget>[
           Expanded(
-            child: Container(
-              color: Colors.transparent,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              child: Container(
+                color: Colors.transparent,
+              ),
             ),
           ),
           Expanded(

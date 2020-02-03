@@ -43,6 +43,7 @@ extension AssetImages on ImageWrapper {
   static const String work = "job_128.png";
   static const String education = "degree_128.png";
 
+  static const String edit = "edit.png";
   static const String camera = "camera.png";
   static const String user = "user.png";
   static const String backArrow = "back_arrow.png";
