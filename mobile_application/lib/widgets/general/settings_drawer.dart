@@ -31,67 +31,51 @@ class _SettingsDrawerState extends State<SettingsDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.transparent,
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              child: Container(
-                color: Colors.transparent,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Container(
-              decoration: BoxDecoration(
-                color: themeProvider.drawerBackgroundColor,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
+    return ClipRRect(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(16),
+        bottomLeft: Radius.circular(16),
+      ),
+      child: Drawer(
+        child: Container(
+          color: themeProvider.drawerBackgroundColor,
+          child: ListView(
+            children: <Widget>[
+              ListTile(
+                title: Text(
+                  'Ryfy',
+                  style: themeProvider.getTheme().textTheme.display2,
                 ),
               ),
-              child: ListView(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      'Ryfy',
-                      style: themeProvider.getTheme().textTheme.display2,
-                    ),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.brightness_6,
-                      color: themeProvider.getTheme().primaryColorLight,
-                    ),
-                    title: Text(
-                      'Change theme',
-                      style: themeProvider.getTheme().textTheme.title.copyWith(
-                            fontWeight: FontWeight.w400,
-                          ),
-                    ),
-                    onTap: switchTheme,
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.exit_to_app,
-                      color: themeProvider.getTheme().primaryColorLight,
-                    ),
-                    title: Text(
-                      'Logout',
-                      style: themeProvider.getTheme().textTheme.title.copyWith(
-                            fontWeight: FontWeight.w400,
-                          ),
-                    ),
-                    onTap: logout,
-                  ),
-                ],
+              ListTile(
+                leading: Icon(
+                  Icons.brightness_6,
+                  color: themeProvider.getTheme().primaryColorLight,
+                ),
+                title: Text(
+                  'Change theme',
+                  style: themeProvider.getTheme().textTheme.title.copyWith(
+                        fontWeight: FontWeight.w400,
+                      ),
+                ),
+                onTap: switchTheme,
               ),
-            ),
+              ListTile(
+                leading: Icon(
+                  Icons.exit_to_app,
+                  color: themeProvider.getTheme().primaryColorLight,
+                ),
+                title: Text(
+                  'Logout',
+                  style: themeProvider.getTheme().textTheme.title.copyWith(
+                        fontWeight: FontWeight.w400,
+                      ),
+                ),
+                onTap: logout,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
