@@ -241,6 +241,7 @@ class AuthenticationProvider with ChangeNotifier {
       _httpManager,
       this,
     );
+    wasLogged = false;
     notifyListeners();
   }
 }
