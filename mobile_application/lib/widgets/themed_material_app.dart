@@ -46,7 +46,7 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
               default:
                 if (snapshot.hasError) {
                   if (snapshot.error is NoInternetException) {
-                    if(authenticationProvider.gotAToken()){
+                    if (authenticationProvider.gotAToken()) {
                       return HomepageScreen();
                     }
                     return Scaffold(
