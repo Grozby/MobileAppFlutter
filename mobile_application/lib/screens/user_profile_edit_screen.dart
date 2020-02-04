@@ -4,8 +4,10 @@ import 'package:mobile_application/models/utility/available_sizes.dart';
 import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'package:mobile_application/providers/user/user_data_provider.dart';
 import 'package:mobile_application/screens/user_profile_screen.dart';
+import 'package:mobile_application/widgets/general/image_wrapper.dart';
 import 'package:mobile_application/widgets/general/settings_drawer.dart';
 import 'package:mobile_application/widgets/phone/explore/card_container.dart';
+import 'package:mobile_application/widgets/phone/explore/circular_button.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -56,31 +58,71 @@ class UserProfileBuilder extends StatefulWidget {
 }
 
 class _UserProfileBuilderState extends State<UserProfileBuilder> {
+  Map<String, dynamic> data = {};
+
+  void sendUpdatedValues() async {
+    try {
+      await Provider.of<UserDataProvider>(context, listen: false)
+          .patchUserData(data);
+      data.clear();
+      final snackBar = SnackBar(content: Text('Correctly updated!'));
+      Scaffold.of(context).showSnackBar(snackBar);
+    } catch (e) {
+      final snackBar = SnackBar(content: Text('Oops! Something went wrong!'));
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<UserDataProvider>(context).user;
-    return Stack(
-      alignment: Alignment.topCenter,
-      children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Container(
-              height: 100,
-              alignment: Alignment.center,
-              child: TopButtons(
-                width: widget.maxWidth * 0.85,
-                isAnotherUser: false,
+    return Provider.value(
+      value: this,
+      child: Stack(
+        alignment: Alignment.topCenter,
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                height: 100,
+                alignment: Alignment.center,
+                child: TopButtons(
+                  width: widget.maxWidth * 0.85,
+                  isAnotherUser: false,
+                ),
+              ),
+              CardContent(
+                user: Provider.of<UserDataProvider>(context).user,
+                width: widget.maxWidth * 0.9,
+              ),
+            ],
+          ),
+          UserImage(userPictureUrl: user.pictureUrl),
+          Positioned(
+            top: 120,
+            right: (widget.maxWidth * 0.075) - 8 + 20,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  width: 2,
+                  color: Provider.of<ThemeProvider>(context)
+                      .getTheme()
+                      .primaryColorLight,
+                ),
+              ),
+              child: CircularButton(
+                height: 36,
+                width: 36,
+                alignment: Alignment.center,
+                assetPath: AssetImages.save,
+                onPressFunction: sendUpdatedValues,
               ),
             ),
-            CardContent(
-              user: Provider.of<UserDataProvider>(context).user,
-              width: widget.maxWidth * 0.9,
-            ),
-          ],
-        ),
-        UserImage(userPictureUrl: user.pictureUrl),
-      ],
+          )
+        ],
+      ),
     );
   }
 }
@@ -119,18 +161,34 @@ class _CardContentState extends State<CardContent> {
   TextEditingController _nameController;
   TextEditingController _surnameController;
   TextEditingController _bioController;
+  UserDataProvider _userDataProvider;
   Map<String, dynamic> patchBody = {};
+  var dataProvider;
 
   @override
   void initState() {
     super.initState();
+    dataProvider =
+        Provider.of<_UserProfileBuilderState>(context, listen: false);
+    _userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
     _nameController = TextEditingController(text: widget.user.name);
     _surnameController = TextEditingController(text: widget.user.surname);
     _bioController = TextEditingController(text: widget.user.bio);
+
+    _nameController.addListener(() {
+      dataProvider.data["name"] = _nameController.text;
+    });
+    _surnameController.addListener(() {
+      dataProvider.data["surname"] = _surnameController.text;
+    });
+    _bioController.addListener(() {
+      dataProvider.data["bio"] = _bioController.text;
+    });
   }
 
   @override
-  void dispose() {
+  void dispose() async {
+    await _userDataProvider.patchUserData(patchBody);
     _nameController.dispose();
     _surnameController.dispose();
     _bioController.dispose();
@@ -173,39 +231,20 @@ class _CardContentState extends State<CardContent> {
                   ),
                 ),
               ],
-              onExpansionChanged: (isExpanding) async {
-                if (!isExpanding) {
-                  widget.user.name = _nameController.text;
-                  widget.user.surname = _surnameController.text;
-                  patchBody["name"] = _nameController.text;
-                  patchBody["surname"] = _surnameController.text;
-                  await Provider.of<UserDataProvider>(
-                    context,
-                    listen: false,
-                  ).patchUserData(patchBody);
-
-                  patchBody.clear();
-                }
-              },
             ),
             ExpansionTile(
-                title: Text("Bio", style: textTheme.title),
-                children: <Widget>[
-                  Selector<UserDataProvider, String>(
-                    selector: (_, userDataProvider) =>
-                        userDataProvider.user.bio,
-                    builder: (_, bio, __) => EditText(
-                      controller: _bioController,
-                      oneLiner: false,
-                      initialText: bio,
-                    ),
+              title: Text("Bio", style: textTheme.title),
+              children: <Widget>[
+                Selector<UserDataProvider, String>(
+                  selector: (_, userDataProvider) => userDataProvider.user.bio,
+                  builder: (_, bio, __) => EditText(
+                    controller: _bioController,
+                    oneLiner: false,
+                    initialText: bio,
                   ),
-                ],
-                onExpansionChanged: (isExpanding) {
-                  if (!isExpanding) {
-                    widget.user.bio = _bioController.text;
-                  }
-                }),
+                ),
+              ],
+            ),
             ExpansionTile(
               title: Text("Current job", style: textTheme.title),
               children: <Widget>[],
