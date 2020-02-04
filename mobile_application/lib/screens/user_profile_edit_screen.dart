@@ -65,10 +65,30 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
       await Provider.of<UserDataProvider>(context, listen: false)
           .patchUserData(data);
       data.clear();
-      final snackBar = SnackBar(content: Text('Correctly updated!'));
+      final snackBar = SnackBar(
+        content: const Text('Correctly updated!'),
+        backgroundColor: Provider
+            .of<ThemeProvider>(context, listen: false)
+            .getTheme()
+            .primaryColorLight,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(16),
+            topLeft: Radius.circular(16),
+          ),
+        ),
+      );
       Scaffold.of(context).showSnackBar(snackBar);
     } catch (e) {
-      final snackBar = SnackBar(content: Text('Oops! Something went wrong!'));
+      final snackBar = const SnackBar(
+        content: Text('Oops! Something went wrong!'),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(16),
+            topLeft: Radius.circular(16),
+          ),
+        ),
+      );
       Scaffold.of(context).showSnackBar(snackBar);
     }
   }
@@ -135,7 +155,7 @@ class EditText extends StatelessWidget {
   EditText({
     @required this.initialText,
     @required this.oneLiner,
-    this.controller,
+    @required this.controller,
   });
 
   @override
@@ -188,7 +208,6 @@ class _CardContentState extends State<CardContent> {
 
   @override
   void dispose() async {
-    await _userDataProvider.patchUserData(patchBody);
     _nameController.dispose();
     _surnameController.dispose();
     _bioController.dispose();

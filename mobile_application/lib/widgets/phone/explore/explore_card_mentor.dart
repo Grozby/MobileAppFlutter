@@ -50,7 +50,8 @@ class _MentorCardState extends State<MentorCard> {
   }
 
   void collapseElementInsideCard() {
-    Provider.of<ShouldCollapseProvider>(context).shouldCollapseElements();
+    Provider.of<ShouldCollapseProvider>(context, listen: false)
+        .shouldCollapseElements();
   }
 
   void rotateCard() {
