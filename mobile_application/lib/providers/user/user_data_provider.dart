@@ -90,6 +90,41 @@ class UserDataProvider with ChangeNotifier {
     }
   }
 
+  Future<void> patchUserData(Map<String, dynamic> patchBody) async {
+    try {
+      return await httpRequestWrapper.request<bool>(
+          url: "/users/profile",
+          typeHttpRequest: TypeHttpRequest.patch,
+          correctStatusCode: 200,
+          postBody: patchBody,
+          onCorrectStatusCode: (response) async {
+            switch (response.data["kind"]) {
+              case "Mentee":
+                behavior.user = Mentee.fromJson(response.data);
+                break;
+              case "Mentor":
+                behavior.user = Mentor.fromJson(response.data);
+                break;
+              default:
+                throw SomethingWentWrongException.message(
+                  "Some error happened on the server side.",
+                );
+            }
+            await saveUserToDB();
+            return;
+          },
+          onIncorrectStatusCode: (_) {
+            throw SomethingWentWrongException.message(
+              "Couldn't load the explore section. Try again later.",
+            );
+          });
+    } on NoInternetException catch (e) {
+      await loadUserFromDB();
+      throw e;
+    }
+  }
+
+
   Future<User> loadSpecifiedUserData(String id) async {
     if (id == null) {
       throw NoUserProfileException();

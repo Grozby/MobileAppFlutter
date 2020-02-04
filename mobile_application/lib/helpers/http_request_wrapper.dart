@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import '../models/exceptions/no_internet_exception.dart';
 import '../models/exceptions/something_went_wrong_exception.dart';
 
-enum TypeHttpRequest { post, get }
+enum TypeHttpRequest { post, get, patch }
 
 class HttpRequestWrapper {
   Dio httpManager;
@@ -25,6 +25,10 @@ class HttpRequestWrapper {
         break;
       case TypeHttpRequest.get:
         response = await httpManager.get(url, options: options);
+        break;
+      case TypeHttpRequest.patch:
+        response =
+            await httpManager.patch(url, data: postBody, options: options);
         break;
     }
 
@@ -58,7 +62,7 @@ class HttpRequestWrapper {
       };
     }
 
-    if (typeHttpRequest != TypeHttpRequest.post && postBody != null) {
+    if (typeHttpRequest == TypeHttpRequest.get && postBody != null) {
       throw Exception("Cannot use bodyPost without post request!");
     }
 

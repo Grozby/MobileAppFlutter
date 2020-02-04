@@ -173,7 +173,7 @@ class _RefreshedWidgetState extends State<RefreshedWidget> {
           Provider.of<RefreshPageProvider>(context).changeNotifier.stream;
       // in case the stream instance changed, subscribe to the new one
       if (newRefreshContentStream != refreshContentStream) {
-        streamSubscription.cancel();
+        streamSubscription?.cancel();
         refreshContentStream = newRefreshContentStream;
         streamSubscription = refreshContentStream.listen((callback) {
           setState(() {
