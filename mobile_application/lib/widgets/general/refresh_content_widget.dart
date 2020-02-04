@@ -8,7 +8,6 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../providers/refresh_page_provider.dart';
 
-
 ///
 /// Widget that allows its child to refresh its content.
 /// In order to do so,
@@ -151,7 +150,10 @@ class _RefreshedWidgetState extends State<RefreshedWidget> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       try {
-        var refreshPageProvider = Provider.of<RefreshPageProvider>(context);
+        var refreshPageProvider = Provider.of<RefreshPageProvider>(
+          context,
+          listen: false,
+        );
         if (refreshPageProvider != null) {
           refreshContentStream = refreshPageProvider.changeNotifier.stream;
           refreshContentStream.listen((callback) {
@@ -170,7 +172,9 @@ class _RefreshedWidgetState extends State<RefreshedWidget> {
 
     try {
       final Stream newRefreshContentStream =
-          Provider.of<RefreshPageProvider>(context).changeNotifier.stream;
+          Provider.of<RefreshPageProvider>(context, listen: false)
+              .changeNotifier
+              .stream;
       // in case the stream instance changed, subscribe to the new one
       if (newRefreshContentStream != refreshContentStream) {
         streamSubscription?.cancel();

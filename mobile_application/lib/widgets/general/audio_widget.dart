@@ -27,7 +27,7 @@ mixin TimeConverter {
 
 class AudioWidget extends StatefulWidget {
   final String audioFilePath;
-  final ChangeNotifier notifier;
+  final Stream notifier;
   final Function setPathInParent;
 
   AudioWidget({
@@ -63,7 +63,7 @@ class _AudioWidgetState extends State<AudioWidget>
     super.initState();
 
     if (widget.notifier != null) {
-      widget.notifier.addListener(() async {
+      widget.notifier.listen((_) async {
         if (_isRecording) {
           _canRecord = false;
           stopRecorder();
@@ -266,6 +266,7 @@ class _AudioWidgetState extends State<AudioWidget>
                     onPressFunction: _canRecord ? startRecorder : () {},
                     height: 40,
                     width: 40,
+                    reduceFactor: 1,
                   ),
                 ),
         ),

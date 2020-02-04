@@ -507,16 +507,24 @@ class QuestionsWidget extends StatefulWidget {
 }
 
 class QuestionsWidgetState extends State<QuestionsWidget>
-    with TimeConverter, ChangeNotifier, GetMentor {
-  final TextEditingController textController = TextEditingController();
+    with TimeConverter, GetMentor {
+  TextEditingController textController;
   String audioPath;
   bool canWriteAnswer = true;
   bool hasStartedAnswering = false;
+  StreamController notifier;
+
+  @override
+  void initState() {
+    super.initState();
+    notifier = StreamController.broadcast();
+    textController = TextEditingController();
+  }
 
   @override
   void dispose() {
-    textController.dispose();
-
+    textController?.dispose();
+    notifier.close();
     super.dispose();
   }
 
@@ -536,7 +544,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
 
   void notifyMeToStopAnswering() {
     setState(() => canWriteAnswer = false);
-    notifyListeners();
+    notifier.add(null);
   }
 
   void saveAnswerAndContinue() {
@@ -585,7 +593,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
     }
 
     if (int.tryParse(time.substring(3, 5)) != 0) {
-      timeToShow += "${timeToShow != "" ? "and " : ""}"
+      timeToShow += "${timeToShow != "" ? " and " : ""}"
           "$parsedSeconds second"
           "${(parsedSeconds != 1 ? "s" : "")}";
     }
@@ -656,7 +664,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
                   context,
                   listen: false,
                 ).getAudioFilePath(),
-                notifier: this,
+                notifier: notifier.stream,
                 setPathInParent: (String newPath) => audioPath = newPath,
               ),
               const SizedBox(height: 16),
