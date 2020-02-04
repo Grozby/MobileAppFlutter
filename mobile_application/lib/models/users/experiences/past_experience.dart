@@ -20,9 +20,9 @@ abstract class PastExperience {
 
   String get assetPath;
 
-  String get at => institution.name;
+  String get at => institution?.name;
 
-  String get pictureUrl => institution.pictureUrl;
+  String get pictureUrl => institution?.pictureUrl;
 
   String get haveDone;
 

@@ -497,7 +497,9 @@ class ExperienceElement extends StatelessWidget {
                       maxLines: 1,
                     ),
                     AutoSizeText(
-                      "To ${DateFormat.yMd().format(experience.toDate)}",
+                      experience.toDate != null
+                          ? "To ${DateFormat.yMd().format(experience.toDate)}"
+                          : "Ongoing",
                       style: textTheme.body1,
                       maxLines: 2,
                     ),

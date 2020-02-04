@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/material.dart' hide Image;
 import 'package:mobile_application/models/users/user.dart';
 import 'package:mobile_application/models/utility/available_sizes.dart';
 import 'package:mobile_application/providers/theming/theme_provider.dart';
@@ -6,6 +7,7 @@ import 'package:mobile_application/providers/user/user_data_provider.dart';
 import 'package:mobile_application/screens/user_profile_screen.dart';
 import 'package:mobile_application/widgets/general/image_wrapper.dart';
 import 'package:mobile_application/widgets/general/settings_drawer.dart';
+import 'package:mobile_application/widgets/general/user_profile_edit_widgets.dart';
 import 'package:mobile_application/widgets/phone/explore/card_container.dart';
 import 'package:mobile_application/widgets/phone/explore/circular_button.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +34,7 @@ class _UserProfileEditScreenState extends State<UserProfileEditScreen> {
               // to occupy.
               model: AvailableSizes(height: constraints.maxHeight - 100),
               child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
                 child: UserProfileBuilder(
                   maxWidth: constraints.maxWidth,
                   maxHeight: constraints.maxHeight,
@@ -54,21 +57,25 @@ class UserProfileBuilder extends StatefulWidget {
   });
 
   @override
-  _UserProfileBuilderState createState() => _UserProfileBuilderState();
+  UserProfileBuilderState createState() => UserProfileBuilderState();
 }
 
-class _UserProfileBuilderState extends State<UserProfileBuilder> {
+class UserProfileBuilderState extends State<UserProfileBuilder> {
   Map<String, dynamic> data = {};
+  Map<int, Map<String, dynamic>> experienceList = {};
+  Map<int, Map<String, dynamic>> educationList = {};
 
   void sendUpdatedValues() async {
     try {
+      data["experienceList"] =
+          experienceList.entries.map((entry) => entry.value).toList();
+
       await Provider.of<UserDataProvider>(context, listen: false)
           .patchUserData(data);
       data.clear();
       final snackBar = SnackBar(
         content: const Text('Correctly updated!'),
-        backgroundColor: Provider
-            .of<ThemeProvider>(context, listen: false)
+        backgroundColor: Provider.of<ThemeProvider>(context, listen: false)
             .getTheme()
             .primaryColorLight,
         shape: RoundedRectangleBorder(
@@ -147,26 +154,6 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
   }
 }
 
-class EditText extends StatelessWidget {
-  final String initialText;
-  final bool oneLiner;
-  final TextEditingController controller;
-
-  EditText({
-    @required this.initialText,
-    @required this.oneLiner,
-    @required this.controller,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      maxLines: oneLiner ? 1 : null,
-      controller: controller,
-    );
-  }
-}
-
 class CardContent extends StatefulWidget {
   final double width;
   final User user;
@@ -181,19 +168,31 @@ class _CardContentState extends State<CardContent> {
   TextEditingController _nameController;
   TextEditingController _surnameController;
   TextEditingController _bioController;
-  UserDataProvider _userDataProvider;
-  Map<String, dynamic> patchBody = {};
+  TextEditingController _locationController;
+
   var dataProvider;
+
+  int indexJobExperiences = 0;
+  Map<int, JobController> jobExperiences = {};
+
+  void addJobExperience() {
+    setState(() {
+      jobExperiences[indexJobExperiences] = JobController(
+        dataProvider: dataProvider,
+      );
+      indexJobExperiences++;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    dataProvider =
-        Provider.of<_UserProfileBuilderState>(context, listen: false);
-    _userDataProvider = Provider.of<UserDataProvider>(context, listen: false);
+    dataProvider = Provider.of<UserProfileBuilderState>(context, listen: false);
+
     _nameController = TextEditingController(text: widget.user.name);
     _surnameController = TextEditingController(text: widget.user.surname);
     _bioController = TextEditingController(text: widget.user.bio);
+    _locationController = TextEditingController(text: widget.user.location);
 
     _nameController.addListener(() {
       dataProvider.data["name"] = _nameController.text;
@@ -204,6 +203,25 @@ class _CardContentState extends State<CardContent> {
     _bioController.addListener(() {
       dataProvider.data["bio"] = _bioController.text;
     });
+    _locationController.addListener(() {
+      dataProvider.data["location"] = _locationController.text;
+    });
+
+    widget.user.jobExperiences.forEach(
+      (j) {
+        jobExperiences[indexJobExperiences] = JobController(
+          index: indexJobExperiences,
+          imageUrl: j?.pictureUrl,
+          nameInstitution: j?.at,
+          workingRole: j.workingRole,
+          fromDate: j?.fromDate,
+          toDate: j?.toDate,
+          dataProvider: dataProvider,
+        );
+
+        indexJobExperiences++;
+      },
+    );
   }
 
   @override
@@ -230,14 +248,14 @@ class _CardContentState extends State<CardContent> {
           children: <Widget>[
             const SizedBox(height: 60),
             ExpansionTile(
-              title: Text("Name", style: textTheme.title),
+              title: AutoSizeText("Name and Surname", style: textTheme.title),
               children: <Widget>[
                 Selector<UserDataProvider, String>(
                   selector: (_, userDataProvider) => userDataProvider.user.name,
                   builder: (_, name, __) => EditText(
                     controller: _nameController,
                     oneLiner: false,
-                    initialText: name,
+                    textFieldName: "Name",
                   ),
                 ),
                 Selector<UserDataProvider, String>(
@@ -246,42 +264,57 @@ class _CardContentState extends State<CardContent> {
                   builder: (_, surname, __) => EditText(
                     controller: _surnameController,
                     oneLiner: false,
-                    initialText: surname,
+                    textFieldName: "Surname",
                   ),
                 ),
               ],
             ),
             ExpansionTile(
-              title: Text("Bio", style: textTheme.title),
+              title: AutoSizeText("Bio", style: textTheme.title),
               children: <Widget>[
                 Selector<UserDataProvider, String>(
                   selector: (_, userDataProvider) => userDataProvider.user.bio,
                   builder: (_, bio, __) => EditText(
                     controller: _bioController,
                     oneLiner: false,
-                    initialText: bio,
+                    textFieldName: "Biography",
                   ),
                 ),
               ],
             ),
             ExpansionTile(
-              title: Text("Current job", style: textTheme.title),
+              title: AutoSizeText("Current job", style: textTheme.title),
               children: <Widget>[],
             ),
             ExpansionTile(
-              title: Text("Education", style: textTheme.title),
+              title: AutoSizeText("Education", style: textTheme.title),
               children: <Widget>[],
             ),
             ExpansionTile(
-              title: Text("Work experience", style: textTheme.title),
-              children: <Widget>[],
+              title: AutoSizeText("Work experience", style: textTheme.title),
+              children: <Widget>[
+                RaisedButton.icon(
+                  icon: Icon(Icons.add),
+                  label: const Text("Add"),
+                  onPressed: addJobExperience,
+                ),
+                ...jobExperiences.entries
+                    .map((entry) => EditJob(
+                          controller: entry.value,
+                          signalParentForRemove: () {
+                            jobExperiences.remove(entry.key)..dispose();
+                          },
+                        ))
+                    .toList()
+              ],
             ),
             ExpansionTile(
-              title: Text("Location", style: textTheme.title),
+              title: AutoSizeText("Location", style: textTheme.title),
               children: <Widget>[
                 EditText(
+                  controller: _locationController,
                   oneLiner: false,
-                  initialText: widget.user.location,
+                  textFieldName: "Location",
                 ),
               ],
             ),
