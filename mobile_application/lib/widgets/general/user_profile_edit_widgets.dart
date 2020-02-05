@@ -28,11 +28,13 @@ class EditText extends StatelessWidget {
   final bool oneLiner;
   final TextEditingController controller;
   final String textFieldName;
+  final String errorText;
 
   EditText({
     @required this.oneLiner,
     @required this.controller,
     @required this.textFieldName,
+    @required this.errorText,
   });
 
   @override
@@ -43,6 +45,12 @@ class EditText extends StatelessWidget {
       decoration: InputDecoration(
         labelText: textFieldName,
       ),
+      validator: (value) {
+        if (value.isEmpty) {
+          return errorText;
+        }
+        return null;
+      },
     );
   }
 }
@@ -53,7 +61,6 @@ class ExperienceController {
   TextEditingController nameInstitutionController;
   DateTime fromDate;
   DateTime toDate;
-  var dataProvider;
 
   ExperienceController({
     this.index,
@@ -61,7 +68,6 @@ class ExperienceController {
     String nameInstitution,
     DateTime fromDate,
     DateTime toDate,
-    this.dataProvider,
   }) {
     institutionImage ??= imageUrl;
     nameInstitutionController =
@@ -92,29 +98,8 @@ class JobController extends ExperienceController {
           nameInstitution: nameInstitution,
           fromDate: fromDate,
           toDate: toDate,
-          dataProvider: dataProvider,
         ) {
     workingRoleController = TextEditingController(text: workingRole ?? "");
-
-    nameInstitutionController.addListener(() {
-      updateData();
-    });
-    workingRoleController.addListener(() {
-      updateData();
-    });
-  }
-
-  void updateData() {
-    (dataProvider.experienceList as Map)[index] = {
-      "kind": "Job",
-      "institution": {
-        "name": nameInstitutionController.text,
-        "pictureUrl": institutionImage
-      },
-      "workingRole": workingRoleController.text,
-      "fromDate": fromDate?.toIso8601String(),
-      "toDate": toDate?.toIso8601String(),
-    };
   }
 
   @override
@@ -143,7 +128,6 @@ class AcademicDegreeController extends ExperienceController {
           nameInstitution: nameInstitution,
           fromDate: fromDate,
           toDate: toDate,
-          dataProvider: dataProvider,
         ) {
     degreeLevelRoleController = TextEditingController(text: degreeLevel ?? "");
     fieldOfStudyRoleController =
@@ -176,7 +160,6 @@ class _EditJobState extends State<EditJob> {
     Image im = await decodeCompute(image);
     Image thumbnail = copyResize(im, height: 250, width: 250);
     widget.controller.institutionImage = await encodeCompute(thumbnail);
-    widget.controller.updateData();
   }
 
   Future<Null> _selectDate(BuildContext context, bool starting) async {
@@ -195,8 +178,6 @@ class _EditJobState extends State<EditJob> {
         } else {
           widget.controller.toDate = picked;
         }
-
-        widget.controller.updateData();
       });
     }
   }
@@ -224,13 +205,14 @@ class _EditJobState extends State<EditJob> {
                     controller: widget.controller.nameInstitutionController,
                     oneLiner: false,
                     textFieldName: "Company",
+                    errorText: "Enter a company name!",
                   ),
                   const SizedBox(height: 8),
                   EditText(
-                    controller: widget.controller.workingRoleController,
-                    oneLiner: false,
-                    textFieldName: "Working Role",
-                  ),
+                      controller: widget.controller.workingRoleController,
+                      oneLiner: false,
+                      textFieldName: "Working Role",
+                      errorText: "Enter a working role!"),
                 ],
               ),
             )
@@ -242,11 +224,19 @@ class _EditJobState extends State<EditJob> {
             Expanded(
               child: Column(
                 children: <Widget>[
-                  AutoSizeText(
-                    widget.controller.fromDate != null
-                        ? "${widget.controller.fromDate}".split(' ')[0]
-                        : "No date selected",
-                    maxLines: 1,
+                  StringValidator(
+                    builder: (_) => AutoSizeText(
+                      widget.controller.fromDate != null
+                          ? "${widget.controller.fromDate}".split(' ')[0]
+                          : "No date selected",
+                      maxLines: 1,
+                    ),
+                    validator: (_) {
+                      if (widget.controller.fromDate == null) {
+                        return "Select a date!";
+                      }
+                      return null;
+                    },
                   ),
                   RaisedButton(
                     onPressed: () => _selectDate(context, true),
@@ -282,4 +272,9 @@ class _EditJobState extends State<EditJob> {
       ],
     );
   }
+}
+
+class StringValidator extends FormField<String> {
+  StringValidator({builder, validator})
+      : super(builder: builder, validator: validator);
 }

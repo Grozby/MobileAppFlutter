@@ -119,7 +119,6 @@ class UserDataProvider with ChangeNotifier {
             );
           });
     } on NoInternetException catch (e) {
-      await loadUserFromDB();
       throw e;
     }
   }

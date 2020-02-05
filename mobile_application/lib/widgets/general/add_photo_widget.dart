@@ -38,8 +38,8 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
   void showSelection() {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: const BorderRadius.only(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
@@ -58,6 +58,7 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
           alignment: Alignment.center,
           assetPath: AssetImages.camera,
           onPressFunction: showSelection,
+          reduceFactor: 1,
         ),
         if (image != null)
           GestureDetector(
