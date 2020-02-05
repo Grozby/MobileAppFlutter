@@ -42,7 +42,7 @@ class UserProfileBuilder extends StatefulWidget {
 }
 
 class UserProfileBuilderState extends State<UserProfileBuilder> {
-  final _formKey = GlobalKey<FormState>();
+  GlobalKey<FormState> _formKey;
 
   User user;
   EditProfileControllerProvider _controllerProvider;
@@ -53,7 +53,7 @@ class UserProfileBuilderState extends State<UserProfileBuilder> {
   @override
   void initState() {
     super.initState();
-
+    _formKey = GlobalKey<FormState>();
     user = Provider.of<UserDataProvider>(context, listen: false).user;
     _controllerProvider = EditProfileControllerProvider(user);
   }
@@ -257,8 +257,20 @@ class _CardContentState extends State<CardContent> {
                       )
                     ],
                   ),
-                  AcademicExpansionList(),
-                  JobExpansionList(),
+                  ExperienceExpansionList(
+                    title: "Education",
+                    subtitle: "School",
+                    selector: (_, dataProvider) => dataProvider.academicExperiences,
+                    builder: (c) => EditEducation(controller: c),
+                    addElement: dataProvider.addAcademicExperience,
+                  ),
+                  ExperienceExpansionList(
+                    title: "Work experience",
+                    subtitle: "Company",
+                    selector: (_, dataProvider) => dataProvider.jobExperiences,
+                    builder: (c) => EditJob(controller: c),
+                    addElement: dataProvider.addJobExperience,
+                  ),
                   //TODO add questions, roles, modify EditAcademic with select for
                   //TODO degree level.
                   //TODO add mentor questions.

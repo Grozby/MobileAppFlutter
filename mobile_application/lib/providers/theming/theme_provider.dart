@@ -77,6 +77,7 @@ class ThemeProvider with ChangeNotifier {
       buttonColor: Color.fromRGBO(234, 128, 59, 1),
     ),
     cursorColor: Colors.grey,
+    errorColor: const Color(0xffb00020),
     textTheme: ThemeData.light().textTheme.copyWith(
           display3: TextStyle(
             fontSize: 32.0,

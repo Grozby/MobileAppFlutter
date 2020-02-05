@@ -26,16 +26,21 @@ class AddPhotoWidget extends StatefulWidget {
 
 class _AddPhotoWidgetState extends State<AddPhotoWidget> {
   File image;
+  String startingImage;
+
+  @override
+  void initState() {
+    super.initState();
+    startingImage = widget.startingImage;
+  }
 
   void setImage(File image) {
-    //Todo check empty file, erase image if so
-    if (image != null) {
-      setState(() {
-        this.image = image;
-      });
-      Navigator.pop(context);
-      widget.setImage(image);
-    }
+    setState(() {
+      startingImage = null;
+      this.image = image;
+    });
+    Navigator.pop(context);
+    widget.setImage(image);
   }
 
   void showSelection() {
@@ -63,7 +68,7 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
           onPressFunction: showSelection,
           reduceFactor: 1,
         ),
-        if(image == null && widget.startingImage != null)
+        if (image == null && widget.startingImage != null)
           GestureDetector(
             onTap: showSelection,
             child: Container(
@@ -79,7 +84,6 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
               ),
             ),
           ),
-
         if (image != null)
           GestureDetector(
             behavior: HitTestBehavior.translucent,
@@ -119,16 +123,21 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
   }
 
   void deleteImage() {
-    //TODO send empty file, will be used for deletion of image.
-    widget.setImage(File());
+    widget.setImage(null);
   }
 
   void pickImageFromCamera() async {
-    widget.setImage(await ImagePicker.pickImage(source: ImageSource.camera));
+    File image = await ImagePicker.pickImage(source: ImageSource.camera);
+    if (image != null) {
+      widget.setImage(image);
+    }
   }
 
   void pickImageFromGallery() async {
-    widget.setImage(await FilePicker.getFile(type: FileType.IMAGE));
+    File image = await FilePicker.getFile(type: FileType.IMAGE);
+    if (image != null) {
+      widget.setImage(image);
+    }
   }
 
   @override
@@ -141,7 +150,7 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
             topLeft: Radius.circular(16),
           ),
         ),
-        height: constraints.maxHeight / 2,
+        height: constraints.maxHeight * (2 / 3),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -177,6 +186,19 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
               ),
               onTap: pickImageFromGallery,
             ),
+            ListTile(
+              leading: Icon(
+                Icons.delete,
+                color: Colors.red,
+              ),
+              title: Text(
+                'Delete',
+                style: themeProvider.getTheme().textTheme.title.copyWith(
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              onTap: deleteImage,
+            )
           ],
         ),
       );

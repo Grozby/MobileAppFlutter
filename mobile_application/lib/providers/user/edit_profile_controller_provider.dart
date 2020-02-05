@@ -67,15 +67,17 @@ class EditProfileControllerProvider extends ChangeNotifier {
   }
 
   void addJobExperience() {
-    jobExperiences[indexJobExperiences] =
-        JobController(index: indexJobExperiences);
+    jobExperiences[indexJobExperiences] = JobController(
+      index: indexJobExperiences,
+    );
     indexJobExperiences++;
     notifyListeners();
   }
 
   void addAcademicExperience() {
-    academicExperiences[indexAcademicExperiences] =
-        AcademicDegreeController(index: indexAcademicExperiences);
+    academicExperiences[indexAcademicExperiences] = AcademicDegreeController(
+      index: indexAcademicExperiences,
+    );
     indexAcademicExperiences++;
     notifyListeners();
   }
@@ -87,9 +89,11 @@ class EditProfileControllerProvider extends ChangeNotifier {
     patchData["bio"] = bioController.text;
     patchData["location"] = locationController.text;
 
-    patchData["currentJob"] = getJobExperience(currentJobController);
+    if(currentJobController.nameInstitution != ""){
+      patchData["currentJob"] = getJobExperience(currentJobController);
+    }
 
-    if(indexJobExperiences > 0) {
+    if (indexJobExperiences > 0) {
       patchData["experienceList"] = [];
     }
     if (jobExperiences.isNotEmpty) {
@@ -98,10 +102,10 @@ class EditProfileControllerProvider extends ChangeNotifier {
           .toList();
     }
 
-    if(indexAcademicExperiences > 0) {
+    if (indexAcademicExperiences > 0) {
       patchData["educationList"] = [];
     }
-    if(academicExperiences.isNotEmpty){
+    if (academicExperiences.isNotEmpty) {
       patchData["educationList"] = academicExperiences.values
           .map<Map<String, dynamic>>((entry) => getAcademicExperience(entry))
           .toList();
@@ -118,8 +122,8 @@ class EditProfileControllerProvider extends ChangeNotifier {
         "pictureUrl": job?.institutionImage
       },
       "workingRole": job.workingRole,
-      "fromDate": job.fromDate.toIso8601String(),
-      "toDate": job.toDate?.toIso8601String(),
+      "fromDate": job.fromDate,
+      "toDate": job.toDate,
     };
   }
 
@@ -130,10 +134,10 @@ class EditProfileControllerProvider extends ChangeNotifier {
         "name": a.nameInstitution,
         "pictureUrl": a?.institutionImage
       },
-      "degreeLevel" : a.degreeLevel,
-      "fieldOfStudy" : a.fieldOfStudy,
-      "fromDate": a.fromDate.toIso8601String(),
-      "toDate": a.toDate?.toIso8601String(),
+      "degreeLevel": a.degreeLevel,
+      "fieldOfStudy": a.fieldOfStudy,
+      "fromDate": a.fromDate,
+      "toDate": a.toDate,
     };
   }
 }

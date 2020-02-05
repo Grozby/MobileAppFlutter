@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Image;
-import 'package:image/image.dart';
+import 'package:image/image.dart' hide Color;
+import 'package:intl/intl.dart';
 import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'package:mobile_application/providers/user/edit_profile_controller_provider.dart';
 import 'package:provider/provider.dart';
@@ -27,37 +28,53 @@ encodeCompute(Image image) {
   return compute(encodeBase64, image);
 }
 
-class EditText extends StatelessWidget {
+class EditText extends StatefulWidget {
   final PageStorageKey storageKey;
-  final bool oneLiner;
+  final bool oneLiner, readOnly;
   final TextEditingController controller;
   final String textFieldName;
   final String errorText;
+  final void Function() onTap;
 
   EditText({
     this.storageKey,
     @required this.oneLiner,
     @required this.controller,
     @required this.textFieldName,
-    @required this.errorText,
-  });
+    this.errorText,
+    bool readOnly,
+    onTap,
+  })  : onTap = (onTap ?? () {}),
+        readOnly = (readOnly ?? false);
 
+  @override
+  _EditTextState createState() => _EditTextState();
+}
+
+class _EditTextState extends State<EditText> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      key: storageKey,
-      maxLines: oneLiner ? 1 : null,
-      controller: controller,
+      key: widget.storageKey,
+      onTap: widget.onTap,
+      maxLines: widget.oneLiner ? 1 : null,
+      readOnly: widget.readOnly,
+      controller: widget.controller,
       decoration: InputDecoration(
-        labelText: textFieldName,
+        labelText: widget.textFieldName,
       ),
       validator: (value) {
-        if (value.isEmpty) {
-          return errorText;
+        if (widget.errorText != null && value.isEmpty) {
+          return widget.errorText;
         }
         return null;
       },
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }
 
@@ -66,8 +83,8 @@ class ExperienceController {
   bool expanded;
   String institutionImage;
   TextEditingController nameInstitutionController;
-  DateTime fromDate;
-  DateTime toDate;
+  TextEditingController fromDateController;
+  TextEditingController toDateController;
 
   ExperienceController({
     this.index,
@@ -75,20 +92,39 @@ class ExperienceController {
     String nameInstitution,
     DateTime fromDate,
     DateTime toDate,
-    expanded = true,
+    this.expanded = true,
   }) {
     institutionImage ??= imageUrl;
-    nameInstitutionController =
-        TextEditingController(text: nameInstitution ?? "");
-    this.fromDate ??= fromDate;
-    this.toDate ??= toDate;
+    nameInstitutionController = TextEditingController(
+      text: nameInstitution ?? "",
+    );
+    this.fromDateController = TextEditingController(
+      text: fromDate != null ? DateFormat.yMd().format(fromDate) : "",
+    );
+    this.toDateController = TextEditingController(
+      text: toDate != null ? DateFormat.yMd().format(toDate) : "Ongoing",
+    );
   }
 
   void dispose() {
     nameInstitutionController.dispose();
+    fromDateController.dispose();
+    toDateController.dispose();
   }
 
   String get nameInstitution => nameInstitutionController.text;
+
+  String _parseString(String text) => _getDateTime(text).toIso8601String();
+
+  DateTime _getDateTime(String text) => DateFormat.yMd().parse(text);
+
+  String get fromDate => _parseString(fromDateController.text);
+
+  String get toDate => _parseString(toDateController.text);
+
+  DateTime get fromDateDateTime => _getDateTime(fromDateController.text);
+
+  DateTime get toDateDateTime => _getDateTime(toDateController.text);
 }
 
 class JobController extends ExperienceController {
@@ -101,7 +137,7 @@ class JobController extends ExperienceController {
     DateTime fromDate,
     DateTime toDate,
     String workingRole,
-    bool expanded,
+    bool expanded = true,
   }) : super(
           index: index,
           imageUrl: imageUrl,
@@ -134,7 +170,7 @@ class AcademicDegreeController extends ExperienceController {
     DateTime toDate,
     String degreeLevel,
     String fieldOfStudy,
-    bool expanded,
+    bool expanded = true,
   }) : super(
           index: index,
           imageUrl: imageUrl,
@@ -172,9 +208,13 @@ class EditJob extends StatefulWidget {
 
 class _EditJobState extends State<EditJob> {
   void setImage(File image) async {
-    Image im = await decodeCompute(image);
-    Image thumbnail = copyResizeCropSquare(im, 250);
-    widget.controller.institutionImage = await encodeCompute(thumbnail);
+    if (image != null) {
+      Image im = await decodeCompute(image);
+      Image thumbnail = copyResizeCropSquare(im, 250);
+      widget.controller.institutionImage = await encodeCompute(thumbnail);
+    } else {
+      widget.controller.institutionImage = null;
+    }
   }
 
   Future<Null> _selectDate(BuildContext context, bool starting) async {
@@ -183,15 +223,19 @@ class _EditJobState extends State<EditJob> {
     final DateTime picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
-      firstDate: DateTime(2015, 8),
-      lastDate: DateTime(2101),
+      firstDate: !starting && widget.controller.fromDate != ""
+          ? widget.controller.fromDateDateTime
+          : DateTime(1950, 1),
+      lastDate: selectedDate,
     );
-    if (picked != null && picked.isBefore(selectedDate)) {
+    if (picked != null) {
       setState(() {
         if (starting) {
-          widget.controller.fromDate = picked;
+          widget.controller.fromDateController.text =
+              DateFormat.yMd().format(picked);
         } else {
-          widget.controller.toDate = picked;
+          widget.controller.toDateController.text =
+              DateFormat.yMd().format(picked);
         }
       });
     }
@@ -236,65 +280,35 @@ class _EditJobState extends State<EditJob> {
                     textFieldName: "Working Role",
                     errorText: "Enter a working role!",
                   ),
+                  const SizedBox(height: 8),
+                  EditText(
+                    storageKey: PageStorageKey<String>(
+                      'FromDate${widget.controller.index}',
+                    ),
+                    controller: widget.controller.fromDateController,
+                    oneLiner: true,
+                    readOnly: true,
+                    textFieldName: "From date",
+                    errorText: "Enter a valid date!",
+                    onTap: () => _selectDate(context, true),
+                  ),
+                  const SizedBox(height: 8),
+                  EditText(
+                    storageKey: PageStorageKey<String>(
+                      'ToDate${widget.controller.index}',
+                    ),
+                    controller: widget.controller.toDateController,
+                    oneLiner: true,
+                    readOnly: true,
+                    textFieldName: "To date",
+                    onTap: () => _selectDate(context, false),
+                  ),
+                  const SizedBox(height: 8),
                 ],
               ),
             )
           ],
         ),
-        const SizedBox(height: 16),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Column(
-                children: <Widget>[
-                  StringValidator(
-                    key: PageStorageKey<String>(
-                      'FromDate${widget.controller.index}',
-                    ),
-                    builder: (_) => AutoSizeText(
-                      widget.controller.fromDate != null
-                          ? "${widget.controller.fromDate}".split(' ')[0]
-                          : "No date selected",
-                      maxLines: 1,
-                    ),
-                    validator: (_) {
-                      if (widget.controller.fromDate == null) {
-                        return "Select a date!";
-                      }
-                      return null;
-                    },
-                  ),
-                  RaisedButton(
-                    onPressed: () => _selectDate(context, true),
-                    child: AutoSizeText(
-                      'Select starting date',
-                      maxLines: 1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                children: <Widget>[
-                  AutoSizeText(
-                    widget.controller.toDate != null
-                        ? "${widget.controller.toDate}".split(' ')[0]
-                        : "Ongoing",
-                    maxLines: 1,
-                  ),
-                  RaisedButton(
-                    onPressed: () => _selectDate(context, false),
-                    child: AutoSizeText(
-                      'Select ending date',
-                      maxLines: 1,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        )
       ],
     );
   }
@@ -303,72 +317,6 @@ class _EditJobState extends State<EditJob> {
 class StringValidator extends FormField<String> {
   StringValidator({key, builder, validator})
       : super(key: key, builder: builder, validator: validator);
-}
-
-class JobExpansionList extends StatefulWidget {
-  @override
-  _JobExpansionListState createState() => _JobExpansionListState();
-}
-
-class _JobExpansionListState extends State<JobExpansionList> {
-  EditProfileControllerProvider _controllerProvider;
-  TextTheme _textTheme;
-
-  @override
-  void initState() {
-    super.initState();
-    _controllerProvider = Provider.of<EditProfileControllerProvider>(
-      context,
-      listen: false,
-    );
-    _textTheme = Provider.of<ThemeProvider>(
-      context,
-      listen: false,
-    ).getTheme().textTheme;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ExpansionTile(
-      key: PageStorageKey<String>('JobList'),
-      title: AutoSizeText("Work experience", style: _textTheme.title),
-      children: <Widget>[
-        RaisedButton.icon(
-          icon: Icon(Icons.add),
-          label: const AutoSizeText("Add"),
-          onPressed: _controllerProvider.addJobExperience,
-        ),
-        Selector<EditProfileControllerProvider, Map>(
-          selector: (_, dataProvider) => dataProvider.jobExperiences,
-          shouldRebuild: (prev, now) => true,
-          builder: (_, experiences, __) {
-            return Column(
-              children: experiences.entries
-                  .map<Widget>(
-                    (entry) => Dismissible(
-                      key: UniqueKey(),
-                      onDismissed: (_) => () {
-                        experiences.remove(entry.key)..dispose();
-                      },
-                      background: Container(color: Colors.red),
-                      child: ExpansionTile(
-                        initiallyExpanded: entry.value.expanded,
-                        key: PageStorageKey("JobSubList${entry.key}"),
-                        title: AutoSizeText(
-                          "Company:"
-                          " ${entry.value.nameInstitution != "" ? entry.value.nameInstitution : "Not set."}",
-                        ),
-                        children: [EditJob(controller: entry.value)],
-                      ),
-                    ),
-                  )
-                  .toList(),
-            );
-          },
-        ),
-      ],
-    );
-  }
 }
 
 class EditEducation extends StatefulWidget {
@@ -401,9 +349,13 @@ class _EditEducationState extends State<EditEducation> {
     if (picked != null && picked.isBefore(selectedDate)) {
       setState(() {
         if (starting) {
-          widget.controller.fromDate = picked;
+          widget.controller.fromDateController.text =
+              DateFormat.yMd().format(picked);
+          ;
         } else {
-          widget.controller.toDate = picked;
+          widget.controller.toDateController.text =
+              DateFormat.yMd().format(picked);
+          ;
         }
       });
     }
@@ -458,86 +410,63 @@ class _EditEducationState extends State<EditEducation> {
                     textFieldName: "Field of study",
                     errorText: "Enter a field of study!",
                   ),
+                  const SizedBox(height: 8),
+                  EditText(
+                    storageKey: PageStorageKey<String>(
+                      'FromDate${widget.controller.index}',
+                    ),
+                    controller: widget.controller.fromDateController,
+                    oneLiner: true,
+                    textFieldName: "From date",
+                    errorText: "Enter a valid date!",
+                    onTap: () => _selectDate(context, true),
+                  ),
+                  const SizedBox(height: 8),
+                  EditText(
+                    storageKey: PageStorageKey<String>(
+                      'ToDate${widget.controller.index}',
+                    ),
+                    controller: widget.controller.toDateController,
+                    oneLiner: true,
+                    textFieldName: "To date",
+                    onTap: () => _selectDate(context, false),
+                  ),
                 ],
               ),
             )
           ],
         ),
-        const SizedBox(height: 16),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Column(
-                children: <Widget>[
-                  StringValidator(
-                    key: PageStorageKey<String>(
-                      'FromDate${widget.controller.index}',
-                    ),
-                    builder: (_) => AutoSizeText(
-                      widget.controller.fromDate != null
-                          ? "${widget.controller.fromDate}".split(' ')[0]
-                          : "No date selected",
-                      maxLines: 1,
-                    ),
-                    validator: (_) {
-                      if (widget.controller.fromDate == null) {
-                        return "Select a date!";
-                      }
-                      return null;
-                    },
-                  ),
-                  RaisedButton(
-                    onPressed: () => _selectDate(context, true),
-                    child: AutoSizeText(
-                      'Select starting date',
-                      maxLines: 1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                children: <Widget>[
-                  AutoSizeText(
-                    widget.controller.toDate != null
-                        ? "${widget.controller.toDate}".split(' ')[0]
-                        : "Ongoing",
-                    maxLines: 1,
-                  ),
-                  RaisedButton(
-                    onPressed: () => _selectDate(context, false),
-                    child: AutoSizeText(
-                      'Select ending date',
-                      maxLines: 1,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        )
       ],
     );
   }
 }
 
-class AcademicExpansionList extends StatefulWidget {
+class ExperienceExpansionList extends StatefulWidget {
+  final String title;
+  final String subtitle;
+  final Widget Function(ExperienceController) builder;
+  final void Function() addElement;
+  final Map Function(BuildContext, EditProfileControllerProvider) selector;
+
+  ExperienceExpansionList({
+    this.title,
+    this.subtitle,
+    this.builder,
+    this.selector,
+    this.addElement,
+  });
+
   @override
-  _AcademicExpansionListState createState() => _AcademicExpansionListState();
+  _ExperienceExpansionListState createState() =>
+      _ExperienceExpansionListState();
 }
 
-class _AcademicExpansionListState extends State<AcademicExpansionList> {
-  EditProfileControllerProvider _controllerProvider;
+class _ExperienceExpansionListState extends State<ExperienceExpansionList> {
   TextTheme _textTheme;
 
   @override
   void initState() {
     super.initState();
-    _controllerProvider = Provider.of<EditProfileControllerProvider>(
-      context,
-      listen: false,
-    );
     _textTheme = Provider.of<ThemeProvider>(
       context,
       listen: false,
@@ -547,35 +476,37 @@ class _AcademicExpansionListState extends State<AcademicExpansionList> {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-      key: PageStorageKey<String>('EducationList'),
-      title: AutoSizeText("Education", style: _textTheme.title),
+      key: PageStorageKey<String>('${widget.title}List'),
+      title: AutoSizeText("${widget.title}", style: _textTheme.title),
       children: <Widget>[
         RaisedButton.icon(
           icon: Icon(Icons.add),
           label: const AutoSizeText("Add"),
-          onPressed: _controllerProvider.addAcademicExperience,
+          onPressed: widget.addElement,
         ),
         Selector<EditProfileControllerProvider, Map>(
-          selector: (_, dataProvider) => dataProvider.academicExperiences,
-          shouldRebuild: (prev, now) => true,
+          selector: widget.selector,
+          shouldRebuild: (_, __) => true,
           builder: (_, experiences, __) {
             return Column(
               children: experiences.entries
                   .map<Widget>(
                     (entry) => Dismissible(
-                      key: UniqueKey(),
+                      key: ValueKey("${widget.title}Dismissable${entry.key}"),
                       onDismissed: (_) {
                         experiences.remove(entry.key)..dispose();
                       },
                       background: Container(color: Colors.red),
                       child: ExpansionTile(
                         initiallyExpanded: entry.value.expanded,
-                        key: PageStorageKey("EducationSubList${entry.key}"),
-                        title: AutoSizeText(
-                          "School:"
-                          " ${entry.value.nameInstitution ?? "Not set."}",
+                        key: PageStorageKey(
+                          "${widget.title}SubList${entry.key}",
                         ),
-                        children: [EditEducation(controller: entry.value)],
+                        title: AutoSizeText(
+                          "${widget.subtitle}:"
+                          " ${entry.value.nameInstitution != "" ? entry.value.nameInstitution : "No name set."}",
+                        ),
+                        children: [widget.builder(entry.value)],
                       ),
                     ),
                   )
