@@ -131,8 +131,9 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
     });
   }
 
-  void goToEditPage() {
-    Navigator.of(context).pushNamed(UserProfileEditScreen.routeName);
+  void goToEditPage() async {
+    await Navigator.of(context).pushNamed(UserProfileEditScreen.routeName);
+    refreshPage();
   }
 
   @override
@@ -459,11 +460,14 @@ class ExperienceElement extends StatelessWidget {
         Container(
           height: 48,
           width: 48,
-          child: ImageWrapper(
-            imageUrl: experience.pictureUrl,
-            assetPath: experience.assetPath,
-            boxFit:
-                experience.pictureUrl != null ? BoxFit.contain : BoxFit.cover,
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
+            child: ImageWrapper(
+              imageUrl: experience.pictureUrl,
+              assetPath: experience.assetPath,
+              boxFit:
+                  experience.pictureUrl != null ? BoxFit.contain : BoxFit.cover,
+            ),
           ),
         ),
         const SizedBox(width: 16),

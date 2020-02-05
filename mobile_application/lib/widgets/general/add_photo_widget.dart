@@ -11,11 +11,13 @@ import 'package:provider/provider.dart';
 class AddPhotoWidget extends StatefulWidget {
   final double width, height;
   final void Function(File) setImage;
+  final String startingImage;
 
   AddPhotoWidget({
     @required this.width,
     @required this.height,
     @required this.setImage,
+    @required this.startingImage,
   });
 
   @override
@@ -26,6 +28,7 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
   File image;
 
   void setImage(File image) {
+    //Todo check empty file, erase image if so
     if (image != null) {
       setState(() {
         this.image = image;
@@ -60,6 +63,23 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
           onPressFunction: showSelection,
           reduceFactor: 1,
         ),
+        if(image == null && widget.startingImage != null)
+          GestureDetector(
+            onTap: showSelection,
+            child: Container(
+              height: widget.height,
+              width: widget.width,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(40)),
+                child: ImageWrapper(
+                  assetPath: AssetImages.camera,
+                  boxFit: BoxFit.cover,
+                  imageUrl: widget.startingImage,
+                ),
+              ),
+            ),
+          ),
+
         if (image != null)
           GestureDetector(
             behavior: HitTestBehavior.translucent,
@@ -96,6 +116,11 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
   void initState() {
     super.initState();
     themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+  }
+
+  void deleteImage() {
+    //TODO send empty file, will be used for deletion of image.
+    widget.setImage(File());
   }
 
   void pickImageFromCamera() async {

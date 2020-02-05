@@ -216,77 +216,54 @@ class _CardContentState extends State<CardContent> {
           onLongPress: () {},
           canExpand: true,
           startingColor: widget.user.cardColor,
-          child: Form(
-            key: widget.formKey,
-            child: ListView(
-              children: <Widget>[
-                const SizedBox(height: 60),
-                nameTextField ??= EditText(
-                  controller: dataProvider.nameController,
-                  oneLiner: false,
-                  textFieldName: "Name",
-                  errorText: "Enter a name!",
-                ),
-                surnameTextField ??= EditText(
-                  controller: dataProvider.surnameController,
-                  oneLiner: false,
-                  textFieldName: "Surname",
-                  errorText: "Enter a surname!",
-                ),
-                bioTextField ??= EditText(
-                  controller: dataProvider.bioController,
-                  oneLiner: false,
-                  textFieldName: "Biography",
-                  errorText: "Enter a biography!",
-                ),
-                locationTextField ??= EditText(
-                  controller: dataProvider.locationController,
-                  oneLiner: false,
-                  textFieldName: "Location",
-                  errorText: "Enter a location!",
-                ),
-                ExpansionTile(
-                  title: AutoSizeText("Current job", style: textTheme.title),
-                  children: <Widget>[],
-                ),
-                ExpansionTile(
-                  title: AutoSizeText("Education", style: textTheme.title),
-                  children: <Widget>[],
-                ),
-                ExpansionTile(
-                  title:
-                      AutoSizeText("Work experience", style: textTheme.title),
-                  children: <Widget>[
-                    RaisedButton.icon(
-                      icon: Icon(Icons.add),
-                      label: const AutoSizeText("Add"),
-                      onPressed: dataProvider.addJobExperience,
-                    ),
-                    Selector<EditProfileControllerProvider, Map>(
-                      selector: (_, dataProvider) =>
-                          dataProvider.jobExperiences,
-                      shouldRebuild: (prev, now) => true,
-                      builder: (_, experiences, __) {
-                        var entries = experiences.entries.toList();
-                        return Container(
-                          height: 250,
-                          child: ListView.builder(
-                            primary: false,
-                            itemCount: entries.length,
-                            itemBuilder: (ctx, index) => EditJob(
-                              controller: entries[index].value,
-                              signalParentForRemove: () {
-                                experiences.remove(entries[index].key)
-                                  ..dispose();
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ],
+          child: Padding(
+            padding: const EdgeInsets.only(top: 50),
+            child: Form(
+              key: widget.formKey,
+              child: ListView(
+                physics: const ClampingScrollPhysics(),
+                key: PageStorageKey('view'),
+                children: <Widget>[
+                  nameTextField ??= EditText(
+                    controller: dataProvider.nameController,
+                    oneLiner: false,
+                    textFieldName: "Name",
+                    errorText: "Enter a name!",
+                  ),
+                  surnameTextField ??= EditText(
+                    controller: dataProvider.surnameController,
+                    oneLiner: false,
+                    textFieldName: "Surname",
+                    errorText: "Enter a surname!",
+                  ),
+                  bioTextField ??= EditText(
+                    controller: dataProvider.bioController,
+                    oneLiner: false,
+                    textFieldName: "Biography",
+                    errorText: "Enter a biography!",
+                  ),
+                  locationTextField ??= EditText(
+                    controller: dataProvider.locationController,
+                    oneLiner: false,
+                    textFieldName: "Location",
+                    errorText: "Enter a location!",
+                  ),
+                  ExpansionTile(
+                    key: PageStorageKey<String>('CurrentJob'),
+                    title: AutoSizeText("Current job", style: textTheme.title),
+                    children: <Widget>[
+                      EditJob(
+                        controller: dataProvider.currentJobController,
+                      )
+                    ],
+                  ),
+                  AcademicExpansionList(),
+                  JobExpansionList(),
+                  //TODO add questions, roles, modify EditAcademic with select for
+                  //TODO degree level.
+                  //TODO add mentor questions.
+                ],
+              ),
             ),
           ),
         );
