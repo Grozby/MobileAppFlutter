@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Image;
+import 'package:flutter/services.dart';
 import 'package:image/image.dart' hide Color;
 import 'package:intl/intl.dart';
 import 'package:mobile_application/providers/theming/theme_provider.dart';
@@ -215,6 +216,30 @@ class QuestionController {
   }
 
   String get answer => answerController.text;
+}
+
+class MentorQuestionController {
+  TextEditingController questionController;
+  TextEditingController timeController;
+  bool isExpanded;
+
+  MentorQuestionController({
+    String question,
+    int time,
+    this.isExpanded = false,
+  }) {
+    questionController = TextEditingController(text: question ?? "");
+    timeController = TextEditingController(text: time.toString() ?? "");
+  }
+
+  void dispose() {
+    questionController.dispose();
+    timeController.dispose();
+  }
+
+  String get question => questionController.text;
+
+  int get time => int.parse(timeController.text);
 }
 
 ///
@@ -498,6 +523,7 @@ class _ExperienceExpansionListState extends State<ExperienceExpansionList> {
     return ExpansionTile(
       key: PageStorageKey<String>('${widget.title}List'),
       title: AutoSizeText("${widget.title}", style: _textTheme.title),
+      leading: Icon(Icons.info),
       children: <Widget>[
         RaisedButton.icon(
           icon: Icon(Icons.add),
@@ -561,6 +587,7 @@ class _QuestionExpansionListState extends State<QuestionExpansionList> {
     return ExpansionTile(
       key: PageStorageKey<String>('QuestionList'),
       title: AutoSizeText("Questions", style: _textTheme.title),
+      leading: Icon(Icons.info),
       children: <Widget>[
         Consumer<EditProfileControllerProvider>(
           builder: (_, dataProvider, __) {
@@ -568,7 +595,7 @@ class _QuestionExpansionListState extends State<QuestionExpansionList> {
 
             return Column(
               children: [
-                if(availableQuestions.isNotEmpty)
+                if (availableQuestions.isNotEmpty)
                   DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       items: availableQuestions.map((String value) {
@@ -634,9 +661,189 @@ class _QuestionExpansionListState extends State<QuestionExpansionList> {
   }
 }
 
-class EditQuestion extends StatelessWidget {
+class MentorQuestionsExpandableList extends StatefulWidget {
+  final void Function() addElement;
+
+  MentorQuestionsExpandableList({this.addElement});
+
+  @override
+  _MentorQuestionsExpandableListState createState() =>
+      _MentorQuestionsExpandableListState();
+}
+
+class _MentorQuestionsExpandableListState
+    extends State<MentorQuestionsExpandableList> {
+  TextTheme _textTheme;
+
+  @override
+  void initState() {
+    super.initState();
+    _textTheme = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).getTheme().textTheme;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return ExpansionTile(
+      key: PageStorageKey<String>('MentorQuestionsList'),
+      title: AutoSizeText("Questions for contact", style: _textTheme.title),
+      leading: Icon(Icons.info),
+      children: <Widget>[
+        RaisedButton.icon(
+          icon: Icon(Icons.add),
+          label: const AutoSizeText("Add"),
+          onPressed: widget.addElement,
+        ),
+        Selector<EditProfileControllerProvider, Map>(
+          selector: (_, dataProvider) => dataProvider.mentorQuestionsController,
+          shouldRebuild: (_, __) => true,
+          builder: (_, questions, __) {
+            return Column(
+              children: questions.entries
+                  .map<Widget>(
+                    (entry) => Dismissible(
+                      key: ValueKey("MentorQuestionsDismissable${entry.key}"),
+                      onDismissed: (_) {
+                        questions.remove(entry.key)..dispose();
+                      },
+                      background: Container(color: Colors.red),
+                      child: ExpansionTile(
+                        initiallyExpanded: entry.value.isExpanded,
+                        key: PageStorageKey(
+                          "MentorQuestionsSubList${entry.key}",
+                        ),
+                        title: AutoSizeText(
+                          "Question:"
+                          " ${entry.value.question != "" ? entry.value.question : "No name set."}",
+                        ),
+                        children: <Widget>[
+                          EditText(
+                            storageKey: PageStorageKey<String>(
+                              'MentorQuestionsQuestion${entry.key}',
+                            ),
+                            controller: entry.value.questionController,
+                            oneLiner: false,
+                            textFieldName: "Question",
+                            errorText: "Enter a question!",
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            key: PageStorageKey<String>(
+                              'MentorQuestionsTime${entry.key}',
+                            ),
+                            maxLines: 1,
+                            controller: entry.value.timeController,
+                            decoration: InputDecoration(
+                              labelText: "Minutes available for answer",
+                            ),
+                            keyboardType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              WhitelistingTextInputFormatter.digitsOnly,
+                            ],
+                            validator: (value) {
+                              if (value.isEmpty) {
+                                return "Enter a valid time duration";
+                              }
+
+                              final n = num.tryParse(value);
+                              if (n == null) {
+                                return '"$value" is not a valid number';
+                              }
+                              if (n <= 0) {
+                                return '"$value" is not a valid number';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class WorkSpecializationExpansionList extends StatefulWidget {
+  @override
+  _WorkSpecializationExpansionListState createState() =>
+      _WorkSpecializationExpansionListState();
+}
+
+class _WorkSpecializationExpansionListState
+    extends State<WorkSpecializationExpansionList> {
+  TextTheme _textTheme;
+
+  @override
+  void initState() {
+    super.initState();
+    _textTheme = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).getTheme().textTheme;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      key: PageStorageKey<String>('WorkSpecializationList'),
+      title: AutoSizeText("Specializations", style: _textTheme.title),
+      leading: Icon(Icons.info),
+      children: <Widget>[
+        Consumer<EditProfileControllerProvider>(
+          builder: (_, dataProvider, __) {
+            var availableSpecializations =
+                dataProvider.currentAvailableSpecializations;
+
+            return Column(
+              children: [
+                if (availableSpecializations.isNotEmpty)
+                  DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      items: availableSpecializations.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: AutoSizeText(value),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        dataProvider.addSpecialization(value);
+                      },
+                      hint: Center(
+                        child: RaisedButton.icon(
+                          icon: Icon(Icons.add),
+                          label: AutoSizeText("Add"),
+                          onPressed: () {},
+                        ),
+                      ),
+                      icon: Container(),
+                      isExpanded: true,
+                    ),
+                  ),
+                ...dataProvider.selectedSpecializations
+                    .map<Widget>(
+                      (specialization) => Dismissible(
+                        key: ValueKey("QuestionDismissable$specialization"),
+                        onDismissed: (_) {
+                          dataProvider.removeQuestion(specialization);
+                        },
+                        background: Container(color: Colors.red),
+                        child: AutoSizeText(specialization, textAlign: TextAlign.left,),
+                      ),
+                    )
+                    .toList(),
+              ],
+            );
+          },
+        ),
+      ],
+    );
   }
 }

@@ -4,6 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_application/widgets/faded_list_view.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -133,7 +134,7 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
 
   void goToEditPage() async {
     await Navigator.of(context).pushNamed(UserProfileEditScreen.routeName);
-    setState((){
+    setState(() {
       _loadUserData = null;
     });
   }
@@ -394,6 +395,10 @@ class CardContent extends StatelessWidget {
               ),
             if (user.questions.isNotEmpty)
               QuestionSection(questions: user.questions),
+            if (user.workingSpecialization.isNotEmpty)
+              SpecializationSection(
+                workingSpecialization: user.workingSpecialization,
+              ),
             if (user.location != null) Location(location: user.location),
             const SizedBox(height: 16),
             if (user.socialAccounts.isNotEmpty)
@@ -401,6 +406,46 @@ class CardContent extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class SpecializationSection extends StatelessWidget {
+  final List<String> workingSpecialization;
+
+  SpecializationSection({this.workingSpecialization});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Divider(),
+        AutoSizeText(
+          "Specializations",
+          style:
+              Provider.of<ThemeProvider>(context).getTheme().textTheme.overline,
+        ),
+        FadedListView<String>(
+          list: workingSpecialization,
+          height: 31,
+          builder: (String t) => Container(
+            padding: const EdgeInsets.all(4),
+            alignment: Alignment.center,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.3),
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+              child: AutoSizeText(
+                t,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        )
+      ],
     );
   }
 }

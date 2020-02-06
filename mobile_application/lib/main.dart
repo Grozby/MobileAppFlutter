@@ -55,13 +55,16 @@ void main() async {
   (_httpManager.httpClientAdapter as DefaultHttpClientAdapter)
       .onHttpClientCreate = (client) => HttpClient(context: securityContext);
 
-  var databaseProvider = await DatabaseProvider()..getDatabase();
+  var databaseProvider = await DatabaseProvider()
+    ..getDatabase();
   var themeProvider = ThemeProvider();
-  var authenticationProvider = AuthenticationProvider(_httpManager);
-  var userDataProvider = UserDataProvider(
-    httpRequestWrapper: authenticationProvider.httpRequestWrapper,
-    databaseProvider: databaseProvider
+  var authenticationProvider = AuthenticationProvider(
+    _httpManager,
+    databaseProvider: databaseProvider,
   );
+  var userDataProvider = UserDataProvider(
+      httpRequestWrapper: authenticationProvider.httpRequestWrapper,
+      databaseProvider: databaseProvider);
   var cardProvider = CardProvider(authenticationProvider.httpRequestWrapper);
   var chatProvider = ChatProvider(
     httpRequestWrapper: authenticationProvider.httpRequestWrapper,

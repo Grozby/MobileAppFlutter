@@ -8,6 +8,7 @@ part of 'contact_mentor.dart';
 
 ContactMentor _$ContactMentorFromJson(Map json) {
   return ContactMentor(
+    id: json['_id'] as String,
     user: json['user'] == null
         ? null
         : UserMinimal.fromJson((json['user'] as Map)?.map(
@@ -29,10 +30,8 @@ ContactMentor _$ContactMentorFromJson(Map json) {
                 (k, e) => MapEntry(k as String, e),
               )))
         ?.toList(),
-  )
-    ..id = json['_id'] as String
-    ..createdAt =
-        ContactMentor.getDateTimeFromString(json['createdAt'] as String);
+    createdAt: ContactMentor.getDateTimeFromString(json['createdAt'] as String),
+  );
 }
 
 Map<String, dynamic> _$ContactMentorToJson(ContactMentor instance) =>

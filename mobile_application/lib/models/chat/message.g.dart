@@ -8,12 +8,13 @@ part of 'message.dart';
 
 Message _$MessageFromJson(Map json) {
   return Message(
+    id: json['_id'] as String,
     userId: json['userId'] as String,
     content: json['content'] as String,
     kind: json['kind'] as String,
     createdAt: Message.getDateTimeFromString(json['createdAt'] as String),
     isRead: json['isRead'] as bool,
-  )..id = json['_id'] as String;
+  );
 }
 
 Map<String, dynamic> _$MessageToJson(Message instance) => <String, dynamic>{

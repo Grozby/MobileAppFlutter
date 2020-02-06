@@ -187,7 +187,7 @@ class _MessageListState extends State<MessageList> with ChatTimeConverter {
           )
         : Center(
             child: AutoSizeText(
-              "No ${describeEnum(widget.status)} contact requests.",
+              "No ${widget.status != null ? describeEnum(widget?.status) : ""} contact requests.",
             ),
           );
   }
@@ -284,18 +284,19 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                   right: 0,
                   child: StreamBuilder<bool>(
                       stream: chatProvider.getOnlineStatusStream(chat.id),
-                      builder: (context, snapshot) =>
-                          snapshot.hasData && snapshot.data
-                              ? Container(
-                                  height: 16,
-                                  width: 16,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.white, width: 2),
-                                    shape: BoxShape.circle,
-                                    color: Colors.green,
-                                  ),
-                                )
-                              : const Center()),
+                      builder: (context, snapshot) => snapshot.hasData &&
+                              snapshot.data
+                          ? Container(
+                              height: 16,
+                              width: 16,
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: Colors.white, width: 2),
+                                shape: BoxShape.circle,
+                                color: Colors.green,
+                              ),
+                            )
+                          : const Center()),
                 ),
               ],
             ),

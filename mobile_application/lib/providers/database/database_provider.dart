@@ -51,5 +51,11 @@ class DatabaseProvider with ChangeNotifier {
     return await _database;
   }
 
+  Future<void> deleteContent() async {
+    await _database.delete("$contactsTableName");
+    await _database.delete("$messagesTableName");
+    await _database.delete("$userTableName");
+  }
+
   Future close() async => (await _database).close();
 }

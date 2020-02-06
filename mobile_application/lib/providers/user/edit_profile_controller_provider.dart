@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mobile_application/models/users/mentor.dart';
 import 'package:mobile_application/models/users/user.dart';
 import 'package:mobile_application/widgets/general/user_profile_edit_widgets.dart';
 
 class EditProfileControllerProvider extends ChangeNotifier {
+  bool isMentor;
+
   TextEditingController nameController;
   TextEditingController surnameController;
   TextEditingController bioController;
@@ -17,6 +20,23 @@ class EditProfileControllerProvider extends ChangeNotifier {
   ];
   Map<String, QuestionController> questionsController = {};
 
+  bool hasSpecialization;
+  List<String> _availableSpecializations = [
+    'Software Engineer',
+    'Full-Stack',
+    'Front-End',
+    'Back-End',
+    'Machine Learning',
+    'Python',
+    'C++',
+    'iOS',
+    'Android',
+    'Mobile Dev.'
+  ];
+  List<String> selectedSpecializations = [];
+
+  int indexMentorQuestions = 0;
+  Map<int, MentorQuestionController> mentorQuestionsController = {};
   int indexJobExperiences = 0;
   Map<int, JobController> jobExperiences = {};
   int indexAcademicExperiences = 0;
@@ -29,7 +49,6 @@ class EditProfileControllerProvider extends ChangeNotifier {
     locationController = TextEditingController(text: user.location);
 
     currentJobController = JobController();
-
 
     haveQuestions = user.questions.isNotEmpty;
     user.questions.forEach((q) {
@@ -65,6 +84,27 @@ class EditProfileControllerProvider extends ChangeNotifier {
 
       indexAcademicExperiences++;
     });
+
+    hasSpecialization = user.workingSpecialization.isNotEmpty;
+
+    selectedSpecializations =
+        user.workingSpecialization.toList(growable: true);
+
+    if (user is Mentor) {
+      isMentor = true;
+
+
+      user.questionsForAcceptingRequest.forEach((q) {
+        mentorQuestionsController[indexMentorQuestions] =
+            MentorQuestionController(
+          question: q.question,
+          time: q.availableTime,
+        );
+        indexMentorQuestions++;
+      });
+    } else {
+      isMentor = false;
+    }
   }
 
   @override
@@ -76,9 +116,10 @@ class EditProfileControllerProvider extends ChangeNotifier {
 
     currentJobController.dispose();
 
-    questionsController.forEach((index, controller) => controller.dispose());
-    jobExperiences.forEach((index, controller) => controller.dispose());
-    academicExperiences.forEach((index, controller) => controller.dispose());
+    questionsController.forEach((i, controller) => controller.dispose());
+    jobExperiences.forEach((i, controller) => controller.dispose());
+    academicExperiences.forEach((i, controller) => controller.dispose());
+    mentorQuestionsController.forEach((i, controller) => controller.dispose());
 
     super.dispose();
   }
@@ -99,6 +140,14 @@ class EditProfileControllerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addMentorQuestion() {
+    mentorQuestionsController[indexMentorQuestions] = MentorQuestionController(
+      isExpanded: true,
+    );
+    indexMentorQuestions++;
+    notifyListeners();
+  }
+
   void addQuestion(String question) {
     questionsController[question] = QuestionController(
       question: question,
@@ -113,6 +162,16 @@ class EditProfileControllerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addSpecialization(String specialization) {
+    selectedSpecializations.add(specialization);
+    notifyListeners();
+  }
+
+  void removeSpecialization(String specialization) {
+    selectedSpecializations.remove(specialization);
+    notifyListeners();
+  }
+
   Map<String, dynamic> retrievePatchBody() {
     Map<String, dynamic> patchData = {};
     patchData["name"] = nameController.text;
@@ -124,13 +183,20 @@ class EditProfileControllerProvider extends ChangeNotifier {
       patchData["currentJob"] = getJobExperience(currentJobController);
     }
 
-    if(haveQuestions){
+    if (haveQuestions) {
       patchData["questions"] = [];
     }
-    if(questionsController.isNotEmpty){
+    if (questionsController.isNotEmpty) {
       patchData["questions"] = questionsController.values
           .map<Map<String, dynamic>>((entry) => getQuestion(entry))
           .toList();
+    }
+
+    if (hasSpecialization) {
+      patchData["workingSpecialization"] = [];
+    }
+    if (selectedSpecializations.isNotEmpty) {
+      patchData["workingSpecialization"] = selectedSpecializations;
     }
 
     if (indexJobExperiences > 0) {
@@ -148,6 +214,16 @@ class EditProfileControllerProvider extends ChangeNotifier {
     if (academicExperiences.isNotEmpty) {
       patchData["educationList"] = academicExperiences.values
           .map<Map<String, dynamic>>((entry) => getAcademicExperience(entry))
+          .toList();
+    }
+
+    if (indexMentorQuestions > 0) {
+      patchData["questionsForAcceptingRequest"] = [];
+    }
+    if (mentorQuestionsController.isNotEmpty) {
+      patchData["questionsForAcceptingRequest"] = mentorQuestionsController
+          .values
+          .map<Map<String, dynamic>>((entry) => getMentorQuestion(entry))
           .toList();
     }
 
@@ -181,13 +257,24 @@ class EditProfileControllerProvider extends ChangeNotifier {
     };
   }
 
-  Map<String, dynamic> getQuestion(QuestionController q){
+  Map<String, dynamic> getQuestion(QuestionController q) {
     return {
       "question": q.question,
       "answer": q.answer,
     };
   }
 
+  Map<String, dynamic> getMentorQuestion(MentorQuestionController m) {
+    return {
+      "question": m.question,
+      "availableTime": m.time,
+    };
+  }
+
   List<String> get currentAvailableQuestions => _availableQuestions.toList()
     ..removeWhere((e) => questionsController.keys.toList().contains(e));
+
+  List<String> get currentAvailableSpecializations =>
+      _availableSpecializations.toList()
+        ..removeWhere((e) => selectedSpecializations.contains(e));
 }

@@ -104,57 +104,55 @@ class UserProfileBuilderState extends State<UserProfileBuilder> {
       value: _controllerProvider,
       child: LayoutBuilder(
         builder: (ctx, constraints) => ScopedModel<AvailableSizes>(
-          model: availableSizes ??=
-              AvailableSizes(height: constraints.maxHeight - 100),
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            child: Stack(
-              alignment: Alignment.topCenter,
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Container(
-                      height: 100,
-                      alignment: Alignment.center,
-                      child: topButtons ??= TopButtons(
-                        width: constraints.maxWidth * 0.85,
-                        isAnotherUser: false,
-                      ),
-                    ),
-                    CardContent(
-                      user:
-                          Provider.of<UserDataProvider>(context, listen: false)
-                              .user,
-                      width: constraints.maxWidth * 0.9,
-                      formKey: _formKey,
-                    ),
-                  ],
-                ),
-                UserImage(userPictureUrl: user.pictureUrl),
-                saveButton ??= Positioned(
-                  top: 120,
-                  right: (constraints.maxWidth * 0.075) - 8 + 20,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        width: 2,
-                        color: Provider.of<ThemeProvider>(context)
-                            .getTheme()
-                            .primaryColorLight,
-                      ),
-                    ),
-                    child: CircularButton(
-                      height: 36,
-                      width: 36,
-                      alignment: Alignment.center,
-                      assetPath: AssetImages.save,
-                      onPressFunction: sendUpdatedValues,
+          model: (availableSizes ??=
+              AvailableSizes(height: constraints.maxHeight - 100)),
+          child: Container(
+            height: availableSizes.height + 100,
+            child: SingleChildScrollView(
+              child: Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  Container(
+                    height: 100,
+                    alignment: Alignment.center,
+                    child: topButtons ??= TopButtons(
+                      width: constraints.maxWidth * 0.85,
+                      isAnotherUser: false,
                     ),
                   ),
-                ),
-              ],
+                  CardContent(
+                    user: Provider.of<UserDataProvider>(
+                      context,
+                      listen: false,
+                    ).user,
+                    width: constraints.maxWidth * 0.9,
+                    formKey: _formKey,
+                  ),
+                  UserImage(userPictureUrl: user.pictureUrl),
+                  saveButton ??= Positioned(
+                    top: 120,
+                    right: (constraints.maxWidth * 0.075) - 8 + 20,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          width: 2,
+                          color: Provider.of<ThemeProvider>(context)
+                              .getTheme()
+                              .primaryColorLight,
+                        ),
+                      ),
+                      child: CircularButton(
+                        height: 36,
+                        width: 36,
+                        alignment: Alignment.center,
+                        assetPath: AssetImages.save,
+                        onPressFunction: sendUpdatedValues,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -186,6 +184,8 @@ class _CardContentState extends State<CardContent> {
   Widget surnameTextField;
   Widget bioTextField;
   Widget locationTextField;
+  Widget expansionTileJobs;
+  Widget expansionTileEducations;
 
   @override
   void initState() {
@@ -209,47 +209,52 @@ class _CardContentState extends State<CardContent> {
   Widget build(BuildContext context) {
     return Container(
       width: widget.width,
-      height: ScopedModel.of<AvailableSizes>(context).height,
-      padding: EdgeInsets.only(bottom: 12.0),
-      child: Builder(builder: (context) {
-        return CardContainer(
-          onLongPress: () {},
-          canExpand: true,
-          startingColor: widget.user.cardColor,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 50),
-            child: Form(
-              key: widget.formKey,
-              child: ListView(
-                physics: const ClampingScrollPhysics(),
-                key: PageStorageKey('view'),
-                children: <Widget>[
-                  nameTextField ??= EditText(
-                    controller: dataProvider.nameController,
-                    oneLiner: false,
-                    textFieldName: "Name",
-                    errorText: "Enter a name!",
-                  ),
-                  surnameTextField ??= EditText(
-                    controller: dataProvider.surnameController,
-                    oneLiner: false,
-                    textFieldName: "Surname",
-                    errorText: "Enter a surname!",
-                  ),
-                  bioTextField ??= EditText(
-                    controller: dataProvider.bioController,
-                    oneLiner: false,
-                    textFieldName: "Biography",
-                    errorText: "Enter a biography!",
-                  ),
-                  locationTextField ??= EditText(
-                    controller: dataProvider.locationController,
-                    oneLiner: false,
-                    textFieldName: "Location",
-                    errorText: "Enter a location!",
-                  ),
-                  ExpansionTile(
+      padding: EdgeInsets.only(top: 100, bottom: 12.0),
+      child: CardContainer(
+        onLongPress: () {},
+        canExpand: true,
+        startingColor: widget.user.cardColor,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 50),
+          child: Form(
+            key: widget.formKey,
+            child: ListView(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              key: PageStorageKey('view'),
+              children: <Widget>[
+                nameTextField ??= EditText(
+                  controller: dataProvider.nameController,
+                  oneLiner: false,
+                  textFieldName: "Name",
+                  errorText: "Enter a name!",
+                ),
+                surnameTextField ??= EditText(
+                  controller: dataProvider.surnameController,
+                  oneLiner: false,
+                  textFieldName: "Surname",
+                  errorText: "Enter a surname!",
+                ),
+                bioTextField ??= EditText(
+                  controller: dataProvider.bioController,
+                  oneLiner: false,
+                  textFieldName: "Biography",
+                  errorText: "Enter a biography!",
+                ),
+                locationTextField ??= EditText(
+                  controller: dataProvider.locationController,
+                  oneLiner: false,
+                  textFieldName: "Location",
+                  errorText: "Enter a location!",
+                ),
+                Tooltip(
+                  message:
+                      "Insert information of your current job you have, if any.",
+                  preferBelow: false,
+                  margin: const EdgeInsets.all(8),
+                  child: ExpansionTile(
                     key: PageStorageKey<String>('CurrentJob'),
+                    leading: Icon(Icons.info),
                     title: AutoSizeText("Current job", style: textTheme.title),
                     children: <Widget>[
                       EditJob(
@@ -257,29 +262,50 @@ class _CardContentState extends State<CardContent> {
                       )
                     ],
                   ),
-                  ExperienceExpansionList(
+                ),
+                expansionTileEducations ??= Tooltip(
+                  message: "Insert you academic degrees, obtained and ongoing.",
+                  child: ExperienceExpansionList(
                     title: "Education",
                     subtitle: "School",
-                    selector: (_, dataProvider) => dataProvider.academicExperiences,
+                    selector: (_, dataProvider) =>
+                        dataProvider.academicExperiences,
                     builder: (c) => EditEducation(controller: c),
                     addElement: dataProvider.addAcademicExperience,
                   ),
-                  ExperienceExpansionList(
+                ),
+                expansionTileJobs ??= Tooltip(
+                  message: "Insert you work experiences, past and ongoing.",
+                  child: ExperienceExpansionList(
                     title: "Work experience",
                     subtitle: "Company",
                     selector: (_, dataProvider) => dataProvider.jobExperiences,
                     builder: (c) => EditJob(controller: c),
                     addElement: dataProvider.addJobExperience,
                   ),
-                  QuestionExpansionList(),
-                  //TODO add roles.
-                  //TODO add mentor questions.
-                ],
-              ),
+                ),
+                Tooltip(
+                  message:
+                      "Answer to some of the proposed questions on the platform.",
+                  child: QuestionExpansionList(),
+                ),
+                Tooltip(
+                  message: "Add your working specializations.",
+                  child: WorkSpecializationExpansionList(),
+                ),
+                if (dataProvider.isMentor)
+                  Tooltip(
+                    message:
+                        "Insert the questions to propose to any mentee that wants to contact you.",
+                    child: MentorQuestionsExpandableList(
+                      addElement: dataProvider.addMentorQuestion,
+                    ),
+                  ),
+              ],
             ),
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
 }

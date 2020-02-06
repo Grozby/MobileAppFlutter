@@ -17,11 +17,6 @@ part 'mentor.g.dart';
 @JsonSerializable(explicitToJson: true)
 class Mentor extends User {
   @JsonKey(
-    fromJson: getWorkingSpecializationFromJson,
-  )
-  List<String> workingSpecialization;
-
-  @JsonKey(
     fromJson: getQuestionsForAcceptingRequestFromJson,
   )
   List<MentorQuestion> questionsForAcceptingRequest;
@@ -36,7 +31,7 @@ class Mentor extends User {
     @required List<PastExperience> experiences,
     @required HashMap<String, SocialAccount> socialAccounts,
     @required Job currentJob,
-    @required this.workingSpecialization,
+    @required workingSpecialization,
     @required this.questionsForAcceptingRequest,
   }) : super(
           name: name,
@@ -48,6 +43,7 @@ class Mentor extends User {
           experiences: experiences,
           socialAccounts: socialAccounts,
           currentJob: currentJob,
+          workingSpecialization: workingSpecialization,
         );
 
   bool get needsToAnswerQuestions => questionsForAcceptingRequest.isNotEmpty;
@@ -69,11 +65,6 @@ class Mentor extends User {
   factory Mentor.fromJson(Map<String, dynamic> json) => _$MentorFromJson(json);
 
   Map<String, dynamic> toJson() => _$MentorToJson(this);
-
-  static List<String> getWorkingSpecializationFromJson(dynamic json) {
-    return json?.map<String>((e) => e as String)?.toList() as List<String> ??
-        <String>[];
-  }
 
   static List<MentorQuestion> getQuestionsForAcceptingRequestFromJson(json) {
     return json

@@ -28,7 +28,7 @@ class _LandingScreenState extends State<LandingScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _authenticationProvider =
-          Provider.of<AuthenticationProvider>(context, listen: true);
+          Provider.of<AuthenticationProvider>(context, listen: false);
     });
   }
 

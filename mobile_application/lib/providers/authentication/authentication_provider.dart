@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mobile_application/providers/database/database_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/http_request_wrapper.dart';
@@ -22,11 +23,12 @@ class AuthenticationProvider with ChangeNotifier {
   AuthenticationMode _authenticationMode;
   final Dio _httpManager;
   HttpRequestWrapper httpRequestWrapper;
+  DatabaseProvider databaseProvider;
   bool wasLogged = false;
 
   set token(String token) => _authenticationMode.token = token;
 
-  AuthenticationProvider(this._httpManager) {
+  AuthenticationProvider(this._httpManager, {this.databaseProvider}) {
     _authenticationMode = AuthenticationMode.getAuthenticationMode(
       'credentials',
       _httpManager,
@@ -53,6 +55,7 @@ class AuthenticationProvider with ChangeNotifier {
         },
         onError: (DioError error) async {
           if (error.response?.statusCode == 401) {
+            wasLogged = true;
             await removeAuthenticationData();
           }
 
@@ -110,7 +113,8 @@ class AuthenticationProvider with ChangeNotifier {
         _httpManager,
         this,
       );
-      wasLogged = true;
+      await databaseProvider.deleteContent();
+
       notifyListeners();
     }
   }

@@ -19,6 +19,8 @@ User _$UserFromJson(Map json) {
     socialAccounts: User.getSocialAccountsFromJson(json['socialAccounts']),
     currentJob:
         User.getCurrentJobFromJson(json['currentJob'] as Map<String, dynamic>),
+    workingSpecialization:
+        User.getWorkingSpecializationFromJson(json['workingSpecialization']),
   );
 }
 
@@ -33,4 +35,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'questions': instance.questions.map((e) => e.toJson()).toList(),
       'pastExperiences': User.getJsonExperiences(instance.experiences),
       'socialAccounts': User.getJsonSocialAccounts(instance.socialAccounts),
+      'workingSpecialization': instance.workingSpecialization,
     };

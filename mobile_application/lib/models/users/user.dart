@@ -53,6 +53,11 @@ class User {
   )
   HashMap<String, SocialAccount> socialAccounts;
 
+  @JsonKey(
+    fromJson: getWorkingSpecializationFromJson,
+  )
+  List<String> workingSpecialization;
+
   User({
     String id,
     @required this.name,
@@ -64,6 +69,7 @@ class User {
     @required this.experiences,
     @required this.socialAccounts,
     @required this.currentJob,
+    @required this.workingSpecialization,
   }) : id = id == null ? id = "0" : id;
 
   String get completeName => "$name $surname";
@@ -168,6 +174,11 @@ class User {
 
       throw Exception("Not a past experience!!");
     })?.toList();
+  }
+
+  static List<String> getWorkingSpecializationFromJson(dynamic json) {
+    return json?.map<String>((e) => e as String)?.toList() as List<String> ??
+        <String>[];
   }
 
   @override

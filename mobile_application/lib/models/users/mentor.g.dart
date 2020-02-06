@@ -19,7 +19,7 @@ Mentor _$MentorFromJson(Map json) {
     currentJob:
         User.getCurrentJobFromJson(json['currentJob'] as Map<String, dynamic>),
     workingSpecialization:
-        Mentor.getWorkingSpecializationFromJson(json['workingSpecialization']),
+        User.getWorkingSpecializationFromJson(json['workingSpecialization']),
     questionsForAcceptingRequest:
         Mentor.getQuestionsForAcceptingRequestFromJson(
             json['questionsForAcceptingRequest']),
