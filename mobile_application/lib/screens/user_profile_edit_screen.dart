@@ -271,8 +271,8 @@ class _CardContentState extends State<CardContent> {
                     builder: (c) => EditJob(controller: c),
                     addElement: dataProvider.addJobExperience,
                   ),
-                  //TODO add questions, roles, modify EditAcademic with select for
-                  //TODO degree level.
+                  QuestionExpansionList(),
+                  //TODO add roles.
                   //TODO add mentor questions.
                 ],
               ),

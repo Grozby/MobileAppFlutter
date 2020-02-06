@@ -10,6 +10,13 @@ class EditProfileControllerProvider extends ChangeNotifier {
 
   JobController currentJobController;
 
+  bool haveQuestions;
+  List<String> _availableQuestions = [
+    'What are your favourite programming languages?',
+    'What inspires you the most in your work?',
+  ];
+  Map<String, QuestionController> questionsController = {};
+
   int indexJobExperiences = 0;
   Map<int, JobController> jobExperiences = {};
   int indexAcademicExperiences = 0;
@@ -22,6 +29,15 @@ class EditProfileControllerProvider extends ChangeNotifier {
     locationController = TextEditingController(text: user.location);
 
     currentJobController = JobController();
+
+
+    haveQuestions = user.questions.isNotEmpty;
+    user.questions.forEach((q) {
+      questionsController[q.question] = QuestionController(
+        question: q.question,
+        answer: q.answer,
+      );
+    });
 
     user.jobExperiences.forEach((j) {
       jobExperiences[indexJobExperiences] = JobController(
@@ -60,6 +76,7 @@ class EditProfileControllerProvider extends ChangeNotifier {
 
     currentJobController.dispose();
 
+    questionsController.forEach((index, controller) => controller.dispose());
     jobExperiences.forEach((index, controller) => controller.dispose());
     academicExperiences.forEach((index, controller) => controller.dispose());
 
@@ -82,6 +99,20 @@ class EditProfileControllerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addQuestion(String question) {
+    questionsController[question] = QuestionController(
+      question: question,
+      isExpanded: true,
+    );
+
+    notifyListeners();
+  }
+
+  void removeQuestion(String question) {
+    questionsController.remove(question)..dispose();
+    notifyListeners();
+  }
+
   Map<String, dynamic> retrievePatchBody() {
     Map<String, dynamic> patchData = {};
     patchData["name"] = nameController.text;
@@ -89,8 +120,17 @@ class EditProfileControllerProvider extends ChangeNotifier {
     patchData["bio"] = bioController.text;
     patchData["location"] = locationController.text;
 
-    if(currentJobController.nameInstitution != ""){
+    if (currentJobController.nameInstitution != "") {
       patchData["currentJob"] = getJobExperience(currentJobController);
+    }
+
+    if(haveQuestions){
+      patchData["questions"] = [];
+    }
+    if(questionsController.isNotEmpty){
+      patchData["questions"] = questionsController.values
+          .map<Map<String, dynamic>>((entry) => getQuestion(entry))
+          .toList();
     }
 
     if (indexJobExperiences > 0) {
@@ -140,4 +180,14 @@ class EditProfileControllerProvider extends ChangeNotifier {
       "toDate": a.toDate,
     };
   }
+
+  Map<String, dynamic> getQuestion(QuestionController q){
+    return {
+      "question": q.question,
+      "answer": q.answer,
+    };
+  }
+
+  List<String> get currentAvailableQuestions => _availableQuestions.toList()
+    ..removeWhere((e) => questionsController.keys.toList().contains(e));
 }

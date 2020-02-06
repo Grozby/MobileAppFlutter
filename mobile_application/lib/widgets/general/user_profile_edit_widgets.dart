@@ -195,6 +195,31 @@ class AcademicDegreeController extends ExperienceController {
   String get fieldOfStudy => fieldOfStudyController.text;
 }
 
+class QuestionController {
+  String question;
+  TextEditingController answerController;
+  bool isExpanded;
+
+  QuestionController({
+    String question,
+    String answer,
+    isExpanded,
+  }) {
+    this.question = question;
+    answerController = TextEditingController(text: answer);
+    this.isExpanded = isExpanded ?? false;
+  }
+
+  void dispose() {
+    answerController.dispose();
+  }
+
+  String get answer => answerController.text;
+}
+
+///
+/// WIDGETS
+///
 class EditJob extends StatefulWidget {
   final JobController controller;
 
@@ -312,11 +337,6 @@ class _EditJobState extends State<EditJob> {
       ],
     );
   }
-}
-
-class StringValidator extends FormField<String> {
-  StringValidator({key, builder, validator})
-      : super(key: key, builder: builder, validator: validator);
 }
 
 class EditEducation extends StatefulWidget {
@@ -516,5 +536,107 @@ class _ExperienceExpansionListState extends State<ExperienceExpansionList> {
         ),
       ],
     );
+  }
+}
+
+class QuestionExpansionList extends StatefulWidget {
+  @override
+  _QuestionExpansionListState createState() => _QuestionExpansionListState();
+}
+
+class _QuestionExpansionListState extends State<QuestionExpansionList> {
+  TextTheme _textTheme;
+
+  @override
+  void initState() {
+    super.initState();
+    _textTheme = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).getTheme().textTheme;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      key: PageStorageKey<String>('QuestionList'),
+      title: AutoSizeText("Questions", style: _textTheme.title),
+      children: <Widget>[
+        Consumer<EditProfileControllerProvider>(
+          builder: (_, dataProvider, __) {
+            var availableQuestions = dataProvider.currentAvailableQuestions;
+
+            return Column(
+              children: [
+                if(availableQuestions.isNotEmpty)
+                  DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      items: availableQuestions.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: AutoSizeText(value),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        dataProvider.addQuestion(value);
+                      },
+                      hint: Center(
+                        child: RaisedButton.icon(
+                          icon: Icon(Icons.add),
+                          label: AutoSizeText("Add"),
+                          onPressed: () {},
+                        ),
+                      ),
+                      icon: Container(),
+                      isExpanded: true,
+                    ),
+                  ),
+                ...dataProvider.questionsController.entries
+                    .map<Widget>(
+                      (entry) => Dismissible(
+                        key: ValueKey("QuestionDismissable${entry.key}"),
+                        onDismissed: (_) {
+                          dataProvider.removeQuestion(entry.key);
+                        },
+                        background: Container(color: Colors.red),
+                        child: ExpansionTile(
+                          initiallyExpanded: entry.value.isExpanded,
+                          key: PageStorageKey(
+                            "QuestionSubList${entry.key}",
+                          ),
+                          title: AutoSizeText(
+                            "Question:"
+                            " ${entry.value.question}",
+                          ),
+                          children: [
+                            Divider(),
+                            EditText(
+                              storageKey: PageStorageKey<String>(
+                                'QuestionAnswer${entry.key}',
+                              ),
+                              controller: entry.value.answerController,
+                              oneLiner: true,
+                              textFieldName: "Answer",
+                              errorText: "Enter a valid answer!",
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class EditQuestion extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }
