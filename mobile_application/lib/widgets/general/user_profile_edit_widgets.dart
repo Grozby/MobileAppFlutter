@@ -239,7 +239,7 @@ class MentorQuestionController {
 
   String get question => questionController.text;
 
-  int get time => int.parse(timeController.text);
+  int get time => int.parse(timeController.text) * 60;
 }
 
 ///

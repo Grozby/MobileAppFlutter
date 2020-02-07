@@ -548,7 +548,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
   }
 
   void saveAnswerAndContinue() {
-    Provider.of<QuestionsProvider>(context).insertAnswer(
+    Provider.of<QuestionsProvider>(context, listen: false).insertAnswer(
       question: getMentor(context)
           .getMentorQuestionAt(
             Provider.of<QuestionsProvider>(context, listen: false).currentIndex,
@@ -852,8 +852,9 @@ class _ContactMentorState extends State<ContactMentor> with GetMentor {
   void sendRequestToMentor(BuildContext context) async {
     //TODO complete exception
     try {
-      await Provider.of<CardProvider>(context).sendRequestToMentor(
-        Provider.of<QuestionsProvider>(context).answers,
+      await Provider.of<CardProvider>(context, listen: false)
+          .sendRequestToMentor(
+        Provider.of<QuestionsProvider>(context, listen: false),
         messageController.text,
       );
     } on Exception catch (_) {

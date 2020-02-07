@@ -47,7 +47,9 @@ class QuestionsProvider with ChangeNotifier {
     answers.add(Answer(
       question: question,
       textAnswer: textAnswer,
-      audioAnswer: await compute(getAudioFile, audioFilePath),
+      audioAnswer: audioFilePath != null
+          ? await compute(getAudioFile, audioFilePath)
+          : null,
     ));
 
     currentIndex++;

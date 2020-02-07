@@ -25,6 +25,7 @@ class CardProvider with ChangeNotifier {
   CardProvider(this.httpRequestWrapper);
 
   String get exploreUrl => "/users/explore";
+  String get sendRequestUrl => "/users/sendrequest";
 
   int get numberAvailableUsers => users.length;
 
@@ -87,8 +88,29 @@ class CardProvider with ChangeNotifier {
     }).toList() as List<UserContainer>;
   }
 
-  Future<void> sendRequestToMentor(List<Answer> answers, String message) async {
-    //TODO implement actual request
-    print(answers[0].toString());
+
+
+  Future<void> sendRequestToMentor(
+    QuestionsProvider provider,
+    String message,
+  ) async {
+    await httpRequestWrapper.request<dynamic>(
+        url: "$sendRequestUrl/${provider.mentorId}",
+        typeHttpRequest: TypeHttpRequest.post,
+        postBody: {
+          "startingMessage": message,
+          "answers": provider.answers.map((a) => a.toJson()).toList(),
+        },
+        correctStatusCode: 200,
+        onCorrectStatusCode: (response) async {
+          users.removeWhere((u) => u.user.id == provider.mentorId);
+          notifyListeners();
+        },
+        onIncorrectStatusCode: (_) {
+          throw SomethingWentWrongException.message(
+            "Couldn't send the request. Try again later.",
+          );
+        });
+
   }
 }
