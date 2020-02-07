@@ -1,68 +1,37 @@
-name: mobile_application
-description: Application for the Mobile Application course at PoliMi
+name: flutter_sound_example
+description: Demonstrates how to use the flutter_sound plugin.
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
 # Both the version and the builder number may be overridden in flutter
 # build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# Read more about versioning at semver.org.
 version: 1.0.0+1
-
-environment:
-  sdk: ">=2.6.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  meta: ^1.1.6
-  dio: ^3.0.3
-  http: ^0.12.0+2
-  shared_preferences: ^0.5.3+4
-  provider: ^4.0.2
-  flutter_svg: ^0.14.0
-  google_sign_in: ^4.0.6
-  transparent_image: ^1.0.0
-  json_serializable: ^3.2.3
-  auto_size_text: ^2.1.0
-  scoped_model: ^1.0.1
-  cached_network_image: ^2.0.0-rc
-  intl: ^0.16.0
-  url_launcher: ^5.4.1
-  pull_to_refresh: ^1.5.7
-  flutter_ffmpeg: ^0.2.8
-  socket_io_client: ^0.9.7+2
-  rxdart: ^0.23.1
-  sqflite: ^1.2.0
-  path_provider: ^1.6.0
-  file_picker: ^1.4.3+2
-  image_picker: ^0.6.3+1
-  image: ^2.1.4
   flutter_sound:
-    path: lib/helpers/flutter_sound-android-x
+    path: ../
+  permission_handler: '^4.2.0+hotfix.2'
+  
+# Coment out the following line if flutter_ffmpeg is not needed
+  flutter_ffmpeg: ^0.2.10
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
+  intl: ^0.15.6
   cupertino_icons: ^0.1.2
 
 dev_dependencies:
-  flutter_driver:
-    sdk: flutter
-  test: any
   flutter_test:
     sdk: flutter
-  build_runner: ^1.7.1
-  effective_dart: ^1.0.0
-  pedantic: ^1.0.0
 
 
 # For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
+# following page: https://www.dartlang.org/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:
@@ -72,17 +41,39 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-
+  # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/
-    - assets/trustedCertificate/
-      #  - images/a_dot_ham.jpeg
+  - res/icons/ic_play.png
+  - res/icons/ic_play_disabled.png
+  - res/icons/2.0x/ic_play.png
+  - res/icons/3.0x/ic_play.png
+  - res/icons/ic_stop.png
+  - res/icons/ic_stop_disabled.png
+  - res/icons/2.0x/ic_stop.png
+  - res/icons/3.0x/ic_stop.png
+  - res/icons/ic_pause.png
+  - res/icons/ic_pause_disabled.png
+  - res/icons/2.0x/ic_pause.png
+  - res/icons/3.0x/ic_pause.png
+  - res/icons/ic_mic.png
+  - res/icons/ic_mic_disabled.png
+  - res/icons/2.0x/ic_mic.png
+  - res/icons/3.0x/ic_mic.png
+  - res/icons/ic_volume_down.png
+  - res/icons/2.0x/ic_volume_down.png
+  - res/icons/3.0x/ic_volume_down.png
+  - res/icons/ic_volume_up.png
+  - res/icons/2.0x/ic_volume_up.png
+  - res/icons/3.0x/ic_volume_up.png
+  
+  - assets/samples/
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware.
+  # https://flutter.io/assets-and-images/#resolution-aware.
 
   # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
+  # https://flutter.io/assets-and-images/#from-packages
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
@@ -102,4 +93,4 @@ flutter:
   #         weight: 700
   #
   # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
+  # see https://flutter.io/custom-fonts/#from-packages

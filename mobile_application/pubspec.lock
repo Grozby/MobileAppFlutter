@@ -252,9 +252,9 @@ packages:
   flutter_sound:
     dependency: "direct main"
     description:
-      name: flutter_sound
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "lib\\helpers\\flutter_sound-android-x"
+      relative: true
+    source: path
     version: "2.0.4"
   flutter_svg:
     dependency: "direct main"
@@ -509,6 +509,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0+1"
+  permission_handler:
+    dependency: transitive
+    description:
+      name: permission_handler
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.2.0+hotfix.3"
   petitparser:
     dependency: transitive
     description:

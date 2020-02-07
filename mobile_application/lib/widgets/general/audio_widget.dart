@@ -9,6 +9,7 @@ import 'package:flutter_sound/android_encoder.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/ios_quality.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:path_provider/path_provider.dart';
 
 import '../../providers/theming/theme_provider.dart';
 import '../../widgets/general/image_wrapper.dart';
@@ -120,6 +121,13 @@ class _AudioWidgetState extends State<AudioWidget>
     _dbPeakSubscription?.cancel();
   }
 
+  Future<String> defaultPath(String fileName) async {
+    Directory tempDir = await getTemporaryDirectory();
+    File fout = File('${tempDir.path}/$fileName');
+    return fout.path;
+  }
+
+
   void startRecorder() async {
     if (_isRecording) {
       return;
@@ -137,7 +145,7 @@ class _AudioWidgetState extends State<AudioWidget>
       }
 
       String path = await flutterSound.startRecorder(
-        uri: fileName,
+        uri: await defaultPath(fileName),
         codec: t_CODEC.CODEC_AAC,
         sampleRate: 44100,
         bitRate: 128000,
