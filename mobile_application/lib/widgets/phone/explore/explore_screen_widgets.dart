@@ -118,61 +118,29 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
     with SingleTickerProviderStateMixin {
   double heightFraction = 0.9;
   int currentIndex = 0;
-  bool _isForward = false;
-  PageController pageController = PageController(viewportFraction: 0.9);
+  PageController pageController;
   Animation<double> animation;
-  AnimationController controllerAnimation;
 
   @override
   void initState() {
     super.initState();
-
-    /// Animation stuff
+    pageController = PageController(viewportFraction: 0.9);
     pageController.addListener(updatePage);
-    controllerAnimation = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
-    animation = Tween<double>(
-      begin: heightFraction,
-      end: 1,
-    ).animate(controllerAnimation);
   }
 
   @override
   void dispose() {
     pageController.removeListener(updatePage);
     pageController.dispose();
-    controllerAnimation.dispose();
     super.dispose();
   }
 
-  ///Animation methods
   void updatePage() {
     int nextIndex = pageController.page.round();
     if (currentIndex != nextIndex) {
       setState(() {
         currentIndex = nextIndex;
       });
-      callAnimatorController();
-    }
-  }
-
-  void callAnimatorController() {
-    if (_isForward) {
-      controllerAnimation.reverse();
-    } else {
-      controllerAnimation.forward();
-    }
-    _isForward = !_isForward;
-  }
-
-  double get animationValue {
-    if (_isForward) {
-      return animation.value;
-    } else {
-      return 1 + heightFraction - animation.value;
     }
   }
 
@@ -193,7 +161,7 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
           itemCount: cardProvider.numberAvailableUsers,
           itemBuilder: (context, index) {
             return AnimatedBuilder(
-              animation: controllerAnimation,
+              animation: pageController,
               child: Container(
                 constraints: BoxConstraints(
                   minHeight: constraints.minHeight,
@@ -211,17 +179,19 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                 ),
               ),
               builder: (_, child) {
+                double value = 1.0;
+                if (pageController.position.haveDimensions) {
+                  value = pageController.page - index;
+                  value = (1 - (value.abs() * .4)).clamp(0.0, 1.0);
+                }
+
                 return Transform.scale(
                   alignment: index > currentIndex
                       ? Alignment.centerLeft
                       : (index < currentIndex
                           ? Alignment.centerRight
                           : Alignment.center),
-                  scale: index == currentIndex
-                      ? (controllerAnimation.isAnimating ? animationValue : 1)
-                      : (controllerAnimation.isAnimating
-                          ? 1 + heightFraction - animationValue
-                          : heightFraction),
+                  scale: Curves.easeOut.transform(value),
                   child: child,
                 );
               },
