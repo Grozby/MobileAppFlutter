@@ -65,25 +65,26 @@ class InfoBarWidget extends StatelessWidget {
                         right: 4,
                         bottom: 4,
                         child: StreamBuilder<int>(
-                            stream: Provider.of<ChatProvider>(context)
-                                .numberUnreadMessagesStream,
-                            builder: (context, snapshot) {
-                              return snapshot.hasData && snapshot.data != 0
-                                  ? Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: themeData.primaryColor,
-                                      ),
-                                      child: AutoSizeText(
-                                        "${snapshot.data}",
-                                        style: themeData.textTheme.title
-                                            .copyWith(color: Colors.white),
-                                        maxLines: 1,
-                                      ),
-                                    )
-                                  : Center();
-                            }),
+                          stream: Provider.of<ChatProvider>(context)
+                              .numberUnreadMessagesStream,
+                          builder: (context, snapshot) {
+                            return snapshot.hasData && snapshot.data != 0
+                                ? Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: themeData.primaryColor,
+                                    ),
+                                    child: AutoSizeText(
+                                      "${snapshot.data}",
+                                      style: themeData.textTheme.title
+                                          .copyWith(color: Colors.white),
+                                      maxLines: 1,
+                                    ),
+                                  )
+                                : Center();
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -115,7 +116,7 @@ class ExploreBodyWidget extends StatefulWidget {
 }
 
 class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   double heightFraction = 0.9;
   int currentIndex = 0;
   PageController pageController;
@@ -146,59 +147,135 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (ctx, constraints) {
-      CardProvider cardProvider = Provider.of<CardProvider>(context);
+    return LayoutBuilder(
+      builder: (ctx, constraints) {
+        CardProvider cardProvider = Provider.of<CardProvider>(context);
 
-      return Container(
-        constraints: BoxConstraints(
-          maxHeight: constraints.minHeight,
-          maxWidth: constraints.maxWidth,
-        ),
-        child: PageView.builder(
-          physics: const BouncingScrollPhysics(),
-          controller: pageController,
-          scrollDirection: Axis.horizontal,
-          itemCount: cardProvider.numberAvailableUsers,
-          itemBuilder: (context, index) {
-            return AnimatedBuilder(
-              animation: pageController,
-              child: Container(
-                constraints: BoxConstraints(
-                  minHeight: constraints.minHeight,
-                ),
-                child: SingleChildScrollView(
-                  primary: false,
-                  physics: const ScrollPhysics(),
-                  child: ScopedModel<AvailableSizes>(
-                    model: AvailableSizes(height: constraints.minHeight),
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: ExploreCard(indexUser: index),
+        return GestureDetector(
+          behavior: HitTestBehavior.deferToChild,
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: constraints.minHeight,
+              maxWidth: constraints.maxWidth,
+            ),
+            child: PageView.builder(
+
+              physics: const BouncingScrollPhysics(),
+              controller: pageController,
+              scrollDirection: Axis.horizontal,
+              itemCount: cardProvider.numberAvailableUsers,
+              itemBuilder: (context, index) => cardProvider.indexToRemove != index
+                  ? AnimatedBuilder(
+                      animation: pageController,
+                      child: Container(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.minHeight,
+                        ),
+                        child: SingleChildScrollView(
+                          primary: true,
+                          physics: const ScrollPhysics(),
+                          child: ScopedModel<AvailableSizes>(
+                            model: AvailableSizes(height: constraints.minHeight),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: ExploreCard(indexUser: index),
+                            ),
+                          ),
+                        ),
+                      ),
+                      builder: (_, child) {
+                        double value = 1.0;
+                        if (pageController.position.haveDimensions) {
+                          value = pageController.page - index;
+                          value = (1 - (value.abs() * .4)).clamp(0.0, 1.0);
+                        }
+
+                        return Transform.scale(
+                          alignment: index > currentIndex
+                              ? Alignment.centerLeft
+                              : (index < currentIndex
+                                  ? Alignment.centerRight
+                                  : Alignment.center),
+                          scale: Curves.easeOut.transform(value),
+                          child: child,
+                        );
+                      },
+                    )
+                  : RemovingExploreCardAnimated(
+                      controller: AnimationController(
+                        duration: const Duration(milliseconds: 800),
+                        vsync: this,
+                      )..forward(),
+                      removeElement: () => cardProvider.removeUser(),
+                      child: Container(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.minHeight,
+                        ),
+                        child: SingleChildScrollView(
+                          primary: false,
+                          physics: const ScrollPhysics(),
+                          child: ScopedModel<AvailableSizes>(
+                            model: AvailableSizes(height: constraints.minHeight),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: ExploreCard(indexUser: index),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              builder: (_, child) {
-                double value = 1.0;
-                if (pageController.position.haveDimensions) {
-                  value = pageController.page - index;
-                  value = (1 - (value.abs() * .4)).clamp(0.0, 1.0);
-                }
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
 
-                return Transform.scale(
-                  alignment: index > currentIndex
-                      ? Alignment.centerLeft
-                      : (index < currentIndex
-                          ? Alignment.centerRight
-                          : Alignment.center),
-                  scale: Curves.easeOut.transform(value),
-                  child: child,
-                );
-              },
-            );
-          },
+class RemovingExploreCardAnimated extends StatelessWidget {
+  final AnimationController controller;
+  final Animation<Offset> slideTransition;
+  final Animation<double> widthTransition;
+  final void Function() removeElement;
+  final Widget child;
+
+  RemovingExploreCardAnimated({
+    Key key,
+    @required this.controller,
+    @required this.child,
+    @required this.removeElement,
+  })  : slideTransition = Tween<Offset>(
+          begin: Offset.zero,
+          end: const Offset(0.0, -1.0),
+        ).animate(
+          CurvedAnimation(
+            parent: controller,
+            curve: Interval(0, 1.0, curve: Curves.easeOut),
+          ),
+        )..addStatusListener((AnimationStatus status) {
+            if (status == AnimationStatus.completed) {
+              removeElement();
+            }
+          }),
+        widthTransition = Tween<double>(begin: 200, end: 0).animate(
+          CurvedAnimation(
+            parent: controller,
+            curve: Interval(0.5, 1.0, curve: Curves.linear),
+          ),
         ),
-      );
-    });
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      child: child,
+      builder: (ctx, child) {
+        return SlideTransition(
+          position: slideTransition,
+          child: child,
+        );
+      },
+      animation: controller,
+    );
   }
 }

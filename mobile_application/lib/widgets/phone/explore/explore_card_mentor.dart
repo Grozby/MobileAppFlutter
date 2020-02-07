@@ -35,7 +35,7 @@ class MentorCard extends StatefulWidget {
   _MentorCardState createState() => _MentorCardState();
 }
 
-class _MentorCardState extends State<MentorCard> {
+class _MentorCardState extends State<MentorCard> with AutomaticKeepAliveClientMixin<MentorCard>{
   bool _isFrontCardShowing;
 
   @override
@@ -63,6 +63,7 @@ class _MentorCardState extends State<MentorCard> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 1000),
       transitionBuilder: (child, animation) {
@@ -79,6 +80,9 @@ class _MentorCardState extends State<MentorCard> {
           : _BackCardMentor(key: const ValueKey(2), rotateCard: rotateCard),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 /// /////////////////////////////////////////////////////////////////////// ///
@@ -251,7 +255,7 @@ class _CompanyInformationBar extends StatelessWidget with GetMentor {
         style: Theme.of(context).textTheme.display2,
       ),
       subtitle: AutoSizeText(
-        mentor.currentJob != null ? mentor.currentJob.at : "",
+        mentor.currentJob != null ? mentor.location : "",
         style: Theme.of(context).textTheme.subhead,
       ),
     );

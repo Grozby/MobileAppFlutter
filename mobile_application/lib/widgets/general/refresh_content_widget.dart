@@ -68,6 +68,10 @@ class _RefreshWidgetState extends State<RefreshWidget> {
       create: (_) => _provider,
       child: NotificationListener<OverscrollNotification>(
         onNotification: (scrollInfo) {
+          if(scrollInfo.metrics.axis == Axis.horizontal){
+            return false;
+          }
+
           if (scrollInfo.depth != 0) {
             if (!isOverScrolling) {
               isOverScrolling = true;

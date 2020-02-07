@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../helpers/http_request_wrapper.dart';
@@ -22,9 +24,14 @@ class CardProvider with ChangeNotifier {
   List<UserContainer> users = [];
   final HttpRequestWrapper httpRequestWrapper;
 
+  int indexToRemove = -1;
+  String idToRemove;
+  Timer removalElementPostAnimation;
+
   CardProvider(this.httpRequestWrapper);
 
   String get exploreUrl => "/users/explore";
+
   String get sendRequestUrl => "/users/sendrequest";
 
   int get numberAvailableUsers => users.length;
@@ -88,29 +95,50 @@ class CardProvider with ChangeNotifier {
     }).toList() as List<UserContainer>;
   }
 
-
-
   Future<void> sendRequestToMentor(
     QuestionsProvider provider,
     String message,
   ) async {
-    await httpRequestWrapper.request<dynamic>(
-        url: "$sendRequestUrl/${provider.mentorId}",
-        typeHttpRequest: TypeHttpRequest.post,
-        postBody: {
-          "startingMessage": message,
-          "answers": provider.answers.map((a) => a.toJson()).toList(),
-        },
-        correctStatusCode: 200,
-        onCorrectStatusCode: (response) async {
-          users.removeWhere((u) => u.user.id == provider.mentorId);
-          notifyListeners();
-        },
-        onIncorrectStatusCode: (_) {
-          throw SomethingWentWrongException.message(
-            "Couldn't send the request. Try again later.",
-          );
-        });
+    indexToRemove = users.indexWhere((e) => e.user.id == provider.mentorId);
+    idToRemove = provider.mentorId;
+    removalElementPostAnimation = Timer(
+      Duration(seconds: 10),
+      () => removeUser(),
+    );
 
+    notifyListeners();
+
+//    await httpRequestWrapper.request<dynamic>(
+//        url: "$sendRequestUrl/${provider.mentorId}",
+//        typeHttpRequest: TypeHttpRequest.post,
+//        postBody: {
+//          "startingMessage": message,
+//          "answers": provider.answers.map((a) => a.toJson()).toList(),
+//        },
+//        correctStatusCode: 200,
+//        onCorrectStatusCode: (response) async {
+//          indexToRemove =
+//              users.indexWhere((e) => e.user.id == provider.mentorId);
+//          notifyListeners();
+//
+//          removalElementPostAnimation = Timer(Duration(seconds: 1), () {
+//            removeUser(indexToRemove);
+//          });
+//        },
+//        onIncorrectStatusCode: (_) {
+//          throw SomethingWentWrongException.message(
+//            "Couldn't send the request. Try again later.",
+//          );
+//        });
+  }
+
+  void removeUser() {
+    print("removed!");
+    removalElementPostAnimation.cancel();
+    users.removeWhere((e) => e.user.id == idToRemove);
+
+    indexToRemove = -1;
+    idToRemove = "";
+    notifyListeners();
   }
 }
