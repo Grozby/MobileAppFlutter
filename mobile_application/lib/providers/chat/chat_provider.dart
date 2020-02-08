@@ -58,6 +58,7 @@ class ChatProvider with ChangeNotifier {
 
   HttpRequestWrapper httpRequestWrapper;
   DatabaseProvider databaseProvider;
+  String fcmToken;
 
   String authToken;
   String userId;
@@ -82,7 +83,11 @@ class ChatProvider with ChangeNotifier {
   /// of new messages and typing notification
   Map<String, ChatNotifier> _mapChatNotifierStreams;
 
-  ChatProvider({this.httpRequestWrapper, this.databaseProvider});
+  ChatProvider({
+    @required this.httpRequestWrapper,
+    @required this.databaseProvider,
+    @required this.fcmToken,
+  });
 
   Stream get updateContactsStream => _updateContactsNotifier.stream;
 
@@ -237,7 +242,7 @@ class ChatProvider with ChangeNotifier {
         Configuration.serverUrl,
         <String, dynamic>{
           'transports': ['websocket'],
-          'extraHeaders': {'token': authToken},
+          'extraHeaders': {'token': authToken, 'fcmToken': fcmToken},
           "reconnect": true,
           "forceNew": true,
         },

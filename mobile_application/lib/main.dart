@@ -18,11 +18,31 @@ import 'providers/theming/theme_provider.dart';
 import 'providers/user/user_data_provider.dart';
 import 'widgets/themed_material_app.dart';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 _parseAndDecode(String response) => jsonDecode(response);
 
 parseJson(String text) {
   return compute(_parseAndDecode, text);
 }
+
+Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
+  if (message.containsKey('data')) {
+    // Handle data message
+    final dynamic data = message['data'];
+  }
+
+  if (message.containsKey('notification')) {
+    // Handle notification message
+    final dynamic notification = message['notification'];
+  }
+
+  // Or do other work.
+}
+
+
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +75,24 @@ void main() async {
   (_httpManager.httpClientAdapter as DefaultHttpClientAdapter)
       .onHttpClientCreate = (client) => HttpClient(context: securityContext);
 
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
+  _firebaseMessaging.configure(
+    onMessage: (Map<String, dynamic> message) async {
+      print("onMessage: $message");
+
+    },
+    onBackgroundMessage: myBackgroundMessageHandler,
+    onLaunch: (Map<String, dynamic> message) async {
+      print("onLaunch: $message");
+
+    },
+    onResume: (Map<String, dynamic> message) async {
+      print("onResume: $message");
+
+    },
+  );
+
   var databaseProvider = await DatabaseProvider()
     ..getDatabase();
   var themeProvider = ThemeProvider();
@@ -69,6 +107,7 @@ void main() async {
   var chatProvider = ChatProvider(
     httpRequestWrapper: authenticationProvider.httpRequestWrapper,
     databaseProvider: databaseProvider,
+    fcmToken: await _firebaseMessaging.getToken(),
   );
 
   await themeProvider.loadThemePreference();
