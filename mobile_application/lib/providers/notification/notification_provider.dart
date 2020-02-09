@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -90,7 +92,7 @@ class NotificationProvider with ChangeNotifier {
     if (message.containsKey('data')) {
       print("hereee");
       await initializeLocalNotification();
-      _showNotificationMediaStyle(message['data'] as Map<String, dynamic>);
+      _showNotificationMediaStyle(message['data']);
     }
 
     if (message.containsKey('notification')) {
@@ -108,7 +110,12 @@ class NotificationProvider with ChangeNotifier {
       String url, String fileName) async {
     var directory = await getApplicationDocumentsDirectory();
     var filePath = '${directory.path}/$fileName';
-    var response = await http.get(url);
+    HttpClient httpClient = HttpClient()
+      ..badCertificateCallback =
+      ((X509Certificate cert, String host, int port) => true);
+    IOClient ioClient = IOClient(httpClient);
+    var response = await ioClient.get(url);
+    ioClient.close();
     var file = File(filePath);
     await file.writeAsBytes(response.bodyBytes);
     return filePath;
@@ -127,18 +134,19 @@ class NotificationProvider with ChangeNotifier {
         summaryText: 'summary <i>text</i>',
         htmlFormatSummaryText: true);
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        'inbox channel id', 'inboxchannel name', 'inbox channel description',
-        style: AndroidNotificationStyle.Inbox,
-        styleInformation: inboxStyleInformation);
+      'inbox channel id',
+      'inboxchannel name',
+      'inbox channel description',
+      style: AndroidNotificationStyle.Inbox,
+      styleInformation: inboxStyleInformation,
+    );
     var platformChannelSpecifics =
         NotificationDetails(androidPlatformChannelSpecifics, null);
     await localNotification.show(
         0, 'inbox title', 'inbox body', platformChannelSpecifics);
   }
 
-  static Future<void> _showNotificationMediaStyle(
-    Map<String, dynamic> payload,
-  ) async {
+  static Future<void> _showNotificationMediaStyle(dynamic payload) async {
     var largeIconPath = await _downloadAndSaveImage(
       payload['image'],
       'largeIcon',

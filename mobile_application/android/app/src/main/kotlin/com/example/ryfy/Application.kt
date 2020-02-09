@@ -14,5 +14,6 @@ class Application : FlutterApplication(), PluginRegistrantCallback {
     override fun registerWith(registry: PluginRegistry) {
         FirebaseCloudMessagingPluginRegistrant.registerWith(registry)
         FlutterLocalNotificationPluginRegistrant.registerWith(registry)
+        FlutterPathProviderPluginRegistrant.registerWith(registry)
     }
 }

@@ -491,7 +491,9 @@ class ChatProvider with ChangeNotifier {
     _updateContactsNotifier.close();
     _errorNotifier.close();
     _updateScreenNotifier.close();
+    _numberUnreadMessagesNotifier.close();
     timeoutTypingNotification?.cancel();
+
     socket.clearListeners();
     socket.close();
     socket.destroy();
