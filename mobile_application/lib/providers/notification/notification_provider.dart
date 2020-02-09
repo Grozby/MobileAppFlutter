@@ -3,25 +3,9 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'package:http/http.dart' as http;
-
-///
-/// Firebase Cloud Messaging background routing
-///
-Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
-  if (message.containsKey('data')) {
-    // Handle data message
-    final dynamic data = message['data'];
-  }
-
-  if (message.containsKey('notification')) {
-    // Handle notification message
-    final dynamic notification = message['notification'];
-  }
-}
 
 class ReceivedNotification {
   final int id;
@@ -38,15 +22,16 @@ class ReceivedNotification {
 }
 
 class NotificationProvider with ChangeNotifier {
-  FlutterLocalNotificationsPlugin localNotification;
-  BehaviorSubject<ReceivedNotification> notificationController;
+  static FlutterLocalNotificationsPlugin localNotification =
+      FlutterLocalNotificationsPlugin();
+  static BehaviorSubject<ReceivedNotification> notificationController;
   FirebaseMessaging firebaseMessaging;
 
-  void initialize() async {
-    ///
-    /// Flutter local notification initialization
-    ///
-    localNotification = FlutterLocalNotificationsPlugin();
+  ///
+  /// Flutter local notification initialization
+  ///
+  static Future<void> initializeLocalNotification(
+      {void Function() callback}) async {
     notificationController = BehaviorSubject<ReceivedNotification>();
     var androidSettings = AndroidInitializationSettings('app_icon');
     var iosSettings = IOSInitializationSettings(
@@ -54,7 +39,11 @@ class NotificationProvider with ChangeNotifier {
           (int id, String title, String body, String payload) async {
         notificationController.add(
           ReceivedNotification(
-              id: id, title: title, body: body, payload: payload),
+            id: id,
+            title: title,
+            body: body,
+            payload: payload,
+          ),
         );
       },
     );
@@ -68,8 +57,11 @@ class NotificationProvider with ChangeNotifier {
         //selectNotificationSubject.add(payload);
       },
     );
+    if (callback != null) callback();
+  }
 
-
+  Future<void> initialize() async {
+    await initializeLocalNotification();
 
     ///
     /// Initializing Firebase Cloud Messaging
@@ -89,9 +81,31 @@ class NotificationProvider with ChangeNotifier {
     );
   }
 
+  ///
+  /// Firebase Cloud Messaging background routing
+  ///
+  static Future<dynamic> myBackgroundMessageHandler(
+    Map<String, dynamic> message,
+  ) async {
+    if (message.containsKey('data')) {
+      print("hereee");
+      await initializeLocalNotification();
+      _showNotificationMediaStyle(message['data'] as Map<String, dynamic>);
+    }
+
+    if (message.containsKey('notification')) {
+      // Handle notification message
+      final dynamic notification = message['notification'];
+      await initializeLocalNotification();
+    }
+
+    return Future<void>.value();
+  }
+
   Future<String> get fcmToken async => await firebaseMessaging.getToken();
 
-  Future<String> _downloadAndSaveImage(String url, String fileName) async {
+  static Future<String> _downloadAndSaveImage(
+      String url, String fileName) async {
     var directory = await getApplicationDocumentsDirectory();
     var filePath = '${directory.path}/$fileName';
     var response = await http.get(url);
@@ -100,7 +114,9 @@ class NotificationProvider with ChangeNotifier {
     return filePath;
   }
 
-  Future<void> _showInboxNotification() async {
+  static Future<void> _showInboxNotification(
+    Map<String, dynamic> payload,
+  ) async {
     var lines = List<String>();
     lines.add('line <b>1</b>');
     lines.add('line <i>2</i>');
@@ -115,13 +131,18 @@ class NotificationProvider with ChangeNotifier {
         style: AndroidNotificationStyle.Inbox,
         styleInformation: inboxStyleInformation);
     var platformChannelSpecifics =
-    NotificationDetails(androidPlatformChannelSpecifics, null);
+        NotificationDetails(androidPlatformChannelSpecifics, null);
     await localNotification.show(
         0, 'inbox title', 'inbox body', platformChannelSpecifics);
   }
 
-  Future<void> _showNotificationMediaStyle(String url) async {
-    var largeIconPath = await _downloadAndSaveImage(url, 'largeIcon');
+  static Future<void> _showNotificationMediaStyle(
+    Map<String, dynamic> payload,
+  ) async {
+    var largeIconPath = await _downloadAndSaveImage(
+      payload['image'],
+      'largeIcon',
+    );
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       'media channel id',
       'media channel name',
@@ -135,6 +156,10 @@ class NotificationProvider with ChangeNotifier {
       null,
     );
     await localNotification.show(
-        0, 'notification title', 'notification body', platformChannelSpecifics);
+      0,
+      payload["title"],
+      payload["body"],
+      platformChannelSpecifics,
+    );
   }
 }
