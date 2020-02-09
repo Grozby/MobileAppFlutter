@@ -3,15 +3,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile_application/models/utility/available_sizes.dart';
-import 'package:mobile_application/screens/single_chat_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../../../models/chat/contact_mentor.dart';
+import '../../../models/utility/available_sizes.dart';
 import '../../../providers/chat/chat_provider.dart';
 import '../../../providers/theming/theme_provider.dart';
 import '../../../screens/settings_screen.dart';
+import '../../../screens/single_chat_screen.dart';
 import '../../../widgets/general/image_wrapper.dart';
 import '../../../widgets/phone/explore/circular_button.dart';
 

@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:mobile_application/models/users/mentor.dart';
-import 'package:mobile_application/models/users/user.dart';
-import 'package:mobile_application/widgets/general/user_profile_edit_widgets.dart';
+
+import '../../models/users/mentor.dart';
+import '../../models/users/user.dart';
+import '../../widgets/general/user_profile_edit_widgets.dart';
 
 class EditProfileControllerProvider extends ChangeNotifier {
   bool isMentor;
@@ -87,12 +88,10 @@ class EditProfileControllerProvider extends ChangeNotifier {
 
     hasSpecialization = user.workingSpecialization.isNotEmpty;
 
-    selectedSpecializations =
-        user.workingSpecialization.toList(growable: true);
+    selectedSpecializations = user.workingSpecialization.toList(growable: true);
 
     if (user is Mentor) {
       isMentor = true;
-
 
       user.questionsForAcceptingRequest.forEach((q) {
         mentorQuestionsController[indexMentorQuestions] =

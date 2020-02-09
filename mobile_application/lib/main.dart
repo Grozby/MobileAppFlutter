@@ -3,13 +3,15 @@ import 'dart:io';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mobile_application/providers/database/database_provider.dart';
 import 'package:provider/provider.dart';
 
+import 'providers/database/database_provider.dart';
+import 'providers/notification/notification_provider.dart';
 import 'providers/authentication/authentication_provider.dart';
 import 'providers/chat/chat_provider.dart';
 import 'providers/configuration.dart';
@@ -18,32 +20,18 @@ import 'providers/theming/theme_provider.dart';
 import 'providers/user/user_data_provider.dart';
 import 'widgets/themed_material_app.dart';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
-
+///
+/// Methods for parsing json with DIO
+///
 _parseAndDecode(String response) => jsonDecode(response);
 
 parseJson(String text) {
   return compute(_parseAndDecode, text);
 }
 
-Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
-  if (message.containsKey('data')) {
-    // Handle data message
-    final dynamic data = message['data'];
-  }
-
-  if (message.containsKey('notification')) {
-    // Handle notification message
-    final dynamic notification = message['notification'];
-  }
-
-  // Or do other work.
-}
-
-
-
-
-
+///
+/// Main
+///
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //Force the app to work only in portrait mode
@@ -54,7 +42,9 @@ void main() async {
 
   initializeDateFormatting();
 
+  ///
   /// Creation of all needed data for the http manager
+  ///
   var options = BaseOptions(
     baseUrl: Configuration.serverUrl,
     receiveTimeout: 8000,
@@ -75,43 +65,29 @@ void main() async {
   (_httpManager.httpClientAdapter as DefaultHttpClientAdapter)
       .onHttpClientCreate = (client) => HttpClient(context: securityContext);
 
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-
-  _firebaseMessaging.configure(
-    onMessage: (Map<String, dynamic> message) async {
-      print("onMessage: $message");
-
-    },
-    onBackgroundMessage: myBackgroundMessageHandler,
-    onLaunch: (Map<String, dynamic> message) async {
-      print("onLaunch: $message");
-
-    },
-    onResume: (Map<String, dynamic> message) async {
-      print("onResume: $message");
-
-    },
-  );
-
+  ///
+  /// Initialization providers
+  ///
   var databaseProvider = await DatabaseProvider()
     ..getDatabase();
+  var notificationProvider = NotificationProvider();
+  await notificationProvider.initialize();
   var themeProvider = ThemeProvider();
+  await themeProvider.loadThemePreference();
   var authenticationProvider = AuthenticationProvider(
     _httpManager,
     databaseProvider: databaseProvider,
-  );
+  )..loadAuthentication();
   var userDataProvider = UserDataProvider(
-      httpRequestWrapper: authenticationProvider.httpRequestWrapper,
-      databaseProvider: databaseProvider);
+    httpRequestWrapper: authenticationProvider.httpRequestWrapper,
+    databaseProvider: databaseProvider,
+  );
   var cardProvider = CardProvider(authenticationProvider.httpRequestWrapper);
   var chatProvider = ChatProvider(
     httpRequestWrapper: authenticationProvider.httpRequestWrapper,
     databaseProvider: databaseProvider,
-    fcmToken: await _firebaseMessaging.getToken(),
+    fcmToken: await notificationProvider.fcmToken,
   );
-
-  await themeProvider.loadThemePreference();
-  await authenticationProvider.loadAuthentication();
 
   runApp(
     MyApp(

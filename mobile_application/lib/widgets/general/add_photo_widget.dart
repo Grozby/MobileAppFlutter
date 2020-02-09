@@ -3,10 +3,11 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
-import 'package:mobile_application/widgets/general/image_wrapper.dart';
-import 'package:mobile_application/widgets/phone/explore/circular_button.dart';
 import 'package:provider/provider.dart';
+
+import '../../providers/theming/theme_provider.dart';
+import '../../widgets/general/image_wrapper.dart';
+import '../../widgets/phone/explore/circular_button.dart';
 
 class AddPhotoWidget extends StatefulWidget {
   final double width, height;
@@ -194,8 +195,8 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
               title: Text(
                 'Delete',
                 style: themeProvider.getTheme().textTheme.title.copyWith(
-                  fontWeight: FontWeight.w400,
-                ),
+                      fontWeight: FontWeight.w400,
+                    ),
               ),
               onTap: deleteImage,
             )

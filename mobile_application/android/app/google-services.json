@@ -8,12 +8,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:31233552109:android:707123c38eecc489",
+        "mobilesdk_app_id": "1:31233552109:android:b2cc27aef2a087d3dee6e4",
         "android_client_info": {
-          "package_name": "adpcorp.ryfy"
+          "package_name": "com.example.ryfy"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "31233552109-1s194it77fhiq04nik7ohmsvure6aqp4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ryfy",
+            "certificate_hash": "1b8c1ea1a28671a5acd0ccc1b6ed689f297957df"
+          }
+        },
         {
           "client_id": "31233552109-i0tefje5p7pudjg58hfdj0u7462rj517.apps.googleusercontent.com",
           "client_type": 3

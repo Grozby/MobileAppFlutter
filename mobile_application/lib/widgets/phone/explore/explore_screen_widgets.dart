@@ -1,13 +1,13 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:mobile_application/providers/chat/chat_provider.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../../../models/utility/available_sizes.dart';
+import '../../../providers/chat/chat_provider.dart';
 import '../../../providers/explore/card_provider.dart';
+import '../../../providers/theming/theme_provider.dart';
 import '../../../providers/user/user_data_provider.dart';
 import '../../../screens/chat_screen.dart';
 import '../../../screens/user_profile_screen.dart';
@@ -159,12 +159,12 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
               maxWidth: constraints.maxWidth,
             ),
             child: PageView.builder(
-
               physics: const BouncingScrollPhysics(),
               controller: pageController,
               scrollDirection: Axis.horizontal,
               itemCount: cardProvider.numberAvailableUsers,
-              itemBuilder: (context, index) => cardProvider.indexToRemove != index
+              itemBuilder: (context, index) => cardProvider.indexToRemove !=
+                      index
                   ? AnimatedBuilder(
                       animation: pageController,
                       child: Container(
@@ -175,7 +175,8 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                           primary: true,
                           physics: const ScrollPhysics(),
                           child: ScopedModel<AvailableSizes>(
-                            model: AvailableSizes(height: constraints.minHeight),
+                            model:
+                                AvailableSizes(height: constraints.minHeight),
                             child: Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: ExploreCard(indexUser: index),
@@ -215,7 +216,8 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                           primary: false,
                           physics: const ScrollPhysics(),
                           child: ScopedModel<AvailableSizes>(
-                            model: AvailableSizes(height: constraints.minHeight),
+                            model:
+                                AvailableSizes(height: constraints.minHeight),
                             child: Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: ExploreCard(indexUser: index),

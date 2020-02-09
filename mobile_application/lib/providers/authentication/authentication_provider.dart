@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mobile_application/providers/database/database_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../helpers/http_request_wrapper.dart';
@@ -17,6 +16,7 @@ import '../../models/exceptions/registration/registration_exception.dart';
 import '../../models/exceptions/registration/surname_exception.dart';
 import '../../models/registration/sign_up_form_model.dart';
 import '../../models/registration/user_registration.dart';
+import '../../providers/database/database_provider.dart';
 import 'types/authentication_mode.dart';
 
 class AuthenticationProvider with ChangeNotifier {
@@ -204,7 +204,6 @@ class AuthenticationProvider with ChangeNotifier {
         );
       },
     );
-
   }
 
   Future<void> authenticate(dynamic data) async {

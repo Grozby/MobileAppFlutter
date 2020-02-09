@@ -7,10 +7,10 @@ import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' hide Color;
 import 'package:intl/intl.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
-import 'package:mobile_application/providers/user/edit_profile_controller_provider.dart';
 import 'package:provider/provider.dart';
 
+import '../../providers/theming/theme_provider.dart';
+import '../../providers/user/edit_profile_controller_provider.dart';
 import 'add_photo_widget.dart';
 
 Image decode(File image) {
@@ -835,7 +835,10 @@ class _WorkSpecializationExpansionListState
                           dataProvider.removeQuestion(specialization);
                         },
                         background: Container(color: Colors.red),
-                        child: AutoSizeText(specialization, textAlign: TextAlign.left,),
+                        child: AutoSizeText(
+                          specialization,
+                          textAlign: TextAlign.left,
+                        ),
                       ),
                     )
                     .toList(),

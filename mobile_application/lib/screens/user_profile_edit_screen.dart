@@ -1,18 +1,19 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart' hide Image;
-import 'package:mobile_application/models/users/user.dart';
-import 'package:mobile_application/models/utility/available_sizes.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
-import 'package:mobile_application/providers/user/edit_profile_controller_provider.dart';
-import 'package:mobile_application/providers/user/user_data_provider.dart';
-import 'package:mobile_application/screens/user_profile_screen.dart';
-import 'package:mobile_application/widgets/general/image_wrapper.dart';
-import 'package:mobile_application/widgets/general/settings_drawer.dart';
-import 'package:mobile_application/widgets/general/user_profile_edit_widgets.dart';
-import 'package:mobile_application/widgets/phone/explore/card_container.dart';
-import 'package:mobile_application/widgets/phone/explore/circular_button.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
+
+import '../models/users/user.dart';
+import '../models/utility/available_sizes.dart';
+import '../providers/theming/theme_provider.dart';
+import '../providers/user/edit_profile_controller_provider.dart';
+import '../providers/user/user_data_provider.dart';
+import '../screens/user_profile_screen.dart';
+import '../widgets/general/image_wrapper.dart';
+import '../widgets/general/settings_drawer.dart';
+import '../widgets/general/user_profile_edit_widgets.dart';
+import '../widgets/phone/explore/card_container.dart';
+import '../widgets/phone/explore/circular_button.dart';
 
 class UserProfileEditScreen extends StatefulWidget {
   static const routeName = '/editprofile';

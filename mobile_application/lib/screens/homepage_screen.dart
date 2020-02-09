@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
-import 'package:mobile_application/providers/authentication/authentication_provider.dart';
-import 'package:mobile_application/providers/chat/chat_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/overglow_less_scroll_behavior.dart';
+import '../models/exceptions/no_internet_exception.dart';
+import '../providers/authentication/authentication_provider.dart';
+import '../providers/chat/chat_provider.dart';
 import '../providers/explore/card_provider.dart';
 import '../providers/user/user_data_provider.dart';
 import '../widgets/general/loading_error.dart';
@@ -142,7 +142,7 @@ class _HomepageWidgetState extends State<HomepageWidget>
             .pushReplacementNamed(InitializationScreen.routeName);
       }
 
-      if(err is NoInternetException){
+      if (err is NoInternetException) {
         throw err;
       }
     });

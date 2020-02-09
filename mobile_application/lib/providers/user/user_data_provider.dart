@@ -1,16 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:mobile_application/models/exceptions/no_internet_exception.dart';
-import 'package:mobile_application/providers/database/database_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../helpers/http_request_wrapper.dart';
+import '../../models/exceptions/no_internet_exception.dart';
 import '../../models/exceptions/no_user_profile_exception.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
 import '../../models/users/mentee.dart';
 import '../../models/users/mentor.dart';
 import '../../models/users/user.dart';
+import '../../providers/database/database_provider.dart';
 import '../../providers/user/mentee_ui_data.dart';
 import '../../providers/user/user_ui_data.dart';
 import 'mentor_ui_data.dart';
@@ -122,7 +122,6 @@ class UserDataProvider with ChangeNotifier {
       throw e;
     }
   }
-
 
   Future<User> loadSpecifiedUserData(String id) async {
     if (id == null) {

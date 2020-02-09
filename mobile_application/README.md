@@ -1,6 +1,6 @@
-# mobile_application
+# ryfy
 
-Application for the Mobile Application course at PoliMi
+A new Flutter project.
 
 ## Getting Started
 

@@ -10,7 +10,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart' hide TextDirection;
-import 'package:mobile_application/widgets/general/custom_alert_dialog.dart';
+import '../../../widgets/general/custom_alert_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 

@@ -1,13 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_application/models/utility/available_sizes.dart';
-import 'package:mobile_application/providers/theming/theme_provider.dart';
-import 'package:mobile_application/widgets/phone/chat/single_chat_screen_widget.dart'
-    as phone;
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
+import '../models/utility/available_sizes.dart';
 import '../providers/chat/chat_provider.dart';
+import '../providers/theming/theme_provider.dart';
+import '../widgets/phone/chat/single_chat_screen_widget.dart' as phone;
 
 class SingleChatArguments {
   final String id;
