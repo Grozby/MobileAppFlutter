@@ -120,21 +120,25 @@ class ChatProvider with ChangeNotifier {
       _mapChatNotifierStreams = HashMap();
       contacts = await loadContactMentorsFromDB();
 
-      this.userId = await httpRequestWrapper.request<String>(
-          url: getUserIdUri,
-          correctStatusCode: 200,
-          onCorrectStatusCode: (json) async {
-            return json.data["id"];
-          },
-          onIncorrectStatusCode: (_) {
-            throw SomethingWentWrongException.message(
-              "Couldn't load the messages. Try again later.",
-            );
-          });
+      try {
+        this.userId = await httpRequestWrapper.request<String>(
+            url: getUserIdUri,
+            correctStatusCode: 200,
+            onCorrectStatusCode: (json) async {
+              return json.data["id"];
+            },
+            onIncorrectStatusCode: (_) {
+              throw SomethingWentWrongException.message(
+                "Couldn't load the messages. Try again later.",
+              );
+            });
 
-      await fetchChatContacts();
+        await fetchChatContacts();
 
-      _initializeSocket();
+        _initializeSocket();
+      } on SomethingWentWrongException catch (e) {
+        isInitialized = false;
+      }
     }
   }
 
@@ -435,7 +439,7 @@ class ChatProvider with ChangeNotifier {
           ).toList());
   }
 
-  void saveNewContactMentorInDB(ContactMentor c) async {
+  Future<void> saveNewContactMentorInDB(ContactMentor c) async {
     debugPrint("DB - Saving CM: ${c.id}");
     final database = await databaseProvider.getDatabase();
 
@@ -465,7 +469,7 @@ class ChatProvider with ChangeNotifier {
     await batch.commit(noResult: true);
   }
 
-  void saveMessagesToDb(List<Message> messages, String chatId) async {
+  Future<void> saveMessagesToDb(List<Message> messages, String chatId) async {
     debugPrint("DB - Saving Messages for CM: $chatId");
     final database = await databaseProvider.getDatabase();
     var batch = database.batch();
