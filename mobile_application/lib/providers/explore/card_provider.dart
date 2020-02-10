@@ -65,13 +65,24 @@ class CardProvider with ChangeNotifier {
 
     users = json.data.map<UserContainer>((user) {
       User toAdd;
+      QuestionsProvider qProvider;
 
       switch (user["kind"]) {
         case "Mentee":
           toAdd = Mentee.fromJson(user);
+          qProvider = QuestionsProvider.initialized(
+            mentorId: toAdd.id,
+            answers: user["contactInformation"]["answers"]
+                .map<Answer>((a) => Answer.fromJson(a))
+                .toList(),
+          );
           break;
         case "Mentor":
           toAdd = Mentor.fromJson(user);
+          qProvider = QuestionsProvider(
+            mentorId: toAdd.id,
+            numberOfQuestions: toAdd.howManyQuestionsToAnswer,
+          );
           break;
         default:
           throw SomethingWentWrongException.message(
@@ -87,10 +98,7 @@ class CardProvider with ChangeNotifier {
       } else {
         return UserContainer(
           toAdd,
-          QuestionsProvider(
-            numberOfQuestions: toAdd.howManyQuestionsToAnswer,
-            mentorId: toAdd.id,
-          ),
+          qProvider,
         );
       }
     }).toList() as List<UserContainer>;

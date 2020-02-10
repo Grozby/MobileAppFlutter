@@ -39,6 +39,11 @@ class QuestionsProvider with ChangeNotifier {
     }
   }
 
+  QuestionsProvider.initialized({
+    @required this.mentorId,
+    @required this.answers,
+  });
+
   void insertAnswer({
     String question,
     String textAnswer,

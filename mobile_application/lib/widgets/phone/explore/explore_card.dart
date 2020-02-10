@@ -56,7 +56,7 @@ class ExploreCard extends StatelessWidget {
             ],
             child: ExploreCardContent(
               frontCard: _FrontCardContent(key: const ValueKey(1)),
-              backCard: _BackCardContentMentor(key: const ValueKey(2)),
+              backCard: _BackCardContentMentee(key: const ValueKey(2)),
             ),
           ),
         );
@@ -106,7 +106,7 @@ class ExploreCardContent extends StatefulWidget {
   ExploreCardContent({
     @required this.frontCard,
     @required this.backCard,
-});
+  });
 
   @override
   _ExploreCardContentState createState() => _ExploreCardContentState();
@@ -156,8 +156,8 @@ class _ExploreCardContentState extends State<ExploreCardContent>
           );
         },
         child: _isFrontCardShowing
-            ? _FrontCardContent(key: const ValueKey(1))
-            : _BackCardContentMentor(key: const ValueKey(2)),
+            ? widget.frontCard
+            : widget.backCard,
       ),
     );
   }
@@ -166,16 +166,20 @@ class _ExploreCardContentState extends State<ExploreCardContent>
   bool get wantKeepAlive => true;
 }
 
-/// /////////////////////////////////////////////////////////////////////// ///
-///                                                                         ///
-/// Support Widget for the creation of the front card of the mentor.        ///
-///                                                                         ///
-/// /////////////////////////////////////////////////////////////////////// ///
+/// //////////////////////////////////////////////////////
+///                                                    ///
+/// Support Widget for the creation of the front card. ///
+///                                                    ///
+/// //////////////////////////////////////////////////////
 
 mixin GetUser {
   User getUser(BuildContext context) =>
       Provider.of<CardProvider>(context, listen: false)
           .getUser(ScopedModel.of<IndexUser>(context).indexUser);
+
+  QuestionsProvider getQuestionProvider(BuildContext context) =>
+      Provider.of<CardProvider>(context, listen: false)
+          .getQuestionProvider(ScopedModel.of<IndexUser>(context).indexUser);
 }
 
 mixin GetMentor {
@@ -549,7 +553,8 @@ class _BackCardContentMentor extends StatefulWidget {
   _BackCardContentMentorState createState() => _BackCardContentMentorState();
 }
 
-class _BackCardContentMentorState extends State<_BackCardContentMentor> with GetUser {
+class _BackCardContentMentorState extends State<_BackCardContentMentor>
+    with GetUser {
   int questionIndex = 0;
   Color color;
 
@@ -994,6 +999,45 @@ class _ContactMentorState extends State<ContactMentor> with GetMentor {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _BackCardContentMentee extends StatefulWidget {
+  _BackCardContentMentee({Key key}) : super(key: key);
+
+  @override
+  __BackCardContentMenteeState createState() => __BackCardContentMenteeState();
+}
+
+class __BackCardContentMenteeState extends State<_BackCardContentMentee>
+    with GetUser {
+  Color color;
+
+  @override
+  void initState() {
+    super.initState();
+    color = getUser(context).cardColor;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CardContainer(
+      canExpand: false,
+      onLongPress: () {},
+      startingColor: color,
+      child: Column(
+        children: <Widget>[
+          const _CompanyInformationBar(),
+          const Divider(),
+          ...getQuestionProvider(context)
+              .answers
+              .map<Widget>((a) => Center(
+                    child: Text(a.question),
+                  ))
+              .toList(),
+        ],
+      ),
     );
   }
 }
