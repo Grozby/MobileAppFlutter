@@ -106,7 +106,7 @@ class UserProfileBuilderState extends State<UserProfileBuilder> {
   void setImage(File image) async {
     if (image != null) {
       Image im = await decodeCompute(image);
-      Image thumbnail = copyResizeCropSquare(im, 250);
+      Image thumbnail =  copyRotate(copyResizeCropSquare(im, 250), 90);
       _controllerProvider.profileImage = await encodeCompute(thumbnail);
     } else {
       _controllerProvider.profileImage = null;
