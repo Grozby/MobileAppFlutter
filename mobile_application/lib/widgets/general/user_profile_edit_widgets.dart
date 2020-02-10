@@ -261,7 +261,7 @@ class _EditJobState extends State<EditJob> {
   void setImage(File image) async {
     if (image != null) {
       Image im = await decodeCompute(image);
-      Image thumbnail = copyRotate(copyResizeCropSquare(im, 250), 90);
+      Image thumbnail = copyRotate(copyResizeCropSquare(im, 250), 270);
       widget.controller.institutionImage = await encodeCompute(thumbnail);
     } else {
       widget.controller.institutionImage = null;
@@ -380,7 +380,7 @@ class EditEducation extends StatefulWidget {
 class _EditEducationState extends State<EditEducation> {
   void setImage(File image) async {
     Image im = await decodeCompute(image);
-    Image thumbnail = copyRotate(copyResizeCropSquare(im, 250), 90);
+    Image thumbnail = copyRotate(copyResizeCropSquare(im, 250), 270);
     widget.controller.institutionImage = await encodeCompute(thumbnail);
   }
 
