@@ -88,8 +88,9 @@ class CardProvider with ChangeNotifier {
         return UserContainer(
           toAdd,
           QuestionsProvider(
-              numberOfQuestions: toAdd.howManyQuestionsToAnswer,
-              mentorId: toAdd.id),
+            numberOfQuestions: toAdd.howManyQuestionsToAnswer,
+            mentorId: toAdd.id,
+          ),
         );
       }
     }).toList() as List<UserContainer>;

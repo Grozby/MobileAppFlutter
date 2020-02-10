@@ -106,7 +106,7 @@ class UserProfileBuilderState extends State<UserProfileBuilder> {
   void setImage(File image) async {
     if (image != null) {
       Image im = await decodeCompute(image);
-      Image thumbnail =  copyRotate(copyResizeCropSquare(im, 250), 270);
+      Image thumbnail = copyRotate(copyResizeCropSquare(im, 250), 270);
       _controllerProvider.profileImage = await encodeCompute(thumbnail);
     } else {
       _controllerProvider.profileImage = null;
@@ -161,9 +161,7 @@ class UserProfileBuilderState extends State<UserProfileBuilder> {
                         shape: BoxShape.circle,
                         border: Border.all(
                           width: 2,
-                          color: Provider.of<ThemeProvider>(context)
-                              .getTheme()
-                              .primaryColorLight,
+                          color: Theme.of(context).primaryColorLight,
                         ),
                       ),
                       child: CircularButton(
@@ -202,7 +200,6 @@ class CardContent extends StatefulWidget {
 
 class _CardContentState extends State<CardContent> {
   EditProfileControllerProvider dataProvider;
-  TextTheme textTheme;
 
   Widget nameTextField;
   Widget surnameTextField;
@@ -218,10 +215,6 @@ class _CardContentState extends State<CardContent> {
       context,
       listen: false,
     );
-    textTheme = Provider.of<ThemeProvider>(
-      context,
-      listen: false,
-    ).getTheme().textTheme;
   }
 
   @override
@@ -279,7 +272,10 @@ class _CardContentState extends State<CardContent> {
                   child: ExpansionTile(
                     key: PageStorageKey<String>('CurrentJob'),
                     leading: Icon(Icons.info),
-                    title: AutoSizeText("Current job", style: textTheme.title),
+                    title: AutoSizeText(
+                      "Current job",
+                      style: Theme.of(context).textTheme.title,
+                    ),
                     children: <Widget>[
                       EditJob(
                         controller: dataProvider.currentJobController,

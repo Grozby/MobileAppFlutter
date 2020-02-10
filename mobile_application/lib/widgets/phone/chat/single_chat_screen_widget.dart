@@ -58,16 +58,12 @@ class InfoBarWidget extends StatefulWidget {
 }
 
 class _InfoBarWidgetState extends State<InfoBarWidget> {
-  ThemeData themeData;
-  TextTheme textTheme;
   ChatProvider chatProvider;
   ContactMentor c;
 
   @override
   void initState() {
     super.initState();
-    themeData = Provider.of<ThemeProvider>(context, listen: false).getTheme();
-    textTheme = themeData.textTheme;
     chatProvider = Provider.of<ChatProvider>(context, listen: false);
     c = chatProvider.getChatById(widget.chatId);
   }
@@ -97,7 +93,7 @@ class _InfoBarWidgetState extends State<InfoBarWidget> {
                     ? Center(
                         child: AutoSizeText(
                           "Waiting for network connection...",
-                          style: textTheme.display3,
+                          style: Theme.of(context).textTheme.display3,
                           maxLines: 1,
                         ),
                       )
@@ -136,10 +132,16 @@ class _InfoBarWidgetState extends State<InfoBarWidget> {
                                     children: <Widget>[
                                       AutoSizeText(
                                         c.user.completeName,
-                                        style: textTheme.display2.copyWith(
-                                          fontSize:
-                                              textTheme.display2.fontSize - 2,
-                                        ),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .display2
+                                            .copyWith(
+                                              fontSize: Theme.of(context)
+                                                      .textTheme
+                                                      .display2
+                                                      .fontSize -
+                                                  2,
+                                            ),
                                         maxLines: 2,
                                       ),
                                       IsTypingWidget(chatId: widget.chatId),
@@ -186,13 +188,10 @@ class _IsTypingWidgetState extends State<IsTypingWidget> {
   Stream typingStatusStream;
   Stream onlineStatusStream;
 
-  TextTheme textTheme;
-
   @override
   void initState() {
     super.initState();
-    textTheme =
-        Provider.of<ThemeProvider>(context, listen: false).getTheme().textTheme;
+
     typingStatusStream = Provider.of<ChatProvider>(context, listen: false)
         .getTypingNotificationStream(widget.chatId);
     onlineStatusStream = Provider.of<ChatProvider>(context, listen: false)
@@ -217,8 +216,8 @@ class _IsTypingWidgetState extends State<IsTypingWidget> {
                         isOnline: isOnlineSnap.data,
                       )
                     : "",
-                style: textTheme.overline,
-                minFontSize: textTheme.overline.fontSize,
+                style: Theme.of(context).textTheme.overline,
+                minFontSize: Theme.of(context).textTheme.overline.fontSize,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               );
@@ -357,7 +356,6 @@ class MessageTile extends StatefulWidget {
 
 class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
   ThemeProvider themeProvider;
-  ThemeData themeData;
   double top, bottom, right, left, lastLineWidth, hoursWidth;
   int numberLines;
   CustomPainter painter;
@@ -383,7 +381,7 @@ class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
     final messagePainter = TextPainter(
       text: TextSpan(
         text: widget.message.content,
-        style: themeData.textTheme.body2,
+        style: Theme.of(context).textTheme.body2,
       ),
       textDirection: TextDirection.ltr,
     )..layout(
@@ -396,11 +394,11 @@ class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
     final hourPainter = TextPainter(
       text: TextSpan(
         text: timeToStringHours(widget.message.createdAt),
-        style: themeData.textTheme.overline.copyWith(
-          fontSize: 13,
-          height: 0,
-          fontWeight: FontWeight.w400,
-        ),
+        style: Theme.of(context).textTheme.overline.copyWith(
+              fontSize: 13,
+              height: 0,
+              fontWeight: FontWeight.w400,
+            ),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -411,7 +409,6 @@ class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
   void initState() {
     super.initState();
     themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    themeData = themeProvider.getTheme();
     initialize();
   }
 
@@ -467,7 +464,7 @@ class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
                     ),
                     child: AutoSizeText(
                       widget.message.content,
-                      style: themeData.textTheme.body2,
+                      style: Theme.of(context).textTheme.body2,
                     ),
                   ),
                 ),
@@ -476,11 +473,11 @@ class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
                   bottom: 4,
                   child: AutoSizeText(
                     timeToStringHours(widget.message.createdAt),
-                    style: themeData.textTheme.overline.copyWith(
-                      fontSize: 13,
-                      height: 0,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: Theme.of(context).textTheme.overline.copyWith(
+                          fontSize: 13,
+                          height: 0,
+                          fontWeight: FontWeight.w400,
+                        ),
                   ),
                 )
               ],
@@ -607,7 +604,6 @@ class InputMessage extends StatefulWidget {
 
 class _InputMessageState extends State<InputMessage> {
   TextEditingController _controller;
-  ThemeProvider _themeProvider;
   double _availableHeight;
   ChatProvider _chatProvider;
 
@@ -615,7 +611,6 @@ class _InputMessageState extends State<InputMessage> {
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    _themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     _availableHeight = ScopedModel.of<AvailableSizes>(context).height;
     _chatProvider = Provider.of<ChatProvider>(context, listen: false);
 
@@ -628,14 +623,14 @@ class _InputMessageState extends State<InputMessage> {
     super.dispose();
   }
 
-  void sendTypingNotification(){
+  void sendTypingNotification() {
     if (_chatProvider.isConnected && _controller.text.isEmpty) {
       _chatProvider.sendTypingNotification();
     }
   }
 
   void sendMessage() {
-    if(_controller.text.isEmpty){
+    if (_controller.text.isEmpty) {
       return;
     }
 
@@ -666,7 +661,7 @@ class _InputMessageState extends State<InputMessage> {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: TextFormField(
                   controller: _controller,
-                  style: _themeProvider.getTheme().textTheme.body2,
+                  style: Theme.of(context).textTheme.body2,
                   maxLines: null,
                 ),
               ),

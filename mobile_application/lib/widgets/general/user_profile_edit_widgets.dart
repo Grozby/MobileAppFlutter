@@ -508,22 +508,19 @@ class ExperienceExpansionList extends StatefulWidget {
 }
 
 class _ExperienceExpansionListState extends State<ExperienceExpansionList> {
-  TextTheme _textTheme;
-
   @override
   void initState() {
     super.initState();
-    _textTheme = Provider.of<ThemeProvider>(
-      context,
-      listen: false,
-    ).getTheme().textTheme;
   }
 
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
       key: PageStorageKey<String>('${widget.title}List'),
-      title: AutoSizeText("${widget.title}", style: _textTheme.title),
+      title: AutoSizeText(
+        "${widget.title}",
+        style: Theme.of(context).textTheme.title,
+      ),
       leading: Icon(Icons.info),
       children: <Widget>[
         RaisedButton.icon(
@@ -572,22 +569,12 @@ class QuestionExpansionList extends StatefulWidget {
 }
 
 class _QuestionExpansionListState extends State<QuestionExpansionList> {
-  TextTheme _textTheme;
-
-  @override
-  void initState() {
-    super.initState();
-    _textTheme = Provider.of<ThemeProvider>(
-      context,
-      listen: false,
-    ).getTheme().textTheme;
-  }
-
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
       key: PageStorageKey<String>('QuestionList'),
-      title: AutoSizeText("Questions", style: _textTheme.title),
+      title:
+          AutoSizeText("Questions", style: Theme.of(context).textTheme.title),
       leading: Icon(Icons.info),
       children: <Widget>[
         Consumer<EditProfileControllerProvider>(
@@ -674,22 +661,14 @@ class MentorQuestionsExpandableList extends StatefulWidget {
 
 class _MentorQuestionsExpandableListState
     extends State<MentorQuestionsExpandableList> {
-  TextTheme _textTheme;
-
-  @override
-  void initState() {
-    super.initState();
-    _textTheme = Provider.of<ThemeProvider>(
-      context,
-      listen: false,
-    ).getTheme().textTheme;
-  }
-
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
       key: PageStorageKey<String>('MentorQuestionsList'),
-      title: AutoSizeText("Questions for contact", style: _textTheme.title),
+      title: AutoSizeText(
+        "Questions for contact",
+        style: Theme.of(context).textTheme.title,
+      ),
       leading: Icon(Icons.info),
       children: <Widget>[
         RaisedButton.icon(
@@ -780,22 +759,14 @@ class WorkSpecializationExpansionList extends StatefulWidget {
 
 class _WorkSpecializationExpansionListState
     extends State<WorkSpecializationExpansionList> {
-  TextTheme _textTheme;
-
-  @override
-  void initState() {
-    super.initState();
-    _textTheme = Provider.of<ThemeProvider>(
-      context,
-      listen: false,
-    ).getTheme().textTheme;
-  }
-
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
       key: PageStorageKey<String>('WorkSpecializationList'),
-      title: AutoSizeText("Specializations", style: _textTheme.title),
+      title: AutoSizeText(
+        "Specializations",
+        style: Theme.of(context).textTheme.title,
+      ),
       leading: Icon(Icons.info),
       children: <Widget>[
         Consumer<EditProfileControllerProvider>(

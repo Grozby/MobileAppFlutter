@@ -6,4 +6,8 @@ class UserUIData {
   UserUIData({this.user});
 
   bool get isInitialized => false;
+
+  String get noUsersInExploreMessage => "";
+
+  String get frontCardButtonText => "";
 }

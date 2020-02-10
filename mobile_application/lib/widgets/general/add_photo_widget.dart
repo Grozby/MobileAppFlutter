@@ -108,9 +108,7 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Provider.of<ThemeProvider>(context)
-                    .getTheme()
-                    .primaryColorLight,
+                color: Theme.of(context).primaryColorLight,
               ),
               child: Icon(Icons.add, size: 20),
             ),
@@ -133,13 +131,6 @@ class BottomSheetSelection extends StatefulWidget {
 
 class _BottomSheetSelectionState extends State<BottomSheetSelection> {
   File selectedImage;
-  ThemeProvider themeProvider;
-
-  @override
-  void initState() {
-    super.initState();
-    themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-  }
 
   void deleteImage() {
     widget.setImage(null);
@@ -176,17 +167,17 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
             ListTile(
               title: Text(
                 'Choose photo',
-                style: themeProvider.getTheme().textTheme.display2,
+                style: Theme.of(context).textTheme.display2,
               ),
             ),
             ListTile(
               leading: Icon(
                 Icons.camera_alt,
-                color: themeProvider.getTheme().primaryColorLight,
+                color: Theme.of(context).primaryColorLight,
               ),
               title: Text(
                 'From camera',
-                style: themeProvider.getTheme().textTheme.title.copyWith(
+                style: Theme.of(context).textTheme.title.copyWith(
                       fontWeight: FontWeight.w400,
                     ),
               ),
@@ -195,11 +186,11 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
             ListTile(
               leading: Icon(
                 Icons.photo_library,
-                color: themeProvider.getTheme().primaryColorLight,
+                color: Theme.of(context).primaryColorLight,
               ),
               title: Text(
                 'From gallery',
-                style: themeProvider.getTheme().textTheme.title.copyWith(
+                style: Theme.of(context).textTheme.title.copyWith(
                       fontWeight: FontWeight.w400,
                     ),
               ),
@@ -212,7 +203,7 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
               ),
               title: Text(
                 'Delete',
-                style: themeProvider.getTheme().textTheme.title.copyWith(
+                style: Theme.of(context).textTheme.title.copyWith(
                       fontWeight: FontWeight.w400,
                     ),
               ),

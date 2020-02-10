@@ -209,9 +209,7 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   width: 2,
-                                  color: Provider.of<ThemeProvider>(context)
-                                      .getTheme()
-                                      .primaryColorLight,
+                                  color: Theme.of(context).primaryColorLight,
                                 ),
                               ),
                               child: CircularButton(
@@ -296,7 +294,6 @@ class UserImage extends StatelessWidget {
 
   UserImage({@required this.userPictureUrl});
 
-
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -337,8 +334,6 @@ class CardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme =
-        Provider.of<ThemeProvider>(context).getTheme().textTheme;
     return Container(
       width: width,
       padding: EdgeInsets.only(bottom: 12.0),
@@ -353,7 +348,7 @@ class CardContent extends StatelessWidget {
             Container(
               child: Text(
                 user.completeName,
-                style: textTheme.title,
+                style: Theme.of(context).textTheme.title,
               ),
             ),
             const SizedBox(height: 8),
@@ -361,13 +356,13 @@ class CardContent extends StatelessWidget {
               user.currentJob != null
                   ? user.currentJob.workingRole
                   : "Not working",
-              style: textTheme.overline,
+              style: Theme.of(context).textTheme.overline,
             ),
             AutoSizeText(
               user.currentJob != null ? "@ ${user.currentJob.at}" : "",
-              style: textTheme.overline.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.overline.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 16),
             ExpandableWidget(
@@ -377,7 +372,7 @@ class CardContent extends StatelessWidget {
                 alignment: Alignment.topCenter,
                 child: Text(
                   user.bio,
-                  style: textTheme.body1,
+                  style: Theme.of(context).textTheme.body1,
                 ),
               ),
             ),
@@ -424,8 +419,7 @@ class SpecializationSection extends StatelessWidget {
         Divider(),
         AutoSizeText(
           "Specializations",
-          style:
-              Provider.of<ThemeProvider>(context).getTheme().textTheme.overline,
+          style: Theme.of(context).textTheme.overline,
         ),
         FadedListView<String>(
           list: workingSpecialization,
@@ -470,8 +464,7 @@ class PastExperiencesSection extends StatelessWidget {
         Divider(),
         AutoSizeText(
           title,
-          style:
-              Provider.of<ThemeProvider>(context).getTheme().textTheme.overline,
+          style: Theme.of(context).textTheme.overline,
         ),
         const SizedBox(height: 8),
         Container(
@@ -499,9 +492,6 @@ class ExperienceElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme =
-        Provider.of<ThemeProvider>(context).getTheme().textTheme;
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
@@ -529,13 +519,14 @@ class ExperienceElement extends StatelessWidget {
                   children: <Widget>[
                     AutoSizeText(
                       experience.haveDone,
-                      style:
-                          textTheme.body1.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.body1.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                       maxLines: 2,
                     ),
                     AutoSizeText(
                       experience.at,
-                      style: textTheme.body1,
+                      style: Theme.of(context).textTheme.body1,
                       maxLines: 2,
                     ),
                   ],
@@ -545,14 +536,14 @@ class ExperienceElement extends StatelessWidget {
                   children: <Widget>[
                     AutoSizeText(
                       "From ${DateFormat.yMd().format(experience.fromDate)}",
-                      style: textTheme.body1,
+                      style: Theme.of(context).textTheme.body1,
                       maxLines: 1,
                     ),
                     AutoSizeText(
                       experience.toDate != null
                           ? "To ${DateFormat.yMd().format(experience.toDate)}"
                           : "Ongoing",
-                      style: textTheme.body1,
+                      style: Theme.of(context).textTheme.body1,
                       maxLines: 2,
                     ),
                   ],
@@ -573,9 +564,6 @@ class QuestionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme =
-        Provider.of<ThemeProvider>(context).getTheme().textTheme;
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -586,7 +574,7 @@ class QuestionSection extends StatelessWidget {
                     width: double.infinity,
                     child: Text(
                       question.question,
-                      style: textTheme.overline,
+                      style: Theme.of(context).textTheme.overline,
                       textAlign: TextAlign.left,
                     ),
                   ),
@@ -595,8 +583,10 @@ class QuestionSection extends StatelessWidget {
                     width: double.infinity,
                     child: Text(
                       question.answer,
-                      style:
-                          textTheme.body1.copyWith(fontWeight: FontWeight.w700),
+                      style: Theme.of(context)
+                          .textTheme
+                          .body1
+                          .copyWith(fontWeight: FontWeight.w700),
                       textAlign: TextAlign.right,
                     ),
                   ),

@@ -160,7 +160,7 @@ class UserDataProvider with ChangeNotifier {
   ///
   /// Database methods
   ///
-  void loadUserFromDB() async {
+  Future<void> loadUserFromDB() async {
     final database = await databaseProvider.getDatabase();
     var results = await database.query(DatabaseProvider.userTableName);
 
@@ -175,7 +175,7 @@ class UserDataProvider with ChangeNotifier {
               );
   }
 
-  void saveUserToDB() async {
+  Future<void> saveUserToDB() async {
     final database = await databaseProvider.getDatabase();
 
     await database.insert(

@@ -57,8 +57,7 @@ class _SingleChatScreenState extends State<SingleChatScreen> {
             end: Alignment.bottomCenter,
             stops: [0, 0.2],
             colors: [
-              Provider.of<ThemeProvider>(context)
-                  .getTheme()
+              Theme.of(context)
                   .primaryColor
                   .withOpacity(0.3),
               const Color(0xFFFFFF),

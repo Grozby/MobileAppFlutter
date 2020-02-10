@@ -8,4 +8,10 @@ class MenteeUIData extends UserUIData {
 
   @override
   bool get isInitialized => true;
+
+  @override
+  String get noUsersInExploreMessage => "There are no mentors to contact.";
+
+  @override
+  String get frontCardButtonText => "Contact now!";
 }

@@ -7,7 +7,6 @@ import 'package:scoped_model/scoped_model.dart';
 import '../../../models/utility/available_sizes.dart';
 import '../../../providers/chat/chat_provider.dart';
 import '../../../providers/explore/card_provider.dart';
-import '../../../providers/theming/theme_provider.dart';
 import '../../../providers/user/user_data_provider.dart';
 import '../../../screens/chat_screen.dart';
 import '../../../screens/user_profile_screen.dart';
@@ -18,8 +17,6 @@ import 'explore_card.dart';
 class InfoBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    ThemeData themeData = Provider.of<ThemeProvider>(context).getTheme();
-
     return LayoutBuilder(
       builder: (ctx, constraints) {
         return Container(
@@ -44,7 +41,7 @@ class InfoBarWidget extends StatelessWidget {
                 child: Center(
                   child: Text(
                     "Explore",
-                    style: themeData.textTheme.display3,
+                    style: Theme.of(context).textTheme.display3,
                   ),
                 ),
                 flex: 2,
@@ -73,11 +70,13 @@ class InfoBarWidget extends StatelessWidget {
                                     padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: themeData.primaryColor,
+                                      color: Theme.of(context).primaryColor,
                                     ),
                                     child: AutoSizeText(
                                       "${snapshot.data}",
-                                      style: themeData.textTheme.title
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .title
                                           .copyWith(color: Colors.white),
                                       maxLines: 1,
                                     ),
@@ -158,75 +157,85 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
               maxHeight: constraints.minHeight,
               maxWidth: constraints.maxWidth,
             ),
-            child: PageView.builder(
-              physics: const BouncingScrollPhysics(),
-              controller: pageController,
-              scrollDirection: Axis.horizontal,
-              itemCount: cardProvider.numberAvailableUsers,
-              itemBuilder: (context, index) => cardProvider.indexToRemove !=
-                      index
-                  ? AnimatedBuilder(
-                      animation: pageController,
-                      child: Container(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.minHeight,
-                        ),
-                        child: SingleChildScrollView(
-                          primary: true,
-                          physics: const ScrollPhysics(),
-                          child: ScopedModel<AvailableSizes>(
-                            model:
-                                AvailableSizes(height: constraints.minHeight),
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: ExploreCard(indexUser: index),
+            child: cardProvider.numberAvailableUsers != 0
+                ? PageView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    controller: pageController,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: cardProvider.numberAvailableUsers,
+                    itemBuilder: (context, index) => cardProvider
+                                .indexToRemove !=
+                            index
+                        ? AnimatedBuilder(
+                            animation: pageController,
+                            child: Container(
+                              constraints: BoxConstraints(
+                                minHeight: constraints.minHeight,
+                              ),
+                              child: SingleChildScrollView(
+                                primary: true,
+                                physics: const ScrollPhysics(),
+                                child: ScopedModel<AvailableSizes>(
+                                  model: AvailableSizes(
+                                      height: constraints.minHeight),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: ExploreCard(indexUser: index),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                      builder: (_, child) {
-                        double value = 1.0;
-                        if (pageController.position.haveDimensions) {
-                          value = pageController.page - index;
-                          value = (1 - (value.abs() * .4)).clamp(0.0, 1.0);
-                        }
+                            builder: (_, child) {
+                              double value = 1.0;
+                              if (pageController.position.haveDimensions) {
+                                value = pageController.page - index;
+                                value =
+                                    (1 - (value.abs() * .4)).clamp(0.0, 1.0);
+                              }
 
-                        return Transform.scale(
-                          alignment: index > currentIndex
-                              ? Alignment.centerLeft
-                              : (index < currentIndex
-                                  ? Alignment.centerRight
-                                  : Alignment.center),
-                          scale: Curves.easeOut.transform(value),
-                          child: child,
-                        );
-                      },
-                    )
-                  : RemovingExploreCardAnimated(
-                      controller: AnimationController(
-                        duration: const Duration(milliseconds: 800),
-                        vsync: this,
-                      )..forward(),
-                      removeElement: () => cardProvider.removeUser(),
-                      child: Container(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.minHeight,
-                        ),
-                        child: SingleChildScrollView(
-                          primary: false,
-                          physics: const ScrollPhysics(),
-                          child: ScopedModel<AvailableSizes>(
-                            model:
-                                AvailableSizes(height: constraints.minHeight),
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: ExploreCard(indexUser: index),
+                              return Transform.scale(
+                                alignment: index > currentIndex
+                                    ? Alignment.centerLeft
+                                    : (index < currentIndex
+                                        ? Alignment.centerRight
+                                        : Alignment.center),
+                                scale: Curves.easeOut.transform(value),
+                                child: child,
+                              );
+                            },
+                          )
+                        : RemovingExploreCardAnimated(
+                            controller: AnimationController(
+                              duration: const Duration(milliseconds: 800),
+                              vsync: this,
+                            )..forward(),
+                            removeElement: () => cardProvider.removeUser(),
+                            child: Container(
+                              constraints: BoxConstraints(
+                                minHeight: constraints.minHeight,
+                              ),
+                              child: SingleChildScrollView(
+                                primary: false,
+                                physics: const ScrollPhysics(),
+                                child: ScopedModel<AvailableSizes>(
+                                  model: AvailableSizes(
+                                      height: constraints.minHeight),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: ExploreCard(indexUser: index),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
+                  )
+                : Center(
+                    child: AutoSizeText(
+                      Provider.of<UserDataProvider>(context)
+                          .behavior
+                          .noUsersInExploreMessage,
                     ),
-            ),
+                  ),
           ),
         );
       },

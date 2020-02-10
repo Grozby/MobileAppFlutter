@@ -8,4 +8,10 @@ class MentorUIData extends UserUIData {
 
   @override
   bool get isInitialized => true;
+
+  @override
+  String get noUsersInExploreMessage => "There are no requests.";
+
+  @override
+  String get frontCardButtonText => "Check request!";
 }

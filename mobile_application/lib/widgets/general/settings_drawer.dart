@@ -45,17 +45,17 @@ class _SettingsDrawerState extends State<SettingsDrawer> {
               ListTile(
                 title: Text(
                   'Ryfy',
-                  style: themeProvider.getTheme().textTheme.display2,
+                  style: Theme.of(context).textTheme.display2,
                 ),
               ),
               ListTile(
                 leading: Icon(
                   Icons.brightness_6,
-                  color: themeProvider.getTheme().primaryColorLight,
+                  color: Theme.of(context).primaryColorLight,
                 ),
                 title: Text(
                   'Change theme',
-                  style: themeProvider.getTheme().textTheme.title.copyWith(
+                  style: Theme.of(context).textTheme.title.copyWith(
                         fontWeight: FontWeight.w400,
                       ),
                 ),
@@ -64,11 +64,11 @@ class _SettingsDrawerState extends State<SettingsDrawer> {
               ListTile(
                 leading: Icon(
                   Icons.exit_to_app,
-                  color: themeProvider.getTheme().primaryColorLight,
+                  color: Theme.of(context).primaryColorLight,
                 ),
                 title: Text(
                   'Logout',
-                  style: themeProvider.getTheme().textTheme.title.copyWith(
+                  style: Theme.of(context).textTheme.title.copyWith(
                         fontWeight: FontWeight.w400,
                       ),
                 ),

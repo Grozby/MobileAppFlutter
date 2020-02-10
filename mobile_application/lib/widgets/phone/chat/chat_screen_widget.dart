@@ -65,8 +65,7 @@ class InfoBarWidget extends StatelessWidget {
                     (!snapshot.hasData || !snapshot.data)
                         ? "Waiting for connection..."
                         : "Connected.",
-                    style: Provider.of<ThemeProvider>(context)
-                        .getTheme()
+                    style: Theme.of(context)
                         .textTheme
                         .display3,
                     maxLines: 1,
@@ -236,8 +235,6 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme =
-        Provider.of<ThemeProvider>(context).getTheme().textTheme;
     ChatProvider chatProvider = Provider.of<ChatProvider>(context);
 
     double maxWidth = ScopedModel.of<AvailableSizes>(context).width;
@@ -326,7 +323,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                   Container(
                                     child: AutoSizeText(
                                       chat.user.completeName,
-                                      style: textTheme.display1,
+                                      style: Theme.of(context).textTheme.display1,
                                       maxLines: 1,
                                     ),
                                   ),
@@ -335,8 +332,8 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                       (snapshot.hasData && snapshot.data)
                                           ? "Typing..."
                                           : getMessagePreview(),
-                                      style: textTheme.subhead,
-                                      minFontSize: textTheme.subhead.fontSize,
+                                      style: Theme.of(context).textTheme.subhead,
+                                      minFontSize: Theme.of(context).textTheme.subhead.fontSize,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -372,8 +369,8 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                           color: Colors.green,
                                         ),
                                         child: AutoSizeText(
-                                          "${unreadMessages}",
-                                          style: textTheme.subhead.copyWith(
+                                          "$unreadMessages",
+                                          style: Theme.of(context).textTheme.subhead.copyWith(
                                             fontSize: 14,
                                             color: Colors.white,
                                             fontWeight: FontWeight.w700,
