@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../../providers/theming/theme_provider.dart';
 import '../../providers/user/edit_profile_controller_provider.dart';
 import 'add_photo_widget.dart';
+import 'image_wrapper.dart';
 
 Image decode(File image) {
   return decodeImage(image.readAsBytesSync());
@@ -306,6 +307,7 @@ class _EditJobState extends State<EditJob> {
               height: 60,
               setImage: setImage,
               startingImage: widget.controller.institutionImage,
+              assetPath: AssetImages.work,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -396,11 +398,9 @@ class _EditEducationState extends State<EditEducation> {
         if (starting) {
           widget.controller.fromDateController.text =
               DateFormat.yMd().format(picked);
-          ;
         } else {
           widget.controller.toDateController.text =
               DateFormat.yMd().format(picked);
-          ;
         }
       });
     }
@@ -421,6 +421,7 @@ class _EditEducationState extends State<EditEducation> {
               height: 60,
               setImage: setImage,
               startingImage: widget.controller.institutionImage,
+              assetPath: AssetImages.education,
             ),
             const SizedBox(width: 8),
             Expanded(

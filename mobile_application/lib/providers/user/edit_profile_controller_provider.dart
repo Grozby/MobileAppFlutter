@@ -7,6 +7,7 @@ import '../../widgets/general/user_profile_edit_widgets.dart';
 class EditProfileControllerProvider extends ChangeNotifier {
   bool isMentor;
 
+  String profileImage;
   TextEditingController nameController;
   TextEditingController surnameController;
   TextEditingController bioController;
@@ -44,6 +45,7 @@ class EditProfileControllerProvider extends ChangeNotifier {
   Map<int, AcademicDegreeController> academicExperiences = {};
 
   EditProfileControllerProvider(User user) {
+    profileImage = user.pictureUrl;
     nameController = TextEditingController(text: user.name);
     surnameController = TextEditingController(text: user.surname);
     bioController = TextEditingController(text: user.bio);
@@ -177,6 +179,7 @@ class EditProfileControllerProvider extends ChangeNotifier {
     patchData["surname"] = surnameController.text;
     patchData["bio"] = bioController.text;
     patchData["location"] = locationController.text;
+    patchData["pictureUrl"] = profileImage;
 
     if (currentJobController.nameInstitution != "") {
       patchData["currentJob"] = getJobExperience(currentJobController);

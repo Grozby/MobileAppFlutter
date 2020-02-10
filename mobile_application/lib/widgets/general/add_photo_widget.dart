@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -7,18 +8,19 @@ import 'package:provider/provider.dart';
 
 import '../../providers/theming/theme_provider.dart';
 import '../../widgets/general/image_wrapper.dart';
-import '../../widgets/phone/explore/circular_button.dart';
 
 class AddPhotoWidget extends StatefulWidget {
   final double width, height;
   final void Function(File) setImage;
   final String startingImage;
+  final String assetPath;
 
   AddPhotoWidget({
     @required this.width,
     @required this.height,
     @required this.setImage,
     @required this.startingImage,
+    @required this.assetPath,
   });
 
   @override
@@ -59,37 +61,37 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        CircularButton(
-          height: widget.height,
-          width: widget.width,
-          alignment: Alignment.center,
-          assetPath: AssetImages.camera,
-          onPressFunction: showSelection,
-          reduceFactor: 1,
-        ),
-        if (image == null && widget.startingImage != null)
-          GestureDetector(
-            onTap: showSelection,
-            child: Container(
+    return GestureDetector(
+      onTap: showSelection,
+      child: Stack(
+        children: <Widget>[
+          Container(
+            height: widget.height,
+            width: widget.width,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(1000)),
+              child: ImageWrapper(
+                assetPath: widget.assetPath,
+                boxFit: BoxFit.cover,
+              ),
+            ),
+          ),
+          if (image == null)
+            Container(
               height: widget.height,
               width: widget.width,
               child: ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(40)),
+                borderRadius: const BorderRadius.all(Radius.circular(1000)),
                 child: ImageWrapper(
-                  assetPath: AssetImages.camera,
+                  assetPath: widget.assetPath,
                   boxFit: BoxFit.cover,
                   imageUrl: widget.startingImage,
                 ),
               ),
             ),
-          ),
-        if (image != null)
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(40)),
+          if (image != null)
+            ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(1000)),
               child: Image.file(
                 image,
                 height: widget.height,
@@ -97,8 +99,24 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
                 fit: BoxFit.cover,
               ),
             ),
+          Positioned(
+            top: widget.height * (2 / 3),
+            left: widget.width * (2 / 3),
+            child: Container(
+              height: widget.height / 3,
+              width: widget.width / 3,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Provider.of<ThemeProvider>(context)
+                    .getTheme()
+                    .primaryColorLight,
+              ),
+              child: Icon(Icons.add, size: 20),
+            ),
           )
-      ],
+        ],
+      ),
     );
   }
 }

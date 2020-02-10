@@ -296,6 +296,7 @@ class UserImage extends StatelessWidget {
 
   UserImage({@required this.userPictureUrl});
 
+
   @override
   Widget build(BuildContext context) {
     return Positioned(

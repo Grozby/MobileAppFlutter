@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart' hide Image;
+import 'package:image/image.dart';
 import 'package:provider/provider.dart';
+import 'package:ryfy/widgets/general/add_photo_widget.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../models/users/user.dart';
@@ -99,6 +103,16 @@ class UserProfileBuilderState extends State<UserProfileBuilder> {
     }
   }
 
+  void setImage(File image) async {
+    if (image != null) {
+      Image im = await decodeCompute(image);
+      Image thumbnail = copyResizeCropSquare(im, 250);
+      _controllerProvider.profileImage = await encodeCompute(thumbnail);
+    } else {
+      _controllerProvider.profileImage = null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
@@ -129,7 +143,16 @@ class UserProfileBuilderState extends State<UserProfileBuilder> {
                     width: constraints.maxWidth * 0.9,
                     formKey: _formKey,
                   ),
-                  UserImage(userPictureUrl: user.pictureUrl),
+                  Positioned(
+                    top: 40,
+                    child: AddPhotoWidget(
+                      width: 120,
+                      height: 120,
+                      setImage: setImage,
+                      startingImage: _controllerProvider.profileImage,
+                      assetPath: AssetImages.user,
+                    ),
+                  ),
                   saveButton ??= Positioned(
                     top: 120,
                     right: (constraints.maxWidth * 0.075) - 8 + 20,
