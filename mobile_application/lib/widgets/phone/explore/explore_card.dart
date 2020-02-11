@@ -707,7 +707,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
             children: <Widget>[
               Container(
                 alignment: Alignment.centerLeft,
-                child: Text(
+                child: AutoSizeText(
                   "${mentor.completeName} is asking you:",
                   style: Theme.of(context).textTheme.title,
                 ),
@@ -717,7 +717,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
                 alignment: Alignment.centerLeft,
                 child: Consumer<QuestionsProvider>(
                   builder: (ctx, questionProvider, child) {
-                    return Text(
+                    return AutoSizeText(
                       mentor
                           .getMentorQuestionAt(questionProvider.currentIndex)
                           .question,
@@ -798,7 +798,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
                 flex: 4,
                 child: Container(
                   alignment: Alignment.center,
-                  child: Text(
+                  child: AutoSizeText(
                     timeToShow(getQuestionTime()),
                     style: Theme.of(context).textTheme.display3.copyWith(
                           color: ThemeProvider.primaryColor,
@@ -898,7 +898,7 @@ class _TimeCounterState extends State<TimeCounter> {
     return Column(
       children: <Widget>[
         Container(
-          child: Text(
+          child: AutoSizeText(
             "Answer in:",
             style: Theme.of(context)
                 .textTheme
@@ -907,7 +907,7 @@ class _TimeCounterState extends State<TimeCounter> {
           ),
         ),
         Container(
-          child: Text(
+          child: AutoSizeText(
             startingCounter > 0
                 ? "$minutes:${seconds.toString().padLeft(2, '0')}"
                 : "Time's up!",
@@ -1043,6 +1043,8 @@ class __BackCardContentMenteeState extends State<_BackCardContentMentee>
 
   @override
   Widget build(BuildContext context) {
+    int answerCount = 0;
+
     return CardContainer(
       canExpand: false,
       onLongPress: () {},
@@ -1050,32 +1052,69 @@ class __BackCardContentMenteeState extends State<_BackCardContentMentee>
       child: Column(
         children: <Widget>[
           const _UserBasicInformation(isVertical: false),
-          const Divider(),
           ...getQuestionProvider(context)
               .answers
-              .map<Widget>((a) => Center(
-                    child: Text(a.question),
-                  ))
+              .map<Widget>(
+                (a) => ExpansionTile(
+                  title: AutoSizeText("Question ${answerCount + 1}"),
+                  children: <Widget>[
+                    const Divider(),
+                    Container(
+                      width: double.infinity,
+                      child: AutoSizeText.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "Question: ",
+                              style: Theme.of(context).textTheme.body1.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                            ),
+                            TextSpan(text: a.question),
+                          ],
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    if (a.textAnswer != null) const SizedBox(height: 8),
+                    if (a.textAnswer != null)
+                      Container(
+                        width: double.infinity,
+                        child: AutoSizeText.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Answer: ",
+                                style:
+                                    Theme.of(context).textTheme.body1.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                              ),
+                              TextSpan(text: a.textAnswer),
+                            ],
+                          ),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                    if (a.audioAnswer != null) const SizedBox(height: 8),
+                    if (a.audioAnswer != null)
+                      AudioFromBufferWidget(
+                        id: "${getQuestionProvider(context).userId}${answerCount++}",
+                        buffer: a.audioAnswer,
+                      ),
+                    if (a.audioAnswer == null && a.textAnswer == null)
+                      const SizedBox(height: 8),
+                    if (a.audioAnswer == null && a.textAnswer == null)
+                      Container(
+                        width: double.infinity,
+                        child: AutoSizeText("No answer given."),
+                      ),
+                    const SizedBox(height: 8)
+                  ],
+                ),
+              )
               .toList(),
           const SizedBox(height: 16),
-          Container(
-            child: ButtonStyled(
-              onPressFunction:
-                  Provider.of<_ExploreCardContentState>(context).rotateCard,
-              fractionalWidthDimension: 0.99,
-              text: "Refuse",
-            ),
-          ),
-          Container(
-            child: ButtonStyled(
-              onPressFunction: () => decideMenteeRequest(
-                context,
-                StatusRequest.accepted,
-              ),
-              fractionalWidthDimension: 0.99,
-              text: "Accept",
-            ),
-          ),
         ],
       ),
     );

@@ -127,7 +127,6 @@ class _AudioWidgetState extends State<AudioWidget>
     return fout.path;
   }
 
-
   void startRecorder() async {
     if (_isRecording) {
       return;
@@ -719,5 +718,249 @@ mixin CustomTrackShape {
     final double trackWidth = parentBox.size.width;
 
     return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
+  }
+}
+
+class AudioFromBufferWidget extends StatefulWidget {
+  final String buffer;
+  final String id;
+
+  AudioFromBufferWidget({this.buffer, this.id});
+
+  @override
+  _AudioFromBufferWidgetState createState() => _AudioFromBufferWidgetState();
+}
+
+class _AudioFromBufferWidgetState extends State<AudioFromBufferWidget>
+    with TimeConverter {
+  FlutterSound flutterSound;
+  FlutterFFprobe ffprobe;
+  String filePath;
+  bool _isPlaying = false;
+  double sliderCurrentPosition = 0.0;
+  int maxDuration;
+  StreamSubscription _playerSubscription;
+  List<double> dbPeakSamples;
+  Future<void> setPlayerFuture;
+
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+    return directory.path;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    flutterSound = FlutterSound()..setSubscriptionDuration(0.01);
+    ffprobe = FlutterFFprobe();
+    dbPeakSamples = [];
+    setPlayerFuture = setPlayer();
+  }
+
+  Future<void> setPlayer() async {
+    filePath = '${await _localPath}/${widget.id}.aac';
+    final File file = File(filePath);
+    file.writeAsBytesSync(widget.buffer.codeUnits);
+    maxDuration = await ffprobe
+        .getMediaInformation(filePath)
+        .then((info) => info["duration"].toInt());
+  }
+
+  @override
+  void dispose() {
+    if (flutterSound.audioState == t_AUDIO_STATE.IS_PAUSED) {
+      flutterSound.stopPlayer();
+    }
+
+    super.dispose();
+  }
+
+  ///
+  /// Playing
+  ///
+  Future<bool> fileExists(String path) async {
+    return await File(path).exists();
+  }
+
+  void playerStateCallback(PlayStatus playStatus) {
+    // The player is running
+    if (playStatus != null) {
+      sliderCurrentPosition = playStatus.currentPosition;
+      maxDuration = playStatus.duration.toInt();
+
+      setState(() {});
+    } else {
+      setState(() => _isPlaying = false);
+    }
+  }
+
+  void playerStreamsSubscription() {
+    _playerSubscription = flutterSound.onPlayerStateChanged.listen(
+      playerStateCallback,
+    );
+  }
+
+  void removePlayerStreams() {
+    _playerSubscription?.cancel();
+  }
+
+  Future<void> startPlayer({bool resetState}) async {
+    try {
+      if (await fileExists(filePath)) {
+        String path = await flutterSound.startPlayer(filePath);
+
+        if (path == null) {
+          print('Error starting player');
+          return;
+        }
+      }
+
+      await flutterSound.setVolume(1.0);
+      playerStreamsSubscription();
+
+      if (sliderCurrentPosition != maxDuration) {
+        await flutterSound.seekToPlayer(sliderCurrentPosition.toInt());
+      }
+
+      if (resetState) {
+        setState(() => _isPlaying = true);
+      }
+    } catch (err) {
+      print('error: $err');
+    }
+  }
+
+  Future<void> pausePlayer({bool resetState}) async {
+    try {
+      await flutterSound.pausePlayer();
+      removePlayerStreams();
+    } catch (err) {
+      print('error: $err');
+    }
+
+    if (resetState) {
+      setState(() => _isPlaying = false);
+    }
+  }
+
+  void seekToPlayer(int milliSecs) async {
+    await flutterSound.seekToPlayer(milliSecs);
+  }
+
+  String timeToShow() {
+    return flutterSound.audioState != t_AUDIO_STATE.IS_STOPPED ||
+            (sliderCurrentPosition != maxDuration && sliderCurrentPosition != 0)
+        ? "${timeToString(sliderCurrentPosition.toInt())}"
+            "/${timeToString(maxDuration)}"
+        : timeToString(maxDuration);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: setPlayerFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.waiting &&
+              !snapshot.hasError) {
+            return ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(24)),
+              child: Container(
+                color: Colors.white,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  color: ThemeProvider.primaryColor.withOpacity(0.25),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          transitionBuilder: (child, animation) =>
+                              ScaleTransition(
+                            child: child,
+                            scale: animation,
+                          ),
+                          child: _isPlaying
+                              ? Container(
+                                  key: ValueKey("PauseButtonPlayer"),
+                                  child: CircularButton(
+                                    assetPath: "ic_pause.png",
+                                    alignment: Alignment.center,
+                                    onPressFunction: () =>
+                                        pausePlayer(resetState: true),
+                                    height: 50,
+                                    width: 50,
+                                  ),
+                                )
+                              : Container(
+                                  key: ValueKey("PlayButtonPlayer"),
+                                  child: CircularButton(
+                                    assetPath: "ic_play.png",
+                                    alignment: Alignment.center,
+                                    onPressFunction: () =>
+                                        startPlayer(resetState: true),
+                                    height: 50,
+                                    width: 50,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Container(
+                              height: 30,
+                              child: SliderTheme(
+                                data: SliderThemeData(
+                                  activeTrackColor: ThemeProvider.primaryColor,
+                                  inactiveTrackColor:
+                                      Colors.grey.withOpacity(0.4),
+                                  trackShape: AudioTrackBarChart(dbPeakSamples),
+                                  trackHeight: 30,
+                                  thumbColor: Colors.transparent,
+                                ),
+                                child: Slider(
+                                  value: sliderCurrentPosition,
+                                  max: maxDuration.toDouble(),
+                                  onChangeStart: (newValue) async {
+                                    if (_isPlaying) {
+                                      await pausePlayer(resetState: false);
+                                    }
+                                  },
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      sliderCurrentPosition = newValue;
+                                    });
+                                  },
+                                  onChangeEnd: (newValue) async {
+                                    if (_isPlaying) {
+                                      await flutterSound.seekToPlayer(
+                                          sliderCurrentPosition.toInt());
+                                      await startPlayer(resetState: false);
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(timeToShow()),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          } else {
+            return Container();
+          }
+        });
   }
 }
