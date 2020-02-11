@@ -288,8 +288,10 @@ class _SingleChatContentWidgetState extends State<SingleChatContentWidget> {
               Container(
                 width: double.infinity,
                 child: ImageWrapper(
-                  assetPath:
-                      Provider.of<ThemeProvider>(context).backgroundImage,
+                  assetPath: Provider.of<ThemeProvider>(
+                    context,
+                    listen: false,
+                  ).backgroundImage,
                   boxFit: BoxFit.cover,
                 ),
               ),
@@ -381,7 +383,7 @@ class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
     final messagePainter = TextPainter(
       text: TextSpan(
         text: widget.message.content,
-        style: Theme.of(context).textTheme.body2,
+        style: themeProvider.getTheme().textTheme.body2,
       ),
       textDirection: TextDirection.ltr,
     )..layout(
@@ -394,7 +396,7 @@ class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
     final hourPainter = TextPainter(
       text: TextSpan(
         text: timeToStringHours(widget.message.createdAt),
-        style: Theme.of(context).textTheme.overline.copyWith(
+        style: themeProvider.getTheme().textTheme.overline.copyWith(
               fontSize: 13,
               height: 0,
               fontWeight: FontWeight.w400,
@@ -416,6 +418,7 @@ class _MessageTileState extends State<MessageTile> with ChatTimeConverter {
   void didUpdateWidget(MessageTile oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.message.createdAt != widget.message.createdAt) {
+      themeProvider = Provider.of<ThemeProvider>(context, listen: false);
       initialize();
     }
   }
