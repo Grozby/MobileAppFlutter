@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:ryfy/models/chat/contact_mentor.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../../../models/users/experiences/past_experience.dart';
@@ -155,9 +156,7 @@ class _ExploreCardContentState extends State<ExploreCardContent>
             isShowing: isShowing,
           );
         },
-        child: _isFrontCardShowing
-            ? widget.frontCard
-            : widget.backCard,
+        child: _isFrontCardShowing ? widget.frontCard : widget.backCard,
       ),
     );
   }
@@ -230,7 +229,7 @@ class _FrontCardContentState extends State<_FrontCardContent> with GetUser {
             children: <Widget>[
               const _CompanyInformationBar(),
               const Divider(),
-              _MentorBasicInformation(
+              _UserBasicInformation(
                 isVertical: true,
                 onImageMentorLongPress: () => goToProfilePage(context),
               ),
@@ -364,11 +363,11 @@ class _CompanyInformationBar extends StatelessWidget with GetUser {
 /// Widget that shows the profile picture of the mentor, together with
 /// its name and working position.
 ///
-class _MentorBasicInformation extends StatelessWidget {
+class _UserBasicInformation extends StatelessWidget {
   final bool isVertical;
   final Function onImageMentorLongPress;
 
-  const _MentorBasicInformation({
+  const _UserBasicInformation({
     @required this.isVertical,
     this.onImageMentorLongPress,
   });
@@ -379,7 +378,7 @@ class _MentorBasicInformation extends StatelessWidget {
         ? Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              _MentorBasicInformationAvatar(
+              _BasicInformationAvatar(
                 onImageMentorLongPress: onImageMentorLongPress,
               ),
               const SizedBox(height: 4),
@@ -391,7 +390,7 @@ class _MentorBasicInformation extends StatelessWidget {
         : Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              _MentorBasicInformationAvatar(
+              _BasicInformationAvatar(
                 onImageMentorLongPress: onImageMentorLongPress,
               ),
               const _MentorBasicInformationText(
@@ -402,10 +401,10 @@ class _MentorBasicInformation extends StatelessWidget {
   }
 }
 
-class _MentorBasicInformationAvatar extends StatelessWidget with GetUser {
+class _BasicInformationAvatar extends StatelessWidget with GetUser {
   final Function onImageMentorLongPress;
 
-  _MentorBasicInformationAvatar({@required this.onImageMentorLongPress});
+  _BasicInformationAvatar({@required this.onImageMentorLongPress});
 
   @override
   Widget build(BuildContext context) {
@@ -775,7 +774,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
         /// overview.
         : Column(
             children: <Widget>[
-              const _MentorBasicInformation(
+              const _UserBasicInformation(
                 isVertical: false,
               ),
               const SizedBox(height: 16),
@@ -944,8 +943,10 @@ class _ContactMentorState extends State<ContactMentor> with GetMentor {
   void sendRequestToMentor(BuildContext context) async {
     //TODO complete exception
     try {
-      await Provider.of<CardProvider>(context, listen: false)
-          .sendRequestToMentor(
+      await Provider.of<CardProvider>(
+        context,
+        listen: false,
+      ).sendRequestToMentor(
         Provider.of<QuestionsProvider>(context, listen: false),
         messageController.text,
       );
@@ -960,7 +961,7 @@ class _ContactMentorState extends State<ContactMentor> with GetMentor {
 
     return Column(
       children: <Widget>[
-        const _MentorBasicInformation(isVertical: false),
+        const _UserBasicInformation(isVertical: false),
         const SizedBox(height: 16),
         Expanded(
           child: Container(
@@ -1014,6 +1015,24 @@ class __BackCardContentMenteeState extends State<_BackCardContentMentee>
     with GetUser {
   Color color;
 
+  void decideMenteeRequest(
+    BuildContext context,
+    StatusRequest statusRequest,
+  ) async {
+    //TODO complete exception
+    try {
+      await Provider.of<CardProvider>(
+        context,
+        listen: false,
+      ).decideMenteeRequest(
+        Provider.of<QuestionsProvider>(context, listen: false),
+        statusRequest,
+      );
+    } on Exception catch (_) {
+      showErrorDialog(context, "Something went wrong!");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -1028,7 +1047,7 @@ class __BackCardContentMenteeState extends State<_BackCardContentMentee>
       startingColor: color,
       child: Column(
         children: <Widget>[
-          const _CompanyInformationBar(),
+          const _UserBasicInformation(isVertical: false),
           const Divider(),
           ...getQuestionProvider(context)
               .answers
@@ -1036,6 +1055,25 @@ class __BackCardContentMenteeState extends State<_BackCardContentMentee>
                     child: Text(a.question),
                   ))
               .toList(),
+          const SizedBox(height: 16),
+          Container(
+            child: ButtonStyled(
+              onPressFunction:
+                  Provider.of<_ExploreCardContentState>(context).rotateCard,
+              fractionalWidthDimension: 0.99,
+              text: "Refuse",
+            ),
+          ),
+          Container(
+            child: ButtonStyled(
+              onPressFunction: () => decideMenteeRequest(
+                context,
+                StatusRequest.accepted,
+              ),
+              fractionalWidthDimension: 0.99,
+              text: "Accept",
+            ),
+          ),
         ],
       ),
     );

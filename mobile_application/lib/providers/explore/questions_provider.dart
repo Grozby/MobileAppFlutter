@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ryfy/models/chat/contact_mentor.dart';
 
 import '../../models/users/answer.dart';
 
@@ -23,16 +24,16 @@ String getAudioFile(String filePath) {
 class QuestionsProvider with ChangeNotifier {
   int numberOfQuestions;
   int currentIndex;
-  final String mentorId;
-  List<Answer> answers;
+  final String userId;
+  ContactMentor contactMentor;
   bool noMoreQuestions = false;
 
   QuestionsProvider({
-    @required this.mentorId,
+    @required this.userId,
     @required this.numberOfQuestions,
   }) : assert(numberOfQuestions != null) {
     currentIndex = 0;
-    answers = [];
+    contactMentor = ContactMentor()..answers = [];
 
     if (numberOfQuestions == 0) {
       noMoreQuestions = true;
@@ -40,16 +41,18 @@ class QuestionsProvider with ChangeNotifier {
   }
 
   QuestionsProvider.initialized({
-    @required this.mentorId,
-    @required this.answers,
+    @required this.userId,
+    @required this.contactMentor,
   });
+
+  List<Answer> get answers => contactMentor.answers;
 
   void insertAnswer({
     String question,
     String textAnswer,
     String audioFilePath,
   }) async {
-    answers.add(Answer(
+    contactMentor.answers.add(Answer(
       question: question,
       textAnswer: textAnswer,
       audioAnswer: audioFilePath != null
@@ -67,7 +70,7 @@ class QuestionsProvider with ChangeNotifier {
   }
 
   String getAudioFilePath() {
-    return "sound${mentorId}_$currentIndex.aac";
+    return "sound${userId}_$currentIndex.aac";
   }
 
   @override

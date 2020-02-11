@@ -48,6 +48,7 @@ class ChatNotifier {
 
   void dispose() {
     _typingNotifier.close();
+    _onlineStatusNotifier.close();
   }
 }
 
@@ -71,7 +72,7 @@ class ChatProvider with ChangeNotifier {
 
   StreamController<String> _errorNotifier;
   StreamController<bool> _connectionNotifier;
-  StreamController<bool> _updateScreenNotifier = BehaviorSubject();
+  StreamController<bool> _updateScreenNotifier;
 
   /// Used for notify a general update in the stored [contacts].
   BehaviorSubject<bool> _updateContactsNotifier;
@@ -104,8 +105,8 @@ class ChatProvider with ChangeNotifier {
       _mapChatNotifierStreams[chatId].onlineStatusStream;
 
   void _clearTypingMapStreams() {
-    _mapChatNotifierStreams.forEach((_, t) => t.dispose());
-    _mapChatNotifierStreams.clear();
+    _mapChatNotifierStreams?.forEach((_, t) => t.dispose());
+    _mapChatNotifierStreams?.clear();
   }
 
   Future<void> initializeChatProvider({String authToken}) async {
@@ -118,6 +119,7 @@ class ChatProvider with ChangeNotifier {
       _updateContactsNotifier = BehaviorSubject();
       _errorNotifier = StreamController.broadcast();
       _mapChatNotifierStreams = HashMap();
+      _updateScreenNotifier = BehaviorSubject();
       contacts = await loadContactMentorsFromDB();
 
       try {
@@ -414,7 +416,7 @@ class ChatProvider with ChangeNotifier {
 
     return results.isEmpty
         ? []
-        : Future.wait(results.map<Future<ContactMentor>>(
+        : (await Future.wait(results.map<Future<ContactMentor>>(
             (map) async {
               var c = ContactMentor.fromJson(jsonDecode(map["json"]));
               debugPrint("DB - Loading CM: ${c.id}");
@@ -436,7 +438,8 @@ class ChatProvider with ChangeNotifier {
               _mapChatNotifierStreams[c.id] = ChatNotifier();
               return c;
             },
-          ).toList());
+          ).toList()))
+            .toList(growable: true);
   }
 
   Future<void> saveNewContactMentorInDB(ContactMentor c) async {
@@ -491,16 +494,24 @@ class ChatProvider with ChangeNotifier {
 
   @override
   void dispose() {
-    _connectionNotifier.close();
-    _updateContactsNotifier.close();
-    _errorNotifier.close();
-    _updateScreenNotifier.close();
-    _numberUnreadMessagesNotifier.close();
+    _connectionNotifier?.close();
+    _updateContactsNotifier?.close();
+    _errorNotifier?.close();
+    _updateScreenNotifier?.close();
+    _numberUnreadMessagesNotifier?.close();
     timeoutTypingNotification?.cancel();
+    fcmToken = null;
 
-    socket.clearListeners();
-    socket.close();
-    socket.destroy();
+    authToken = null;
+    userId = null;
+    isConnected = false;
+    isInitialized = false;
+    contacts = [];
+    currentActiveChatId = null;
+
+    socket?.clearListeners();
+    socket?.close();
+    socket?.destroy();
 
     super.dispose();
   }

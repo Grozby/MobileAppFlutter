@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+import 'package:ryfy/providers/explore/questions_provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../../../models/utility/available_sizes.dart';
@@ -209,7 +210,9 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                               duration: const Duration(milliseconds: 800),
                               vsync: this,
                             )..forward(),
-                            removeElement: () => cardProvider.removeUser(),
+                            removeElement: () => cardProvider.removeUser(
+                              Provider.of<QuestionsProvider>(context).userId,
+                            ),
                             child: Container(
                               constraints: BoxConstraints(
                                 minHeight: constraints.minHeight,

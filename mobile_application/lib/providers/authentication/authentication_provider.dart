@@ -24,7 +24,9 @@ class AuthenticationProvider with ChangeNotifier {
   final Dio _httpManager;
   HttpRequestWrapper httpRequestWrapper;
   DatabaseProvider databaseProvider;
+  bool isLogged = false;
   bool wasLogged = false;
+  String fcmToken;
 
   set token(String token) => _authenticationMode.token = token;
 
@@ -86,6 +88,7 @@ class AuthenticationProvider with ChangeNotifier {
         this,
       );
       _authenticationMode.token = loginData["token"] as String;
+      isLogged = true;
       wasLogged = false;
     }
   }
@@ -99,6 +102,7 @@ class AuthenticationProvider with ChangeNotifier {
     };
 
     await storedData.setString("loginData", json.encode(loginData));
+    isLogged = true;
     wasLogged = false;
   }
 
@@ -114,7 +118,7 @@ class AuthenticationProvider with ChangeNotifier {
         this,
       );
       await databaseProvider.deleteContent();
-
+      isLogged = false;
       notifyListeners();
     }
   }
@@ -124,7 +128,7 @@ class AuthenticationProvider with ChangeNotifier {
       return false;
     }
 
-    final bool isLogged = await httpRequestWrapper.request<bool>(
+    isLogged = await httpRequestWrapper.request<bool>(
       url: "/auth/checkauth",
       correctStatusCode: 200,
       onCorrectStatusCode: (_) async => true,
@@ -239,12 +243,8 @@ class AuthenticationProvider with ChangeNotifier {
 
   Future<void> logout() async {
     await removeAuthenticationData();
-    _authenticationMode = AuthenticationMode.getAuthenticationMode(
-      'credentials',
-      _httpManager,
-      this,
-    );
     wasLogged = false;
+
     notifyListeners();
   }
 }

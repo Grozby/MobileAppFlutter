@@ -19,11 +19,9 @@ class _SettingsDrawerState extends State<SettingsDrawer> {
   }
 
   void logout() async {
-    await Provider.of<AuthenticationProvider>(context, listen: false).logout();
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      Navigator.defaultRouteName,
-      ModalRoute.withName(""),
-    );
+    Provider.of<AuthenticationProvider>(context, listen: false).logout();
+    Navigator.of(context).popUntil(ModalRoute.withName('/'));
+
   }
 
   void switchTheme() async {

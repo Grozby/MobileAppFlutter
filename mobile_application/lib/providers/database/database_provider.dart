@@ -30,16 +30,16 @@ class DatabaseProvider with ChangeNotifier {
           print("On bois");
         },
         onCreate: (database, version) async {
-          await database.execute("""CREATE TABLE ${contactsTableName}(
+          await database.execute("""CREATE TABLE $contactsTableName(
             id TEXT PRIMARY KEY,
             json TEXT
           )""");
-          await database.execute("""CREATE TABLE ${messagesTableName}(
+          await database.execute("""CREATE TABLE $messagesTableName(
             id TEXT PRIMARY KEY,
             contact_id TEXT,
             json TEXT,
             date INTEGER)""");
-          await database.execute("""CREATE TABLE ${userTableName}(
+          await database.execute("""CREATE TABLE $userTableName(
             id TEXT PRIMARY KEY,
             kind TEXT,
             json TEXT
@@ -48,7 +48,7 @@ class DatabaseProvider with ChangeNotifier {
       );
     }
 
-    return await _database;
+    return _database;
   }
 
   Future<void> deleteContent() async {
@@ -57,5 +57,5 @@ class DatabaseProvider with ChangeNotifier {
     await _database.delete("$userTableName");
   }
 
-  Future close() async => (await _database).close();
+  Future close() async => _database.close();
 }

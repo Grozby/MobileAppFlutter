@@ -45,6 +45,9 @@ class ContactMentor {
           runtimeType == other.runtimeType &&
           id == other.id;
 
+  @override
+  int get hashCode => id.hashCode;
+
   int unreadMessages(String userId) =>
       messages.where((m) => m.userId != userId && !m.isRead).length;
 

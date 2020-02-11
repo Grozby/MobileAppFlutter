@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:ryfy/models/chat/contact_mentor.dart';
 
 import '../../helpers/http_request_wrapper.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
@@ -25,7 +26,7 @@ class CardProvider with ChangeNotifier {
   final HttpRequestWrapper httpRequestWrapper;
 
   int indexToRemove = -1;
-  String idToRemove;
+
   Timer removalElementPostAnimation;
 
   CardProvider(this.httpRequestWrapper);
@@ -33,6 +34,8 @@ class CardProvider with ChangeNotifier {
   String get exploreUrl => "/users/explore";
 
   String get sendRequestUrl => "/users/sendrequest";
+
+  String get decideRequest => "/users/deciderequest";
 
   int get numberAvailableUsers => users.length;
 
@@ -71,16 +74,14 @@ class CardProvider with ChangeNotifier {
         case "Mentee":
           toAdd = Mentee.fromJson(user);
           qProvider = QuestionsProvider.initialized(
-            mentorId: toAdd.id,
-            answers: user["contactInformation"]["answers"]
-                .map<Answer>((a) => Answer.fromJson(a))
-                .toList(),
+            userId: toAdd.id,
+            contactMentor: ContactMentor.fromJson(user["contactInformation"]),
           );
           break;
         case "Mentor":
           toAdd = Mentor.fromJson(user);
           qProvider = QuestionsProvider(
-            mentorId: toAdd.id,
+            userId: toAdd.id,
             numberOfQuestions: toAdd.howManyQuestionsToAnswer,
           );
           break;
@@ -108,46 +109,62 @@ class CardProvider with ChangeNotifier {
     QuestionsProvider provider,
     String message,
   ) async {
-    indexToRemove = users.indexWhere((e) => e.user.id == provider.mentorId);
-    idToRemove = provider.mentorId;
-    removalElementPostAnimation = Timer(
-      Duration(seconds: 10),
-      () => removeUser(),
-    );
+    await httpRequestWrapper.request<dynamic>(
+        url: "$sendRequestUrl/${provider.userId}",
+        typeHttpRequest: TypeHttpRequest.post,
+        postBody: {
+          "startingMessage": message,
+          "answers": provider.answers.map((a) => a.toJson()).toList(),
+        },
+        correctStatusCode: 200,
+        onCorrectStatusCode: (response) async {
+          notifyListeners();
 
-    notifyListeners();
-
-//    await httpRequestWrapper.request<dynamic>(
-//        url: "$sendRequestUrl/${provider.mentorId}",
-//        typeHttpRequest: TypeHttpRequest.post,
-//        postBody: {
-//          "startingMessage": message,
-//          "answers": provider.answers.map((a) => a.toJson()).toList(),
-//        },
-//        correctStatusCode: 200,
-//        onCorrectStatusCode: (response) async {
-//          indexToRemove =
-//              users.indexWhere((e) => e.user.id == provider.mentorId);
-//          notifyListeners();
-//
-//          removalElementPostAnimation = Timer(Duration(seconds: 1), () {
-//            removeUser(indexToRemove);
-//          });
-//        },
-//        onIncorrectStatusCode: (_) {
-//          throw SomethingWentWrongException.message(
-//            "Couldn't send the request. Try again later.",
-//          );
-//        });
+          indexToRemove = users.indexWhere((e) => e.user.id == provider.userId);
+          removalElementPostAnimation = Timer(
+            Duration(seconds: 1),
+            () => removeUser(provider.userId),
+          );
+        },
+        onIncorrectStatusCode: (_) {
+          throw SomethingWentWrongException.message(
+            "Couldn't send the request. Try again later.",
+          );
+        });
   }
 
-  void removeUser() {
+  Future<void> decideMenteeRequest(
+    QuestionsProvider provider,
+    StatusRequest statusRequest,
+  ) async {
+    await httpRequestWrapper.request<dynamic>(
+        url: "$decideRequest/${provider.contactMentor.id}",
+        typeHttpRequest: TypeHttpRequest.post,
+        postBody: {
+          "status": describeEnum(statusRequest),
+        },
+        correctStatusCode: 200,
+        onCorrectStatusCode: (response) async {
+          notifyListeners();
+
+          indexToRemove = users.indexWhere((e) => e.user.id == provider.userId);
+          removalElementPostAnimation = Timer(
+            Duration(seconds: 1),
+            () => removeUser(provider.userId),
+          );
+        },
+        onIncorrectStatusCode: (_) {
+          throw SomethingWentWrongException.message(
+            "Couldn't send the request. Try again later.",
+          );
+        });
+  }
+
+  void removeUser(String id) {
     print("removed!");
     removalElementPostAnimation.cancel();
-    users.removeWhere((e) => e.user.id == idToRemove);
-
     indexToRemove = -1;
-    idToRemove = "";
+    users.removeWhere((e) => e.user.id == id);
     notifyListeners();
   }
 }

@@ -24,11 +24,15 @@ class SettingsScreen extends StatelessWidget {
             Center(
               child: RaisedButton(
                 onPressed: () async {
-                  await Provider.of<AuthenticationProvider>(context).logout();
-                  Navigator.of(context).pushNamedAndRemoveUntil(
+                  await Provider.of<AuthenticationProvider>(
+                    context,
+                    listen: false,
+                  ).logout();
+                  await Navigator.of(context).pushNamedAndRemoveUntil(
                     Navigator.defaultRouteName,
                     ModalRoute.withName(""),
                   );
+
                 },
                 child: const Text('Logout'),
               ),

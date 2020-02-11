@@ -68,34 +68,25 @@ void main() async {
   ///
   /// Initialization providers
   ///
-  var databaseProvider = await DatabaseProvider()
-    ..getDatabase();
+  var databaseProvider = DatabaseProvider();
+  await databaseProvider.getDatabase();
   var notificationProvider = NotificationProvider();
   await notificationProvider.initialize();
+
   var themeProvider = ThemeProvider();
   await themeProvider.loadThemePreference();
   var authenticationProvider = AuthenticationProvider(
     _httpManager,
     databaseProvider: databaseProvider,
   )..loadAuthentication();
-  var userDataProvider = UserDataProvider(
-    httpRequestWrapper: authenticationProvider.httpRequestWrapper,
-    databaseProvider: databaseProvider,
-  );
-  var cardProvider = CardProvider(authenticationProvider.httpRequestWrapper);
-  var chatProvider = ChatProvider(
-    httpRequestWrapper: authenticationProvider.httpRequestWrapper,
-    databaseProvider: databaseProvider,
-    fcmToken: await notificationProvider.fcmToken,
-  );
+
+  authenticationProvider.fcmToken = await notificationProvider.fcmToken;
 
   runApp(
     MyApp(
       themeProvider: themeProvider,
       authenticationProvider: authenticationProvider,
-      userDataProvider: userDataProvider,
-      cardProvider: cardProvider,
-      chatProvider: chatProvider,
+      databaseProvider: databaseProvider,
     ),
   );
 }
@@ -103,16 +94,12 @@ void main() async {
 class MyApp extends StatefulWidget {
   final ThemeProvider themeProvider;
   final AuthenticationProvider authenticationProvider;
-  final UserDataProvider userDataProvider;
-  final CardProvider cardProvider;
-  final ChatProvider chatProvider;
+  final DatabaseProvider databaseProvider;
 
   MyApp({
     @required this.themeProvider,
     @required this.authenticationProvider,
-    @required this.userDataProvider,
-    @required this.cardProvider,
-    @required this.chatProvider,
+    @required this.databaseProvider,
   });
 
   @override
@@ -131,13 +118,7 @@ class _MyAppState extends State<MyApp> {
           value: widget.themeProvider,
         ),
         ChangeNotifierProvider.value(
-          value: widget.userDataProvider,
-        ),
-        ChangeNotifierProvider.value(
-          value: widget.cardProvider,
-        ),
-        ChangeNotifierProvider.value(
-          value: widget.chatProvider,
+          value: widget.databaseProvider,
         ),
       ],
       child: ThemedMaterialApp(),
