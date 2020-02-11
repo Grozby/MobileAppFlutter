@@ -764,6 +764,49 @@ class _AudioFromBufferWidgetState extends State<AudioFromBufferWidget>
     maxDuration = await ffprobe
         .getMediaInformation(filePath)
         .then((info) => info["duration"].toInt());
+
+    final FlutterFFmpegConfig _flutterFFmpegConfig = new FlutterFFmpegConfig();
+    final String identifier = "lavfi.astats.Overall.RMS_level=";
+    void logCallback(int level, String message) {
+      if (message.contains(identifier)) {
+        final String textValue =
+            message.substring(message.indexOf(identifier) + identifier.length);
+        if (textValue == "-inf") {
+          dbPeakSamples.add(0.0);
+        } else {
+          dbPeakSamples.add(120 + double.parse(textValue));
+        }
+      }
+    }
+
+    _flutterFFmpegConfig.enableLogCallback(logCallback);
+
+    var ffmpeg = FlutterFFmpeg();
+    await ffmpeg.execute(
+      "-i $filePath -af astats=metadata=1:length=0.1:reset=1,ametadata=print:key=lavfi.astats.Overall.RMS_level -f null -",
+    );
+
+    final double cap = 40;
+    List<double> results = [];
+    final int averageLength = (dbPeakSamples.length / cap).ceil();
+
+    for (int i = 0; i < dbPeakSamples.length; i += averageLength) {
+      if (averageLength - i == 1) {
+        results.add(dbPeakSamples
+            .getRange(
+          i,
+          (i + averageLength) <= dbPeakSamples.length
+              ? (i + averageLength)
+              : averageLength,
+        )
+            .reduce((x1, x2) => x1 + x2) /
+            averageLength);
+      } else {
+        results.add(dbPeakSamples[i]);
+      }
+    }
+
+    dbPeakSamples = results;
   }
 
   @override
