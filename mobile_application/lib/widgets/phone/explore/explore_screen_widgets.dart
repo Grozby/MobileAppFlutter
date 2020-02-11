@@ -181,7 +181,12 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                                       height: constraints.minHeight),
                                   child: Padding(
                                     padding: const EdgeInsets.only(bottom: 8),
-                                    child: ExploreCard(indexUser: index),
+                                    child: ExploreCard(
+                                      indexUser: index,
+                                      key: ValueKey(
+                                        cardProvider.getUser(index).id,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -207,11 +212,14 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                           )
                         : RemovingExploreCardAnimated(
                             controller: AnimationController(
-                              duration: const Duration(milliseconds: 800),
+                              duration: const Duration(milliseconds: 500),
                               vsync: this,
                             )..forward(),
                             removeElement: () => cardProvider.removeUser(
-                              Provider.of<QuestionsProvider>(context).userId,
+                              Provider.of<QuestionsProvider>(
+                                context,
+                                listen: false,
+                              ).userId,
                             ),
                             child: Container(
                               constraints: BoxConstraints(
@@ -225,7 +233,12 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                                       height: constraints.minHeight),
                                   child: Padding(
                                     padding: const EdgeInsets.only(bottom: 8),
-                                    child: ExploreCard(indexUser: index),
+                                    child: ExploreCard(
+                                      indexUser: index,
+                                      key: ValueKey(
+                                        cardProvider.getUser(index).id,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -249,7 +262,6 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
 class RemovingExploreCardAnimated extends StatelessWidget {
   final AnimationController controller;
   final Animation<Offset> slideTransition;
-  final Animation<double> widthTransition;
   final void Function() removeElement;
   final Widget child;
 
@@ -260,7 +272,7 @@ class RemovingExploreCardAnimated extends StatelessWidget {
     @required this.removeElement,
   })  : slideTransition = Tween<Offset>(
           begin: Offset.zero,
-          end: const Offset(0.0, -1.0),
+          end: const Offset(0.0, -1.1),
         ).animate(
           CurvedAnimation(
             parent: controller,
@@ -271,12 +283,6 @@ class RemovingExploreCardAnimated extends StatelessWidget {
               removeElement();
             }
           }),
-        widthTransition = Tween<double>(begin: 200, end: 0).animate(
-          CurvedAnimation(
-            parent: controller,
-            curve: Interval(0.5, 1.0, curve: Curves.linear),
-          ),
-        ),
         super(key: key);
 
   @override

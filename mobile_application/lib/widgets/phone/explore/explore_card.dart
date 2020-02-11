@@ -26,33 +26,41 @@ import '../../transition/rotation_transition_upgraded.dart';
 import 'card_container.dart';
 import 'circular_button.dart';
 
-class ExploreCard extends StatelessWidget {
+class ExploreCard extends StatefulWidget {
   final int indexUser;
 
-  const ExploreCard({@required this.indexUser});
+  ExploreCard({@required this.indexUser, Key key}) : super(key: key);
+
+  @override
+  _ExploreCardState createState() => _ExploreCardState();
+}
+
+class _ExploreCardState extends State<ExploreCard>
+    with AutomaticKeepAliveClientMixin<ExploreCard> {
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
-    CardProvider cardProvider = Provider.of<CardProvider>(
-      context,
-      listen: false,
-    );
+    super.build(context);
+
+    CardProvider cardProvider = Provider.of<CardProvider>(context);
 
     /// The [ScopedModel][IndexUser] is used for determining which user
     /// we are referring to.
     /// The [ShouldCollapseProvider] instead is used for aesthetic purposes.
     /// When we turn the card, we close all the already expanded sections.
-    switch (cardProvider.getUser(indexUser).runtimeType) {
+    switch (cardProvider.getUser(widget.indexUser).runtimeType) {
       case Mentee:
         return ScopedModel<IndexUser>(
-          model: IndexUser(indexUser),
+          model: IndexUser(widget.indexUser),
           child: MultiProvider(
             providers: [
               ChangeNotifierProvider(
                 create: (_) => ShouldCollapseProvider(),
               ),
               ChangeNotifierProvider.value(
-                value: cardProvider.getQuestionProvider(indexUser),
+                value: cardProvider.getQuestionProvider(widget.indexUser),
               ),
             ],
             child: ExploreCardContent(
@@ -64,14 +72,14 @@ class ExploreCard extends StatelessWidget {
 
       case Mentor:
         return ScopedModel<IndexUser>(
-          model: IndexUser(indexUser),
+          model: IndexUser(widget.indexUser),
           child: MultiProvider(
             providers: [
               ChangeNotifierProvider(
                 create: (_) => ShouldCollapseProvider(),
               ),
               ChangeNotifierProvider.value(
-                value: cardProvider.getQuestionProvider(indexUser),
+                value: cardProvider.getQuestionProvider(widget.indexUser),
               ),
             ],
             child: ExploreCardContent(
@@ -113,8 +121,7 @@ class ExploreCardContent extends StatefulWidget {
   _ExploreCardContentState createState() => _ExploreCardContentState();
 }
 
-class _ExploreCardContentState extends State<ExploreCardContent>
-    with AutomaticKeepAliveClientMixin<ExploreCardContent> {
+class _ExploreCardContentState extends State<ExploreCardContent> {
   bool _isFrontCardShowing;
 
   @override
@@ -142,7 +149,6 @@ class _ExploreCardContentState extends State<ExploreCardContent>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Provider.value(
       value: this,
       child: AnimatedSwitcher(
@@ -160,9 +166,6 @@ class _ExploreCardContentState extends State<ExploreCardContent>
       ),
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }
 
 /// //////////////////////////////////////////////////////
@@ -919,7 +922,6 @@ class _TimeCounterState extends State<TimeCounter> {
   }
 }
 
-///
 ///
 /// Widget in which the mentee can write the message for the mentor.
 /// This widget will be the one that will send the request to the server.
