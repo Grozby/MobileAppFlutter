@@ -152,66 +152,62 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(16),
-            topLeft: Radius.circular(16),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(16),
+          topLeft: Radius.circular(16),
+        ),
+      ),
+      child: Wrap(
+        children: <Widget>[
+          ListTile(
+            title: Text(
+              'Choose photo',
+              style: Theme.of(context).textTheme.display2,
+            ),
           ),
-        ),
-        height: constraints.maxHeight * (2 / 3),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              title: Text(
-                'Choose photo',
-                style: Theme.of(context).textTheme.display2,
+          ListTile(
+            leading: Icon(
+              Icons.camera_alt,
+              color: Theme.of(context).primaryColorLight,
+            ),
+            title: Text(
+              'From camera',
+              style: Theme.of(context).textTheme.title.copyWith(
+                fontWeight: FontWeight.w400,
               ),
             ),
-            ListTile(
-              leading: Icon(
-                Icons.camera_alt,
-                color: Theme.of(context).primaryColorLight,
-              ),
-              title: Text(
-                'From camera',
-                style: Theme.of(context).textTheme.title.copyWith(
-                      fontWeight: FontWeight.w400,
-                    ),
-              ),
-              onTap: pickImageFromCamera,
+            onTap: pickImageFromCamera,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.photo_library,
+              color: Theme.of(context).primaryColorLight,
             ),
-            ListTile(
-              leading: Icon(
-                Icons.photo_library,
-                color: Theme.of(context).primaryColorLight,
+            title: Text(
+              'From gallery',
+              style: Theme.of(context).textTheme.title.copyWith(
+                fontWeight: FontWeight.w400,
               ),
-              title: Text(
-                'From gallery',
-                style: Theme.of(context).textTheme.title.copyWith(
-                      fontWeight: FontWeight.w400,
-                    ),
-              ),
-              onTap: pickImageFromGallery,
             ),
-            ListTile(
-              leading: Icon(
-                Icons.delete,
-                color: Colors.red,
+            onTap: pickImageFromGallery,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
+            title: Text(
+              'Delete',
+              style: Theme.of(context).textTheme.title.copyWith(
+                fontWeight: FontWeight.w400,
               ),
-              title: Text(
-                'Delete',
-                style: Theme.of(context).textTheme.title.copyWith(
-                      fontWeight: FontWeight.w400,
-                    ),
-              ),
-              onTap: deleteImage,
-            )
-          ],
-        ),
-      );
-    });
+            ),
+            onTap: deleteImage,
+          )
+        ],
+      ),
+    );
   }
 }

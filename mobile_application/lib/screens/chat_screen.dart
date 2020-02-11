@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/chat/chat_provider.dart';
+import '../widgets/general/settings_drawer.dart';
 import '../widgets/phone/chat/chat_screen_widget.dart' as phone;
 
 class ChatListScreen extends StatefulWidget {
@@ -20,6 +21,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
     var isSmartPhone = mediaQuery.size.shortestSide < 600;
 
     return Scaffold(
+      drawerEdgeDragWidth: 0,
+      endDrawer: SettingsDrawer(),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (ctx, constraints) {
