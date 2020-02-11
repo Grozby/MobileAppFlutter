@@ -323,7 +323,9 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                   Container(
                                     child: AutoSizeText(
                                       chat.user.completeName,
-                                      style: Theme.of(context).textTheme.display1,
+                                      style: Theme.of(context).textTheme.display1.copyWith(
+                                        color: Provider.of<ThemeProvider>(context).getTheme().textTheme.body1.color,
+                                      ),
                                       maxLines: 1,
                                     ),
                                   ),

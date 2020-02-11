@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 import '../../providers/theming/theme_provider.dart';
@@ -42,7 +43,7 @@ class _LoadingAnimatedState extends State<LoadingAnimated>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: gradientPosition,
-      child: Text(
+      child: AutoSizeText(
         "RyFy",
         style: Theme.of(context).textTheme.display2.copyWith(
               color: Colors.white,

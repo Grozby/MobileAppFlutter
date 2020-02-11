@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class ButtonStyled extends StatelessWidget {
@@ -21,7 +22,7 @@ class ButtonStyled extends StatelessWidget {
         widthFactor: fractionalWidthDimension,
         child: RaisedButton(
           color: color,
-          child: Text(text),
+          child: AutoSizeText(text),
           onPressed: onPressFunction,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius),

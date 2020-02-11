@@ -436,7 +436,7 @@ class _MentorBasicInformationText extends StatelessWidget with GetUser {
       children: <Widget>[
         Container(
           alignment: alignment,
-          child: Text(
+          child: AutoSizeText(
             user.completeName,
             style: Theme.of(context).textTheme.title,
           ),

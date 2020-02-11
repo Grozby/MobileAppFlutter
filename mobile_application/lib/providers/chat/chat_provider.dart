@@ -158,6 +158,12 @@ class ChatProvider with ChangeNotifier {
               ContactMentor newC = ContactMentor.fromJson(json);
               if (contacts.contains(newC)) {
                 var contactIndex = contacts.indexOf(newC);
+
+                if (contacts[contactIndex].status != newC.status) {
+                  contacts[contactIndex].status = newC.status;
+                  updateContactMentorInDB(newC);
+                }
+
                 var messagesToAdd = newC.messages
                     .where((m) => !contacts[contactIndex].messages.contains(m))
                     .toList();
@@ -470,6 +476,21 @@ class ChatProvider with ChangeNotifier {
     }
 
     await batch.commit(noResult: true);
+  }
+
+  Future<void> updateContactMentorInDB(ContactMentor c) async {
+    debugPrint("DB - Update CM: ${c.id}");
+    final database = await databaseProvider.getDatabase();
+
+    database.update(
+      DatabaseProvider.contactsTableName,
+      {
+        "id": c.id,
+        "json": jsonEncode(ContactMentor.cloneWithoutMessages(c).toJson()),
+      },
+      where: 'id = ?',
+      whereArgs: [c.id],
+    );
   }
 
   Future<void> saveMessagesToDb(List<Message> messages, String chatId) async {
