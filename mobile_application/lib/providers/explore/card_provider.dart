@@ -1,7 +1,11 @@
 import 'dart:async';
 
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:ryfy/models/chat/contact_mentor.dart';
+import 'package:ryfy/providers/theming/theme_provider.dart';
 
 import '../../helpers/http_request_wrapper.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
@@ -109,7 +113,6 @@ class CardProvider with ChangeNotifier {
     QuestionsProvider provider,
     String message,
   ) async {
-
     await httpRequestWrapper.request<dynamic>(
         url: "$sendRequestUrl/${provider.userId}",
         typeHttpRequest: TypeHttpRequest.post,
@@ -123,7 +126,7 @@ class CardProvider with ChangeNotifier {
 
           indexToRemove = users.indexWhere((e) => e.user.id == provider.userId);
           removalElementPostAnimation = Timer(
-            Duration(seconds: 1),
+            Duration(seconds: 2),
             () => removeUser(provider.userId),
           );
         },
@@ -150,7 +153,7 @@ class CardProvider with ChangeNotifier {
 
           indexToRemove = users.indexWhere((e) => e.user.id == provider.userId);
           removalElementPostAnimation = Timer(
-            Duration(seconds: 1),
+            Duration(seconds: 2),
             () => removeUser(provider.userId),
           );
         },
@@ -161,11 +164,28 @@ class CardProvider with ChangeNotifier {
         });
   }
 
-  void removeUser(String id) {
+  void removeUser(String id, {BuildContext context}) {
     print("removed!");
     removalElementPostAnimation.cancel();
     indexToRemove = -1;
     users.removeWhere((e) => e.user.id == id);
+    if (context != null) {
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: AutoSizeText(
+            "Request send succesfully!",
+            style: Theme.of(context).textTheme.body1,
+          ),
+          backgroundColor: Theme.of(context).primaryColorLight,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(16),
+              topLeft: Radius.circular(16),
+            ),
+          ),
+        ),
+      );
+    }
     notifyListeners();
   }
 }

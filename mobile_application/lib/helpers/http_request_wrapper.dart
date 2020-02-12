@@ -37,7 +37,7 @@ class HttpRequestWrapper {
 
   String getWhatConnectionError(DioError error) {
     if (error.type == DioErrorType.DEFAULT &&
-        error.error.osError?.message == "Network is unreachable") {
+        error?.error?.osError?.message == "Network is unreachable") {
       return "Activate the internet connection to connect to RyFy.";
     } else {
       return "Couldn't connect with the RyFy server. Try again later.";

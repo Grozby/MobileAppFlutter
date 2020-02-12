@@ -15,7 +15,6 @@ import '../screens/homepage_screen.dart';
 import '../screens/initialization_screen.dart';
 import '../screens/landing_screen.dart';
 import '../screens/login_screen.dart';
-import '../screens/settings_screen.dart';
 import '../screens/sign_up_screens/sign_up_choice_screen.dart';
 import '../screens/sign_up_screens/sign_up_screen.dart';
 import '../screens/single_chat_screen.dart';
@@ -152,7 +151,6 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
             LandingScreen.routeName: (_) => LandingScreen(),
             LoginScreen.routeName: (_) => LoginScreen(),
             HomepageScreen.routeName: (_) => HomepageScreen(),
-            SettingsScreen.routeName: (_) => SettingsScreen(),
             SignUpChoiceScreen.routeName: (_) => SignUpChoiceScreen(),
             SignUpScreen.routeName: (_) => SignUpScreen(),
             UserProfileScreen.routeName: (ctx) => UserProfileScreen(

@@ -56,15 +56,6 @@ void main() async {
   (_httpManager.transformer as DefaultTransformer).jsonDecodeCallback =
       parseJson;
 
-  var securityContext = SecurityContext.defaultContext;
-  var bytes = utf8.encode(
-    await rootBundle.loadString("assets/trustedCertificate/certificate.crt"),
-  );
-  securityContext.setTrustedCertificatesBytes(bytes);
-
-  (_httpManager.httpClientAdapter as DefaultHttpClientAdapter)
-      .onHttpClientCreate = (client) => HttpClient(context: securityContext);
-
   ///
   /// Initialization providers
   ///
@@ -78,7 +69,8 @@ void main() async {
   var authenticationProvider = AuthenticationProvider(
     _httpManager,
     databaseProvider: databaseProvider,
-  )..loadAuthentication();
+  );
+  await authenticationProvider.loadAuthentication();
 
   authenticationProvider.fcmToken = await notificationProvider.fcmToken;
 

@@ -10,7 +10,6 @@ import '../../../models/chat/contact_mentor.dart';
 import '../../../models/utility/available_sizes.dart';
 import '../../../providers/chat/chat_provider.dart';
 import '../../../providers/theming/theme_provider.dart';
-import '../../../screens/settings_screen.dart';
 import '../../../screens/single_chat_screen.dart';
 import '../../../widgets/general/image_wrapper.dart';
 import '../../../widgets/phone/explore/circular_button.dart';
@@ -65,9 +64,7 @@ class InfoBarWidget extends StatelessWidget {
                     (!snapshot.hasData || !snapshot.data)
                         ? "Waiting for connection..."
                         : "Connected.",
-                    style: Theme.of(context)
-                        .textTheme
-                        .display3,
+                    style: Theme.of(context).textTheme.display3,
                     maxLines: 1,
                   ),
                 );
@@ -93,7 +90,7 @@ class InfoBarWidget extends StatelessWidget {
   }
 
   void goToSettingPage(BuildContext context) {
-    Navigator.of(context).pushNamed(SettingsScreen.routeName);
+    Scaffold.of(context).openEndDrawer();
   }
 }
 
@@ -323,9 +320,17 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                   Container(
                                     child: AutoSizeText(
                                       chat.user.completeName,
-                                      style: Theme.of(context).textTheme.display1.copyWith(
-                                        color: Provider.of<ThemeProvider>(context).getTheme().textTheme.body1.color,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .display1
+                                          .copyWith(
+                                            color: Provider.of<ThemeProvider>(
+                                                    context)
+                                                .getTheme()
+                                                .textTheme
+                                                .body1
+                                                .color,
+                                          ),
                                       maxLines: 1,
                                     ),
                                   ),
@@ -334,8 +339,12 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                       (snapshot.hasData && snapshot.data)
                                           ? "Typing..."
                                           : getMessagePreview(),
-                                      style: Theme.of(context).textTheme.subhead,
-                                      minFontSize: Theme.of(context).textTheme.subhead.fontSize,
+                                      style:
+                                          Theme.of(context).textTheme.subhead,
+                                      minFontSize: Theme.of(context)
+                                          .textTheme
+                                          .subhead
+                                          .fontSize,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -372,11 +381,14 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                         ),
                                         child: AutoSizeText(
                                           "$unreadMessages",
-                                          style: Theme.of(context).textTheme.subhead.copyWith(
-                                            fontSize: 14,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w700,
-                                          ),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .subhead
+                                              .copyWith(
+                                                fontSize: 14,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                           maxLines: 1,
                                         ),
                                       )

@@ -216,10 +216,8 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                               vsync: this,
                             )..forward(),
                             removeElement: () => cardProvider.removeUser(
-                              Provider.of<QuestionsProvider>(
-                                context,
-                                listen: false,
-                              ).userId,
+                              cardProvider.getUser(index).id,
+                              context: context,
                             ),
                             child: Container(
                               constraints: BoxConstraints(
