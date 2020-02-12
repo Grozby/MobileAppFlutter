@@ -33,10 +33,12 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
   ThemeProvider currentTheme;
   AuthenticationProvider authenticationProvider;
   DatabaseProvider databaseProvider;
+  Future authenticationFuture;
 
   @override
   void initState() {
     super.initState();
+
   }
 
   @override
@@ -48,6 +50,8 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
       currentTheme = Provider.of<ThemeProvider>(context);
       authenticationProvider = Provider.of<AuthenticationProvider>(context);
       databaseProvider = Provider.of<DatabaseProvider>(context);
+
+      authenticationFuture = authenticationProvider.checkAuthentication();
     }
   }
 
@@ -91,7 +95,7 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
           theme: currentTheme.getTheme(),
           debugShowCheckedModeBanner: false,
           home: FutureBuilder(
-            future: authenticationProvider.checkAuthentication(),
+            future: authenticationFuture,
             builder: (ctx, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
