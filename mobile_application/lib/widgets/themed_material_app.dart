@@ -45,14 +45,15 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final isLogged = Provider.of<AuthenticationProvider>(context).isLogged;
+
     if (authenticationProvider == null ||
         isLogged != authenticationProvider.isLogged) {
       currentTheme = Provider.of<ThemeProvider>(context);
       authenticationProvider = Provider.of<AuthenticationProvider>(context);
       databaseProvider = Provider.of<DatabaseProvider>(context);
-
-      authenticationFuture = authenticationProvider.checkAuthentication();
     }
+
+    authenticationFuture = authenticationProvider.checkAuthentication();
   }
 
   @override
