@@ -148,6 +148,8 @@ class ChatProvider with ChangeNotifier {
     try {
       _updateContactsNotifier.sink.add(false);
 
+      List<String> retrievedIds = [];
+
       await httpRequestWrapper.request<void>(
           url: getContactsUrl,
           correctStatusCode: 200,
@@ -156,6 +158,8 @@ class ChatProvider with ChangeNotifier {
               /// If the mentor is already present, we update its messages
               /// Otherwise, we simply add the mentor
               ContactMentor newC = ContactMentor.fromJson(json);
+              retrievedIds.add(newC.id);
+
               if (contacts.contains(newC)) {
                 var contactIndex = contacts.indexOf(newC);
 
@@ -186,6 +190,11 @@ class ChatProvider with ChangeNotifier {
               "Couldn't load the messages. Try again later.",
             );
           });
+
+      contacts.where((c) => !retrievedIds.contains(c.id)).forEach((c) {
+        deleteContactMentorInDB(c.id);
+        contacts.remove(c);
+      });
 
       /// Notify the UI of unread messages
       _numberUnreadMessagesNotifier.sink.add(
@@ -474,6 +483,27 @@ class ChatProvider with ChangeNotifier {
         conflictAlgorithm: ConflictAlgorithm.fail,
       );
     }
+
+    await batch.commit(noResult: true);
+  }
+
+  Future<void> deleteContactMentorInDB(String cId) async {
+    debugPrint("DB - deleting CM: ${cId}");
+    final database = await databaseProvider.getDatabase();
+
+    var batch = database.batch();
+
+    batch.delete(
+      DatabaseProvider.messagesTableName,
+      where: '"contact_id" = ?',
+      whereArgs: [cId],
+    );
+
+    batch.delete(
+      DatabaseProvider.contactsTableName,
+      where: '"id" = ?',
+      whereArgs: [cId],
+    );
 
     await batch.commit(noResult: true);
   }
