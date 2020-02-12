@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -10,14 +8,11 @@ import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
+import 'providers/authentication/authentication_provider.dart';
+import 'providers/configuration.dart';
 import 'providers/database/database_provider.dart';
 import 'providers/notification/notification_provider.dart';
-import 'providers/authentication/authentication_provider.dart';
-import 'providers/chat/chat_provider.dart';
-import 'providers/configuration.dart';
-import 'providers/explore/card_provider.dart';
 import 'providers/theming/theme_provider.dart';
-import 'providers/user/user_data_provider.dart';
 import 'widgets/themed_material_app.dart';
 
 ///
@@ -79,6 +74,7 @@ void main() async {
       themeProvider: themeProvider,
       authenticationProvider: authenticationProvider,
       databaseProvider: databaseProvider,
+      notificationProvider: notificationProvider,
     ),
   );
 }
@@ -87,11 +83,13 @@ class MyApp extends StatefulWidget {
   final ThemeProvider themeProvider;
   final AuthenticationProvider authenticationProvider;
   final DatabaseProvider databaseProvider;
+  final NotificationProvider notificationProvider;
 
   MyApp({
     @required this.themeProvider,
     @required this.authenticationProvider,
     @required this.databaseProvider,
+    @required this.notificationProvider,
   });
 
   @override
@@ -111,6 +109,9 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider.value(
           value: widget.databaseProvider,
+        ),
+        ChangeNotifierProvider.value(
+          value: widget.notificationProvider,
         ),
       ],
       child: ThemedMaterialApp(),

@@ -36,12 +36,6 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
   Future authenticationFuture;
 
   @override
-  void initState() {
-    super.initState();
-
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final isLogged = Provider.of<AuthenticationProvider>(context).isLogged;

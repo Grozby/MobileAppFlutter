@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:ryfy/providers/notification/notification_provider.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -84,6 +85,8 @@ class ChatProvider with ChangeNotifier {
   /// of new messages and typing notification
   Map<String, ChatNotifier> _mapChatNotifierStreams;
 
+  StreamSubscription pushNotificationListener;
+
   ChatProvider({
     @required this.httpRequestWrapper,
     @required this.databaseProvider,
@@ -109,7 +112,10 @@ class ChatProvider with ChangeNotifier {
     _mapChatNotifierStreams?.clear();
   }
 
-  Future<void> initializeChatProvider({String authToken}) async {
+  Future<void> initializeChatProvider({
+    String authToken,
+    Stream<ReceivedNotification> pushNotificationStream,
+  }) async {
     if (!isInitialized) {
       isInitialized = true;
       this.authToken = authToken;
@@ -120,6 +126,8 @@ class ChatProvider with ChangeNotifier {
       _errorNotifier = StreamController.broadcast();
       _mapChatNotifierStreams = HashMap();
       _updateScreenNotifier = BehaviorSubject();
+      pushNotificationListener =
+          pushNotificationStream.listen(pushNotificationManager);
       contacts = await loadContactMentorsFromDB();
 
       try {
@@ -138,15 +146,17 @@ class ChatProvider with ChangeNotifier {
         await fetchChatContacts();
 
         _initializeSocket();
-      } on SomethingWentWrongException catch (e) {
+      } on SomethingWentWrongException catch (_) {
         isInitialized = false;
       }
     }
   }
 
-  Future<void> fetchChatContacts() async {
+  Future<void> fetchChatContacts({bool loadingAnimationUi: true}) async {
     try {
-      _updateContactsNotifier.sink.add(false);
+      if (loadingAnimationUi) {
+        _updateContactsNotifier.sink.add(false);
+      }
 
       List<String> retrievedIds = [];
 
@@ -191,7 +201,9 @@ class ChatProvider with ChangeNotifier {
             );
           });
 
-      contacts.where((c) => !retrievedIds.contains(c.id)).forEach((c) {
+      List<ContactMentor> toRemove =
+          contacts.where((c) => !retrievedIds.contains(c.id)).toList();
+      toRemove.forEach((c) {
         deleteContactMentorInDB(c.id);
         contacts.remove(c);
       });
@@ -220,7 +232,8 @@ class ChatProvider with ChangeNotifier {
             ContactMentor newC = ContactMentor.fromJson(json.data);
             var contactIndex = contacts.indexOf(newC);
             var messagesToAdd = newC.messages
-                .where((m) => !contacts[contactIndex].messages.contains(m));
+                .where((m) => !contacts[contactIndex].messages.contains(m))
+                .toList();
 
             if (messagesToAdd.isNotEmpty) {
               messagesToAdd.forEach(
@@ -240,6 +253,12 @@ class ChatProvider with ChangeNotifier {
     } on SomethingWentWrongException catch (e) {
       _updateContactsNotifier.sink.addError(e);
       print(e);
+    }
+  }
+
+  void pushNotificationManager(ReceivedNotification notification) {
+    if(notification.payload["ryfy_action"] == "UPDATE"){
+      fetchChatContacts(loadingAnimationUi: false);
     }
   }
 
@@ -371,6 +390,10 @@ class ChatProvider with ChangeNotifier {
               : StatusRequest.refused);
       _updateContactsNotifier.sink.add(true);
     });
+
+    addSocketListener('new_contact_request', (data) {
+      fetchChatContacts(loadingAnimationUi: false);
+    });
   }
 
   void connectionStatus({bool status}) {
@@ -488,7 +511,7 @@ class ChatProvider with ChangeNotifier {
   }
 
   Future<void> deleteContactMentorInDB(String cId) async {
-    debugPrint("DB - deleting CM: ${cId}");
+    debugPrint("DB - deleting CM: $cId");
     final database = await databaseProvider.getDatabase();
 
     var batch = database.batch();
@@ -559,6 +582,8 @@ class ChatProvider with ChangeNotifier {
     isInitialized = false;
     contacts = [];
     currentActiveChatId = null;
+
+    _clearTypingMapStreams();
 
     socket?.clearListeners();
     socket?.close();

@@ -1,24 +1,19 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:ryfy/providers/configuration.dart';
 
 class ReceivedNotification {
   final int id;
-  final String title;
-  final String body;
-  final String payload;
+  final dynamic payload;
 
   ReceivedNotification({
     @required this.id,
-    @required this.title,
-    @required this.body,
     @required this.payload,
   });
 }
@@ -42,9 +37,8 @@ class NotificationProvider with ChangeNotifier {
         notificationController.add(
           ReceivedNotification(
             id: id,
-            title: title,
-            body: body,
             payload: payload,
+
           ),
         );
       },
@@ -62,6 +56,8 @@ class NotificationProvider with ChangeNotifier {
     if (callback != null) callback();
   }
 
+
+
   Future<void> initialize() async {
     await initializeLocalNotification();
 
@@ -72,6 +68,13 @@ class NotificationProvider with ChangeNotifier {
     firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         print("onMessage: $message");
+        notificationController.add(
+          ReceivedNotification(
+            id: message["id"],
+            payload: message["data"],
+          ),
+        );
+        _showNotificationMediaStyle(message["data"]);
       },
       onBackgroundMessage: myBackgroundMessageHandler,
       onLaunch: (Map<String, dynamic> message) async {
@@ -90,15 +93,8 @@ class NotificationProvider with ChangeNotifier {
     Map<String, dynamic> message,
   ) async {
     if (message.containsKey('data')) {
-      print("hereee");
       await initializeLocalNotification();
       _showNotificationMediaStyle(message['data']);
-    }
-
-    if (message.containsKey('notification')) {
-      // Handle notification message
-      final dynamic notification = message['notification'];
-      await initializeLocalNotification();
     }
 
     return Future<void>.value();
@@ -107,14 +103,20 @@ class NotificationProvider with ChangeNotifier {
   Future<String> get fcmToken async => await firebaseMessaging.getToken();
 
   static Future<String> _downloadAndSaveImage(
-      String url, String fileName) async {
+    String url,
+    String fileName,
+  ) async {
     var directory = await getApplicationDocumentsDirectory();
     var filePath = '${directory.path}/$fileName';
     HttpClient httpClient = HttpClient()
       ..badCertificateCallback =
-      ((X509Certificate cert, String host, int port) => true);
+          ((X509Certificate cert, String host, int port) => true);
     IOClient ioClient = IOClient(httpClient);
-    var response = await ioClient.get(url);
+
+    String actualUrl =
+        url.startsWith('assets') ? "${Configuration.serverUrl}/$url" : url;
+
+    var response = await ioClient.get(actualUrl);
     ioClient.close();
     var file = File(filePath);
     await file.writeAsBytes(response.bodyBytes);
@@ -143,7 +145,11 @@ class NotificationProvider with ChangeNotifier {
     var platformChannelSpecifics =
         NotificationDetails(androidPlatformChannelSpecifics, null);
     await localNotification.show(
-        0, 'inbox title', 'inbox body', platformChannelSpecifics);
+      0,
+      'inbox title',
+      'inbox body',
+      platformChannelSpecifics,
+    );
   }
 
   static Future<void> _showNotificationMediaStyle(dynamic payload) async {
@@ -158,6 +164,8 @@ class NotificationProvider with ChangeNotifier {
       largeIcon: largeIconPath,
       largeIconBitmapSource: BitmapSource.FilePath,
       style: AndroidNotificationStyle.Media,
+      priority: Priority.Max,
+      importance: Importance.Max,
     );
     var platformChannelSpecifics = NotificationDetails(
       androidPlatformChannelSpecifics,

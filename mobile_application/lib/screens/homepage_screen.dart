@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:ryfy/providers/notification/notification_provider.dart';
 
 import '../helpers/overglow_less_scroll_behavior.dart';
 import '../models/exceptions/no_internet_exception.dart';
@@ -127,6 +128,8 @@ class _HomepageWidgetState extends State<HomepageWidget>
       Provider.of<CardProvider>(context, listen: false).loadCardProvider(),
       Provider.of<ChatProvider>(context, listen: false).initializeChatProvider(
         authToken: auth.token,
+        pushNotificationStream:
+            NotificationProvider.notificationController.stream,
       )
     ]).catchError((err) {
       /// There may two ways this future can fail. One is provoked by
