@@ -148,7 +148,7 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
 
         User user = widget.arguments != null
             ? snapshot.data as User
-            : Provider.of<UserDataProvider>(context).user;
+            : Provider.of<UserDataProvider>(context, listen: false).user;
 
         if (snapshot.hasError && !isWaiting && user == null) {
           widget.refreshCompleted();

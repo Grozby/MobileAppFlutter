@@ -44,8 +44,10 @@ class CardProvider with ChangeNotifier {
   int get numberAvailableUsers => users.length;
 
   User getUser(int index) {
-    assert(index >= 0 && index < users.length);
-    return users[index].user;
+    if(index >= 0 && index < users.length){
+      return users[index].user;
+    }
+    return null;
   }
 
   QuestionsProvider getQuestionProvider(int index) {

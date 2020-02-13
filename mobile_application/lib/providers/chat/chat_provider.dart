@@ -99,7 +99,7 @@ class ChatProvider with ChangeNotifier {
 
   Stream get connectionNotifierStream => _connectionNotifier.stream;
 
-  Stream get numberUnreadMessagesStream => _numberUnreadMessagesNotifier.stream;
+  Stream get numberUnreadMessagesStream => _numberUnreadMessagesNotifier?.stream;
 
   Stream getTypingNotificationStream(String chatId) =>
       _mapChatNotifierStreams[chatId].typingStream;
@@ -178,13 +178,14 @@ class ChatProvider with ChangeNotifier {
                   updateContactMentorInDB(newC);
                 }
 
+                ///Add messages is any new
                 var messagesToAdd = newC.messages
                     .where((m) => !contacts[contactIndex].messages.contains(m))
                     .toList();
 
                 if (messagesToAdd.isNotEmpty) {
                   messagesToAdd.forEach(
-                    (m) => contacts[contactIndex].messages.insert(0, m),
+                    (Message m) => contacts[contactIndex].messages.insert(0, m),
                   );
                   await saveMessagesToDb(messagesToAdd, newC.id);
                 }
@@ -241,6 +242,19 @@ class ChatProvider with ChangeNotifier {
               );
               await saveMessagesToDb(messagesToAdd, newC.id);
             }
+
+            ///Remove messages if not present anymore
+            var messagesToRemove = contacts[contactIndex]
+                .messages
+                .where((m) => !newC.messages.contains(m))
+                .toList();
+
+            if (messagesToRemove.isNotEmpty) {
+              messagesToRemove.forEach(
+                (m) => contacts[contactIndex].messages.remove(m),
+              );
+              await removeMessagesToDb(messagesToRemove, newC.id);
+            }
             return;
           },
           onIncorrectStatusCode: (_) {
@@ -257,17 +271,28 @@ class ChatProvider with ChangeNotifier {
   }
 
   void pushNotificationManager(ReceivedNotification notification) {
-    if(notification.payload["ryfy_action"] == "UPDATE"){
-      fetchChatContacts(loadingAnimationUi: false);
+    if (notification.payload["userId"] != userId) {
+      return;
     }
+
+    if (notification.payload["ryfy_action"] == "UPDATE") {
+      fetchChatContacts(loadingAnimationUi: false);
+      return;
+    }
+    if (notification.payload["ryfy_action"] == "MESSAGE" &&
+        notification.payload["chat_id"] == currentActiveChatId) {
+      return;
+    }
+
+    NotificationProvider.showNotificationMediaStyle(notification.payload);
   }
 
   void addSocketListener(String event, void Function(dynamic) callback,
       {forceBind: false}) {
     if (!socket.hasListeners(event) || forceBind) {
-      print("Correctly added Event: $event");
+      debugPrint("Correctly added Event: $event");
       socket.on(event, (data) {
-        print("Event: $event");
+        debugPrint("Event: $event");
         callback(data);
       });
     }
@@ -370,6 +395,7 @@ class ChatProvider with ChangeNotifier {
         }),
       );
       if (userId != data["userId"]) {
+        debugPrint("Here?");
         timeoutTypingNotification.cancel();
         _mapChatNotifierStreams[data["chatId"]].isTypingNotifier(value: false);
 
@@ -466,12 +492,14 @@ class ChatProvider with ChangeNotifier {
                   whereArgs: [c.id],
                   orderBy: "date DESC");
 
-              c.messages = (await Future.wait(
-                messagesResult.map<Future<Message>>(
-                  (m) async => Message.fromJson(jsonDecode(m["json"])),
-                ),
-              ))
-                  .toList(growable: true);
+              c.messages = messagesResult.isNotEmpty
+                  ? (await Future.wait(
+                      messagesResult.map<Future<Message>>(
+                        (m) async => Message.fromJson(jsonDecode(m["json"])),
+                      ),
+                    ))
+                      .toList(growable: true)
+                  : <Message>[];
 
               _mapChatNotifierStreams[c.id] = ChatNotifier();
               return c;
@@ -566,6 +594,21 @@ class ChatProvider with ChangeNotifier {
     batch.commit(noResult: true);
   }
 
+  Future<void> removeMessagesToDb(List<Message> messages, String chatId) async {
+    debugPrint("DB - Delete Messages for CM: $chatId");
+    final database = await databaseProvider.getDatabase();
+    var batch = database.batch();
+
+    for (var m in messages) {
+      batch.delete(
+        DatabaseProvider.messagesTableName,
+        where: '"contact_id" = ? AND "id" = ?',
+        whereArgs: [chatId, m.id],
+      );
+    }
+    batch.commit(noResult: true);
+  }
+
   @override
   void dispose() {
     _connectionNotifier?.close();
@@ -584,6 +627,8 @@ class ChatProvider with ChangeNotifier {
     currentActiveChatId = null;
 
     _clearTypingMapStreams();
+
+    pushNotificationListener?.cancel();
 
     socket?.clearListeners();
     socket?.close();

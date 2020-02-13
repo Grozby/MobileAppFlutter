@@ -64,7 +64,7 @@ class InfoBarWidget extends StatelessWidget {
                         bottom: 4,
                         child: StreamBuilder<int>(
                           stream: Provider.of<ChatProvider>(context)
-                              .numberUnreadMessagesStream,
+                              .numberUnreadMessagesStream ?? null,
                           builder: (context, snapshot) {
                             return snapshot.hasData && snapshot.data != 0
                                 ? Container(
@@ -121,6 +121,7 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
   int currentIndex = 0;
   PageController pageController;
   Animation<double> animation;
+  Widget removingWidget;
 
   @override
   void initState() {
@@ -210,15 +211,19 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                               );
                             },
                           )
-                        : RemovingExploreCardAnimated(
+                        : removingWidget ??= RemovingExploreCardAnimated(
+                            userId: cardProvider.getUser(index).id,
                             controller: AnimationController(
                               duration: const Duration(milliseconds: 500),
                               vsync: this,
                             )..forward(),
-                            removeElement: () => cardProvider.removeUser(
-                              cardProvider.getUser(index).id,
-                              context: context,
-                            ),
+                            removeElement: (String userId) {
+                              cardProvider.removeUser(
+                                userId,
+                                context: context,
+                              );
+                              removingWidget = null;
+                            },
                             child: Container(
                               constraints: BoxConstraints(
                                 minHeight: constraints.minHeight,
@@ -260,14 +265,16 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
 class RemovingExploreCardAnimated extends StatelessWidget {
   final AnimationController controller;
   final Animation<Offset> slideTransition;
-  final void Function() removeElement;
+  final void Function(String id) removeElement;
   final Widget child;
+  final String userId;
 
   RemovingExploreCardAnimated({
     Key key,
     @required this.controller,
     @required this.child,
     @required this.removeElement,
+    @required this.userId,
   })  : slideTransition = Tween<Offset>(
           begin: Offset.zero,
           end: const Offset(0.0, -1.1),
@@ -278,10 +285,12 @@ class RemovingExploreCardAnimated extends StatelessWidget {
           ),
         )..addStatusListener((AnimationStatus status) {
             if (status == AnimationStatus.completed) {
-              removeElement();
+              removeElement(userId);
             }
           }),
-        super(key: key);
+        super(key: key) {
+    print("Active");
+  }
 
   @override
   Widget build(BuildContext context) {

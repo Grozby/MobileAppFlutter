@@ -74,7 +74,6 @@ class NotificationProvider with ChangeNotifier {
             payload: message["data"],
           ),
         );
-        _showNotificationMediaStyle(message["data"]);
       },
       onBackgroundMessage: myBackgroundMessageHandler,
       onLaunch: (Map<String, dynamic> message) async {
@@ -94,7 +93,7 @@ class NotificationProvider with ChangeNotifier {
   ) async {
     if (message.containsKey('data')) {
       await initializeLocalNotification();
-      _showNotificationMediaStyle(message['data']);
+      showNotificationMediaStyle(message['data']);
     }
 
     return Future<void>.value();
@@ -152,7 +151,7 @@ class NotificationProvider with ChangeNotifier {
     );
   }
 
-  static Future<void> _showNotificationMediaStyle(dynamic payload) async {
+  static Future<void> showNotificationMediaStyle(dynamic payload) async {
     var largeIconPath = await _downloadAndSaveImage(
       payload['image'],
       'largeIcon',
