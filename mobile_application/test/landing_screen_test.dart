@@ -9,9 +9,7 @@ class MockAuthenticationProvider extends Mock
     implements AuthenticationProvider {}
 
 void main() {
-  testWidgets('Landing Screen test', (WidgetTester tester) async {
-    final mockedAuthenticationProvider = MockAuthenticationProvider();
-    // Create the widget by telling the tester to build it.
+  testWidgets('Landing Screen', (WidgetTester tester) async {
     await tester.pumpWidget(MediaQuery(
       data: MediaQueryData(),
       child: MaterialApp(
@@ -23,12 +21,15 @@ void main() {
     ));
 
     // Create the Finders.
+    final signUpButtonFinder = find.text('Sign up');
     final loginButtonFinder = find.text('Login');
     final googleButtonFinder = find.text('Login with Google');
+    final animationWidgetFinder = find.byType(AnimatedCompanyNames);
 
-    // Use the `findsOneWidget` matcher provided by flutter_test to
-    // verify that the Text widgets appear exactly once in the widget tree.
+
+    expect(signUpButtonFinder, findsOneWidget);
     expect(loginButtonFinder, findsOneWidget);
     expect(googleButtonFinder, findsOneWidget);
+    expect(animationWidgetFinder, findsOneWidget);
   });
 }

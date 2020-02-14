@@ -79,7 +79,7 @@ class HttpRequestWrapper {
       }
       //Otherwise we received something not expected. We throw an error.
       else {
-        onIncorrectStatusCode(response);
+        parsedResponse = onIncorrectStatusCode(response);
       }
     } on DioError catch (error) {
       if (error.type != DioErrorType.RESPONSE) {

@@ -133,6 +133,7 @@ class AuthenticationProvider with ChangeNotifier {
       correctStatusCode: 200,
       onCorrectStatusCode: (_) async => true,
       onIncorrectStatusCode: (_) async => false,
+      onUnknownDioError: (_) async => false,
     );
 
     if (!isLogged) {

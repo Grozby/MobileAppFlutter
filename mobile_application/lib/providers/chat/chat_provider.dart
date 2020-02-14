@@ -99,7 +99,8 @@ class ChatProvider with ChangeNotifier {
 
   Stream get connectionNotifierStream => _connectionNotifier.stream;
 
-  Stream get numberUnreadMessagesStream => _numberUnreadMessagesNotifier?.stream;
+  Stream get numberUnreadMessagesStream =>
+      _numberUnreadMessagesNotifier?.stream;
 
   Stream getTypingNotificationStream(String chatId) =>
       _mapChatNotifierStreams[chatId].typingStream;
@@ -486,11 +487,12 @@ class ChatProvider with ChangeNotifier {
               debugPrint("DB - Loading CM: ${c.id}");
               debugPrint("DB - Loading Messages for CM: ${c.id}");
               final messagesResult = await database.query(
-                  DatabaseProvider.messagesTableName,
-                  columns: ['id', 'json'],
-                  where: '"contact_id" = ?',
-                  whereArgs: [c.id],
-                  orderBy: "date DESC");
+                DatabaseProvider.messagesTableName,
+                columns: ['id', 'json'],
+                where: '"contact_id" = ?',
+                whereArgs: [c.id],
+                orderBy: "date DESC",
+              );
 
               c.messages = messagesResult.isNotEmpty
                   ? (await Future.wait(

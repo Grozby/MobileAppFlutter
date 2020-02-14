@@ -579,7 +579,6 @@ class _HomePageState extends State<HomePage> {
         'message channel id',
         'message channel name',
         'message channel description',
-        category: 'msg',
         style: AndroidNotificationStyle.Messaging,
         styleInformation: messagingStyle);
     var platformChannelSpecifics =
