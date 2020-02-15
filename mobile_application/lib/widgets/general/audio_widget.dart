@@ -389,7 +389,7 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
   }
 
   void playerStreamsSubscription() {
-    _playerSubscription = widget.flutterSound.onPlayerStateChanged.listen(
+    _playerSubscription = widget.flutterSound.onPlayerStateChanged?.listen(
       playerStateCallback,
     );
   }
@@ -537,6 +537,7 @@ class _AudioPlayerState extends State<AudioPlayer> with TimeConverter {
                         ),
                       ),
                       Container(
+                        key: ValueKey("TimeToShowText"),
                         padding: const EdgeInsets.only(top: 2),
                         child: Text(timeToShow()),
                       ),

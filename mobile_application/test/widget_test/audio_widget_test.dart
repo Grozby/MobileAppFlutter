@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,6 +16,7 @@ class MockAuthenticationProvider extends Mock
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
 
   final List<MethodCall> log = <MethodCall>[];
   MethodChannel('flutter.baseflow.com/permissions/methods')
@@ -36,13 +38,18 @@ void main() {
       case 'setDbPeakLevelUpdate':
       case 'setDbLevelEnabled':
       case 'setVolume':
-      case 'startRecorder':
       case 'setSubscriptionDuration':
+      case 'startPlayer':
         return "OK";
+      case 'startRecorder':
+        return "./test/widget_test/placeholder_file.aac";
       case 'hasPermissions':
         return true;
       case 'updateRecorderProgress':
         return {"currentPosition": 0};
+      case 'seekToPlayer':
+        return "";
+
       default:
         return null;
     }
@@ -66,7 +73,7 @@ void main() {
       case 'getPackageName':
         return null;
       case 'getMediaInformation':
-        return {"duration": 10.0};
+        return {"duration": 2000.0};
       default:
         return null;
     }
@@ -124,8 +131,7 @@ void main() {
 
     await tester.tap(find.byKey(ValueKey("StopButton")));
     await tester.pump();
-    await tester.pump(Duration(seconds: 1));
-    await tester.pump();
+    await tester.pumpAndSettle(Duration(seconds: 1));
 
     expect(find.byKey(ValueKey("StopButton")), findsNothing);
     expect(find.byKey(ValueKey("RecordButton")), findsOneWidget);
@@ -168,7 +174,7 @@ void main() {
     controller.close();
   });
 
-  testWidgets('Audio widget has recorded, start player', (WidgetTester tester) async {
+  testWidgets('Audio widget has recorded, then start player', (WidgetTester tester) async {
     initializeDateFormatting();
     StreamController controller = StreamController.broadcast();
 
@@ -176,7 +182,7 @@ void main() {
       home: Scaffold(
         body: Center(
           child: AudioWidget(
-            audioFilePath: "Test.aac",
+            audioFilePath: "placeholder.aac",
             notifier: controller.stream,
           ),
         ),
@@ -193,13 +199,88 @@ void main() {
     expect(find.byKey(ValueKey("StopButton")), findsOneWidget);
     expect(find.byKey(ValueKey("RecordButton")), findsNothing);
 
-    controller.sink.add(false);
+    await tester.tap(find.byKey(ValueKey("StopButton")));
+    await tester.pump();
+    await tester.pumpAndSettle(Duration(seconds: 1));
+
+    expect(find.byKey(ValueKey("StopButton")), findsNothing);
+    expect(find.byKey(ValueKey("RecordButton")), findsOneWidget);
+    expect(find.byType(AudioPlayer), findsOneWidget);
+
+    await tester.tap(find.byKey(ValueKey("PlayButtonPlayer")));
+    await tester.pump();
+    await tester.pump(Duration(milliseconds: 500));
+    await tester.pump();
+
+    expect(find.byKey(ValueKey("PauseButtonPlayer")), findsOneWidget);
+
+    await tester.tap(find.byKey(ValueKey("PauseButtonPlayer")));
+    await tester.pumpAndSettle(Duration(seconds: 3));
+
+    expect(find.byKey(ValueKey("StopButton")), findsNothing);
+    expect(find.byKey(ValueKey("RecordButton")), findsOneWidget);
+    expect(find.byKey(ValueKey("PauseButtonPlayer")), findsNothing);
+    expect(find.byKey(ValueKey("PlayButtonPlayer")), findsOneWidget);
+
+    controller.close();
+  });
+
+  testWidgets('Audio widget has recorded, start playing, then dismiss', (WidgetTester tester) async {
+    initializeDateFormatting();
+    StreamController controller = StreamController.broadcast();
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: AudioWidget(
+            audioFilePath: "placeholder.aac",
+            notifier: controller.stream,
+          ),
+        ),
+      ),
+    ));
+
+    expect(find.byKey(ValueKey("RecordButton")), findsOneWidget);
+
+    await tester.tap(find.byKey(ValueKey("RecordButton")));
     await tester.pump();
     await tester.pump(Duration(seconds: 1));
     await tester.pump();
 
+    expect(find.byKey(ValueKey("StopButton")), findsOneWidget);
+    expect(find.byKey(ValueKey("RecordButton")), findsNothing);
+
+    await tester.tap(find.byKey(ValueKey("StopButton")));
+    await tester.pump();
+    await tester.pumpAndSettle(Duration(seconds: 1));
+
     expect(find.byKey(ValueKey("StopButton")), findsNothing);
     expect(find.byKey(ValueKey("RecordButton")), findsOneWidget);
+    expect(find.byType(AudioPlayer), findsOneWidget);
+
+    await tester.tap(find.byKey(ValueKey("PlayButtonPlayer")));
+    await tester.pump();
+    await tester.pump(Duration(milliseconds: 500));
+    await tester.pump();
+
+    expect(find.byKey(ValueKey("PauseButtonPlayer")), findsOneWidget);
+
+    await tester.tap(find.byKey(ValueKey("PauseButtonPlayer")));
+    await tester.pumpAndSettle(Duration(seconds: 3));
+
+    expect(find.byKey(ValueKey("StopButton")), findsNothing);
+    expect(find.byKey(ValueKey("RecordButton")), findsOneWidget);
+    expect(find.byKey(ValueKey("PauseButtonPlayer")), findsNothing);
+    expect(find.byKey(ValueKey("PlayButtonPlayer")), findsOneWidget);
+
+
+    await tester.drag(find.byKey(ValueKey("TimeToShowText")), Offset(-400, 0));
+    await tester.pumpAndSettle(Duration(seconds: 2));
+
+    expect(find.byKey(ValueKey("RecordButton")), findsOneWidget);
+    expect(find.byKey(ValueKey("PauseButtonPlayer")), findsNothing);
+    expect(find.byKey(ValueKey("RecordedAudio")), findsOneWidget);
+    expect(find.byKey(ValueKey("PlayButtonPlayer")), findsNothing);
 
     controller.close();
   });

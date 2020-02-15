@@ -20,14 +20,12 @@ void main() {
       ),
     ));
 
-    // Create the Finders.
-    final signUpButtonFinder = find.text('Sign up');
+
     final loginButtonFinder = find.text('Login');
     final googleButtonFinder = find.text('Login with Google');
     final animationWidgetFinder = find.byType(AnimatedCompanyNames);
 
 
-    expect(signUpButtonFinder, findsOneWidget);
     expect(loginButtonFinder, findsOneWidget);
     expect(googleButtonFinder, findsOneWidget);
     expect(animationWidgetFinder, findsOneWidget);
