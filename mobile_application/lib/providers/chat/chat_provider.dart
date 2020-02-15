@@ -396,8 +396,7 @@ class ChatProvider with ChangeNotifier {
         }),
       );
       if (userId != data["userId"]) {
-        debugPrint("Here?");
-        timeoutTypingNotification.cancel();
+        timeoutTypingNotification?.cancel();
         _mapChatNotifierStreams[data["chatId"]].isTypingNotifier(value: false);
 
         _numberUnreadMessagesNotifier.sink.add(

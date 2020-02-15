@@ -1,0 +1,66 @@
+[
+  {
+    "_id" : "5e25a28b249f1c04fc51a07e",
+    "cost_in_tokens" : 1,
+    "location" : "Mountain View, US",
+    "bio" : "\"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\"",
+    "pictureUrl" : "https://b.thumbs.redditmedia.com/7Zlnm0CUqYG2VIdqpc8QA08cvoINPKTvOZDL2kjfmsI.png",
+    "workingSpecialization" : [
+      "Software Engineer"
+    ],
+    "kind" : "Mentor",
+    "email" : "bobberoneross2@google.com",
+    "password" : "$2a$10$MaK7Hf0MvhgTTCmQ0ndRYu5Ku5yyLSr6l7iyDaExmVeMedzC5hySW",
+    "name" : "Bobberino",
+    "surname" : "Ross",
+    "currentJob" : {
+      "nowDoing" : false,
+      "kind" : "Job",
+      "institution" : {
+        "pictureUrl" : "https://freeiconshop.com/wp-content/uploads/edd/google-flat.png",
+        "name" : "Google"
+      },
+      "workingRole" : "Software Engineer",
+      "fromDate" : "2019-03-01T00:00:00.000Z"
+    },
+    "pastExperiences" : [
+      {
+        "nowDoing" : false,
+        "kind" : "Education",
+        "institution" : {
+          "pictureUrl" : "https://identity.stanford.edu/img/block-s-2color.png",
+          "name" : "Stanford University"
+        },
+        "degreeLevel" : "Ph.D",
+        "fieldOfStudy" : "Computer Science",
+        "fromDate" : "2015-07-01T00:00:00.000Z",
+        "toDate" : "2018-07-01T00:00:00.000Z"
+      },
+      {
+        "nowDoing" : false,
+        "kind" : "Education",
+        "institution" : {
+          "pictureUrl" : "https://identity.stanford.edu/img/block-s-2color.png",
+          "name" : "Politecnico di Milano"
+        },
+        "degreeLevel" : "Ph.D",
+        "fieldOfStudy" : "Computer Science",
+        "fromDate" : "2015-07-01T00:00:00.000Z",
+        "toDate" : "2018-07-01T00:00:00.000Z"
+      },
+      {
+        "nowDoing" : false,
+        "kind" : "Job",
+        "institution" : {
+          "pictureUrl" : "https://i.pinimg.com/originals/1c/aa/03/1caa032c47f63d50902b9d34492e1303.jpg",
+          "name" : "Apple"
+        },
+        "workingRole" : "Software Engineer",
+        "fromDate" : "2019-03-01T00:00:00.000Z",
+        "toDate" : "2019-09-01T00:00:00.000Z"
+      }
+    ],
+    "questionsForAcceptingRequest" : [],
+    "questions" : []
+  }
+]

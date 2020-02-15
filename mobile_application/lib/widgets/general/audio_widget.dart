@@ -156,7 +156,9 @@ class _AudioWidgetState extends State<AudioWidget>
       recordingStreamsSubscription();
 
       setState(() => _path = path);
-      widget.setPathInParent(path);
+      if(widget.setPathInParent != null){
+        widget.setPathInParent(path);
+      }
     } catch (err) {
       print('startRecorder error: $err');
       _isRecording = false;

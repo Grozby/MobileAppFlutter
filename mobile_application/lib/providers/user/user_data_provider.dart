@@ -115,7 +115,7 @@ class UserDataProvider with ChangeNotifier {
           },
           onIncorrectStatusCode: (_) {
             throw SomethingWentWrongException.message(
-              "Couldn't load the explore section. Try again later.",
+              "Couldn't update the user. Try again later.",
             );
           });
     } on NoInternetException catch (e) {
@@ -145,7 +145,8 @@ class UserDataProvider with ChangeNotifier {
               break;
             default:
               throw SomethingWentWrongException.message(
-                  "Some error happened on the server side.");
+                "Some error happened on the server side.",
+              );
           }
         },
         onIncorrectStatusCode: (_) {

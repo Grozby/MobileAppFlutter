@@ -27,6 +27,7 @@ class Mentee extends User {
     @required List<PastExperience> experiences,
     @required HashMap<String, SocialAccount> socialAccounts,
     @required Job currentJob,
+    List<String> workingSpecialization,
     @required this.tokenWallet,
   }) : super(
           name: name,
@@ -38,6 +39,7 @@ class Mentee extends User {
           experiences: experiences,
           socialAccounts: socialAccounts,
           currentJob: currentJob,
+          workingSpecialization: workingSpecialization,
         );
 
   ///

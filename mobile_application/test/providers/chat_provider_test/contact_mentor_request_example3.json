@@ -1,0 +1,28 @@
+[
+  {
+    "_id" : "5e4487449865b31a501a8406",
+    "status" : "pending",
+    "createdAt" : "2020-02-12T23:09:43.105Z",
+    "menteeId" : "5e272b94c586764b6cbf5a52",
+    "mentorId" : "5e3c8e18748dfc415caebe05",
+    "startingMessage" : "Ehi b0ss",
+    "answers" : [
+      {
+        "question" : "16 18?",
+        "textAnswer" : "Ecoloh",
+        "audioAnswer" : ""
+      }
+    ],
+    "messages" : [
+      {
+        "_id" : "5e451f816c82b10ce0118043",
+        "userId" : "5e3c8e18748dfc415caebe05",
+        "isRead" : true,
+        "kind" : "text",
+        "createdAt" : "2020-02-13T10:05:53.388Z",
+        "content" : "ehi"
+      }
+    ],
+    "incrementingId" : "20"
+  }
+]
