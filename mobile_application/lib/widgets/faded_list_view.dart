@@ -24,6 +24,7 @@ class _FadedListViewState<T> extends State<FadedListView<T>> {
   @override
   void initState() {
     super.initState();
+    _reachedEnd = widget.list.length < 3;
     _controller = ScrollController();
     _controller.addListener(updatePhysics);
     _controller.addListener(_scrollListener);

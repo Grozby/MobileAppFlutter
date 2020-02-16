@@ -254,7 +254,7 @@ class TopButtons extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 width: 55,
                 height: 55,
-                reduceFactor: 0.6,
+                reduceFactor: 0.5,
                 onPressFunction: () => backButton(context),
               ),
             ),
@@ -429,7 +429,7 @@ class SpecializationSection extends StatelessWidget {
             alignment: Alignment.center,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.3),
+                color: Theme.of(context).primaryColorLight,
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
               ),
               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),

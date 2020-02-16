@@ -90,6 +90,7 @@ class UserProfileBuilderState extends State<UserProfileBuilder> {
         return;
       }
 
+      await Future.delayed(Duration(milliseconds: 500));
       await Provider.of<UserDataProvider>(
         context,
         listen: false,
@@ -103,10 +104,10 @@ class UserProfileBuilderState extends State<UserProfileBuilder> {
     }
   }
 
-  void setImage(File image) async {
+  Future<void> setImage(File image) async {
     if (image != null) {
       Image im = await decodeCompute(image);
-      Image thumbnail = copyRotate(copyResizeCropSquare(im, 250), 270);
+      Image thumbnail = copyResizeCropSquare(im, 250);
       _controllerProvider.profileImage = await encodeCompute(thumbnail);
     } else {
       _controllerProvider.profileImage = null;

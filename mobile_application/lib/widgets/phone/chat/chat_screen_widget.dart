@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:ryfy/widgets/transition/loading_animated.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../../../models/chat/contact_mentor.dart';
@@ -63,7 +64,7 @@ class InfoBarWidget extends StatelessWidget {
                   child: AutoSizeText(
                     (!snapshot.hasData || !snapshot.data)
                         ? "Waiting for connection..."
-                        : "Connected.",
+                        : "Chat",
                     style: Theme.of(context).textTheme.display3,
                     maxLines: 1,
                   ),
@@ -120,7 +121,7 @@ class _ChatContentWidgetState extends State<ChatContentWidget> {
                     const Tab(text: "All"),
                     const Tab(text: "Accepted"),
                     const Tab(text: "Pending"),
-                    const Tab(text: "Refused"),
+                    const Tab(text: "Declined"),
                   ],
                 ),
                 Expanded(
@@ -131,7 +132,7 @@ class _ChatContentWidgetState extends State<ChatContentWidget> {
                         if (snapshot.connectionState ==
                                 ConnectionState.waiting ||
                             snapshot.data == false) {
-                          return Center(child: CircularProgressIndicator());
+                          return Center(child: LoadingAnimated());
                         }
 
                         return TabBarView(
@@ -205,6 +206,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
     if (chat.messages.isNotEmpty) {
       return chat.messages[0].content;
     } else {
+      //TODO change between mentor and mentee
       String response;
       switch (chat.status) {
         case StatusRequest.accepted:

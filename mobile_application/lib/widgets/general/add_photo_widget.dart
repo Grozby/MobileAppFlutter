@@ -11,7 +11,7 @@ import '../../widgets/general/image_wrapper.dart';
 
 class AddPhotoWidget extends StatefulWidget {
   final double width, height;
-  final void Function(File) setImage;
+  final Future<void> Function(File) setImage;
   final String startingImage;
   final String assetPath;
 
@@ -30,6 +30,7 @@ class AddPhotoWidget extends StatefulWidget {
 class _AddPhotoWidgetState extends State<AddPhotoWidget> {
   File image;
   String startingImage;
+  bool isModalPopped = false;
 
   @override
   void initState() {
@@ -37,17 +38,22 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
     startingImage = widget.startingImage;
   }
 
-  void setImage(File image) {
+  void setImage(File image) async {
     setState(() {
       startingImage = null;
       this.image = image;
     });
-    Navigator.pop(context);
-    widget.setImage(image);
+    await widget.setImage(image);
+    if(!isModalPopped){
+      isModalPopped = true;
+      Navigator.pop(context);
+    }
+
   }
 
-  void showSelection() {
-    showModalBottomSheet(
+  void showSelection() async {
+    isModalPopped = false;
+    await showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -55,8 +61,9 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
           topRight: Radius.circular(16),
         ),
       ),
-      builder: (ctx) => BottomSheetSelection(setImage, ctx),
+      builder: (ctx) => BottomSheetSelection(setImage),
     );
+    isModalPopped = true;
   }
 
   @override
@@ -121,9 +128,8 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
 
 class BottomSheetSelection extends StatefulWidget {
   final void Function(File) setImage;
-  final BuildContext ctx;
 
-  BottomSheetSelection(this.setImage, this.ctx);
+  BottomSheetSelection(this.setImage);
 
   @override
   _BottomSheetSelectionState createState() => _BottomSheetSelectionState();

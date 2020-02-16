@@ -250,9 +250,9 @@ class _ExploreBodyWidgetState extends State<ExploreBodyWidget>
                   )
                 : Center(
                     child: AutoSizeText(
-                      Provider.of<UserDataProvider>(context)
+                      Provider.of<UserDataProvider>(context, listen: false)
                           .behavior
-                          .noUsersInExploreMessage,
+                          ?.noUsersInExploreMessage ?? "",
                     ),
                   ),
           ),

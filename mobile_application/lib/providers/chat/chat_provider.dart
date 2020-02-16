@@ -210,6 +210,19 @@ class ChatProvider with ChangeNotifier {
         contacts.remove(c);
       });
 
+      /// Sort the contacts by last received message.
+      contacts.sort(
+        (c1, c2) {
+          DateTime timeC1 = c1.messages.isNotEmpty
+              ? c1.messages.first.createdAt
+              : c1.createdAt;
+          DateTime timeC2 = c2.messages.isNotEmpty
+              ? c2.messages.first.createdAt
+              : c2.createdAt;
+          return -timeC1.difference(timeC2).inMilliseconds;
+        },
+      );
+
       /// Notify the UI of unread messages
       _numberUnreadMessagesNotifier.sink.add(
         contacts.where((c) => c.unreadMessages(userId) != 0).length,
@@ -395,8 +408,24 @@ class ChatProvider with ChangeNotifier {
           "isRead": data["isRead"]
         }),
       );
+
+      /// Sort the contacts by last received message.
+      contacts.sort(
+            (c1, c2) {
+          DateTime timeC1 = c1.messages.isNotEmpty
+              ? c1.messages.first.createdAt
+              : c1.createdAt;
+          DateTime timeC2 = c2.messages.isNotEmpty
+              ? c2.messages.first.createdAt
+              : c2.createdAt;
+          return -timeC1.difference(timeC2).inMilliseconds;
+        },
+      );
+
       if (userId != data["userId"]) {
         timeoutTypingNotification?.cancel();
+
+        /// This also updates the last message
         _mapChatNotifierStreams[data["chatId"]].isTypingNotifier(value: false);
 
         _numberUnreadMessagesNotifier.sink.add(
@@ -455,7 +484,7 @@ class ChatProvider with ChangeNotifier {
       "userId": userId,
       "content": message,
       "kind": "text",
-      "createdAt": DateTime.now().toIso8601String(),
+      "createdAt": DateTime.now().toUtc().toIso8601String(),
     });
   }
 
@@ -589,7 +618,7 @@ class ChatProvider with ChangeNotifier {
           "json": jsonEncode(m.toJson()),
           "date": m.createdAt.millisecondsSinceEpoch,
         },
-        conflictAlgorithm: ConflictAlgorithm.fail,
+        conflictAlgorithm: ConflictAlgorithm.replace,
       );
     }
     batch.commit(noResult: true);

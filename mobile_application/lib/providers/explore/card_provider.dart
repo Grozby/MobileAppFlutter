@@ -59,9 +59,9 @@ class CardProvider with ChangeNotifier {
 
   Mentee getMentee(int index) => getUser(index) as Mentee;
 
-  Future<void> loadCardProvider() async {
+  Future<void> loadCardProvider(String searchBy) async {
     var json = await httpRequestWrapper.request<dynamic>(
-        url: exploreUrl,
+        url: "$exploreUrl${searchBy != "All" ? "/$searchBy" : ""}",
         correctStatusCode: 200,
         onCorrectStatusCode: (response) async {
           return response;
@@ -175,7 +175,7 @@ class CardProvider with ChangeNotifier {
       Scaffold.of(context).showSnackBar(
         SnackBar(
           content: AutoSizeText(
-            "Request send succesfully!",
+            "Request sent succesfully!",
             style: Theme.of(context).textTheme.body1,
           ),
           backgroundColor: Theme.of(context).primaryColorLight,

@@ -10,7 +10,9 @@
     <application
         android:name=".Application"
         android:label="ryfy"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap/launcher_icon"
+        android:requestLegacyExternalStorage="true"
+        >
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

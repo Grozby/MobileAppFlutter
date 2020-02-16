@@ -652,7 +652,7 @@ class _InputMessageState extends State<InputMessage> {
   Widget build(BuildContext context) {
     return IntrinsicHeight(
       child: Container(
-        color: Colors.white,
+        color: Provider.of<ThemeProvider>(context).inputChatColor,
         constraints: BoxConstraints(
           maxHeight: _availableHeight / 4,
         ),
@@ -666,6 +666,9 @@ class _InputMessageState extends State<InputMessage> {
                   controller: _controller,
                   style: Theme.of(context).textTheme.body2,
                   maxLines: null,
+                  decoration: InputDecoration(
+                    border: InputBorder.none
+                  ),
                 ),
               ),
             ),

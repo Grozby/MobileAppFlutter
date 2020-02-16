@@ -71,9 +71,9 @@ class _ChatWidgetState extends State<ChatWidget>
     if (chatProviderReference != null) {
       _errorStreamSubscription =
           chatProviderReference.errorNotifierStream.listen(print);
-
-      chatProviderReference.fetchChatContacts();
     }
+
+    chatProviderReference.fetchChatContacts();
   }
 
   @override

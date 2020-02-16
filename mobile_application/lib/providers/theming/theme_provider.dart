@@ -17,7 +17,7 @@ class ThemeProvider with ChangeNotifier {
   static const Color _menteeCardColor = Color(0x6CD1F4);
 
   static const Color _primaryColor = _mentorColor;
-  static const Color _primaryLighterColor = Color(0xFFFFB069);
+  static const Color _primaryLighterColor = Color(0xFFfdd5b2);
   static Color _loginButtonColor = Colors.grey.shade200;
   static const Color _textColor = Color.fromRGBO(68, 86, 108, 1);
   static const Color _greyTextColor = Color.fromRGBO(161, 170, 181, 1);
@@ -32,17 +32,19 @@ class ThemeProvider with ChangeNotifier {
     "dayNotifierBackground": Colors.white,
     "drawerMainColor": _primaryColor,
     "drawerBackgroundColor": Colors.white,
+    "inputChatColor": Colors.white,
   };
 
   static const Map<String, dynamic> _darkChatColors = {
-    "currentUserColorChat": _primaryColor,
-    "otherUserColorChat": Colors.white,
+    "currentUser": _primaryColor,
+    "otherUser": Color(0xFF616161),
     "borderCurrentUser": Colors.white,
     "borderOtherUser": Color(0xFFE0E0E0),
-    "backgroundImage": AssetImages.lightBackground, //TODO change
+    "backgroundImage": AssetImages.darkBackground,
     "dayNotifierBackground": Color(0xFF212121),
     "drawerMainColor": Color(0xFF212121),
     "drawerBackgroundColor": Color(0xFF424242),
+    "inputChatColor": Color(0xFF616161),
   };
 
   static const SystemUiOverlayStyle _lightOverlayStyle = SystemUiOverlayStyle(
@@ -58,7 +60,7 @@ class ThemeProvider with ChangeNotifier {
     systemNavigationBarColor: Colors.transparent,
     systemNavigationBarDividerColor: null,
     statusBarColor: Colors.transparent,
-    systemNavigationBarIconBrightness: Brightness.dark,
+    systemNavigationBarIconBrightness: Brightness.light,
     statusBarIconBrightness: Brightness.light,
     statusBarBrightness: Brightness.light,
   );
@@ -202,6 +204,8 @@ class ThemeProvider with ChangeNotifier {
 
   Color get drawerBackgroundColor =>
       _colorsGeneral["drawerBackgroundColor"] as Color;
+
+  Color get inputChatColor => _colorsGeneral["inputChatColor"] as Color;
 
   static Color get primaryColor => _primaryColor;
 

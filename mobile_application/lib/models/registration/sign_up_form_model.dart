@@ -18,11 +18,5 @@ class SignUpFormModel {
     email = TextEditingController();
     password = TextEditingController();
     company = TextEditingController();
-
-    name.text = 'a';
-    surname.text = 'a';
-    email.text = 'a@a.aaaa';
-    password.text = 'aaaaaaaaa';
-    company.text = 'a';
   }
 }

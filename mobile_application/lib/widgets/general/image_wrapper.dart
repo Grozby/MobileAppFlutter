@@ -60,4 +60,5 @@ extension AssetImages on ImageWrapper {
   static const String logo = "logo.png";
 
   static const String lightBackground = "light.png";
+  static const String darkBackground = "dark.png";
 }

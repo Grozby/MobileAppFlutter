@@ -171,7 +171,7 @@ class NotificationProvider with ChangeNotifier {
       null,
     );
     await localNotification.show(
-      0,
+      int.tryParse(payload["id"]),
       payload["title"],
       payload["body"],
       platformChannelSpecifics,

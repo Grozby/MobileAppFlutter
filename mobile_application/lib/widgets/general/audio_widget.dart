@@ -96,9 +96,11 @@ class _AudioWidgetState extends State<AudioWidget>
       return;
     }
 
-    setState(
-      () => _recorderDuration = recordStatus.currentPosition.toInt() - 100,
-    );
+    if (mounted) {
+      setState(
+        () => _recorderDuration = recordStatus.currentPosition.toInt() - 100,
+      );
+    }
   }
 
   void recorderDbPeakCallback(double dbPeak) {
@@ -156,7 +158,7 @@ class _AudioWidgetState extends State<AudioWidget>
       recordingStreamsSubscription();
 
       setState(() => _path = path);
-      if(widget.setPathInParent != null){
+      if (widget.setPathInParent != null) {
         widget.setPathInParent(path);
       }
     } catch (err) {
@@ -764,17 +766,19 @@ class _AudioFromBufferWidgetState extends State<AudioFromBufferWidget>
     filePath = '${await _localPath}/${widget.id}.aac';
     final File file = File(filePath);
     file.writeAsBytesSync(widget.buffer.codeUnits);
+    final FlutterFFmpegConfig _flutterFFmpegConfig = FlutterFFmpegConfig();
+
     maxDuration = await ffprobe
         .getMediaInformation(filePath)
         .then((info) => info["duration"].toInt());
 
-    final FlutterFFmpegConfig _flutterFFmpegConfig = new FlutterFFmpegConfig();
+
     final String identifier = "lavfi.astats.Overall.RMS_level=";
     void logCallback(int level, String message) {
       if (message.contains(identifier)) {
         final String textValue =
             message.substring(message.indexOf(identifier) + identifier.length);
-        if (textValue == "-inf") {
+        if (textValue == "-inf\n") {
           dbPeakSamples.add(0.0);
         } else {
           dbPeakSamples.add(120 + double.parse(textValue));
@@ -796,13 +800,13 @@ class _AudioFromBufferWidgetState extends State<AudioFromBufferWidget>
     for (int i = 0; i < dbPeakSamples.length; i += averageLength) {
       if (averageLength - i == 1) {
         results.add(dbPeakSamples
-            .getRange(
-          i,
-          (i + averageLength) <= dbPeakSamples.length
-              ? (i + averageLength)
-              : averageLength,
-        )
-            .reduce((x1, x2) => x1 + x2) /
+                .getRange(
+                  i,
+                  (i + averageLength) <= dbPeakSamples.length
+                      ? (i + averageLength)
+                      : averageLength,
+                )
+                .reduce((x1, x2) => x1 + x2) /
             averageLength);
       } else {
         results.add(dbPeakSamples[i]);
@@ -814,7 +818,7 @@ class _AudioFromBufferWidgetState extends State<AudioFromBufferWidget>
 
   @override
   void dispose() {
-    if (flutterSound.audioState == t_AUDIO_STATE.IS_PAUSED) {
+    if (flutterSound.audioState != t_AUDIO_STATE.IS_PAUSED) {
       flutterSound.stopPlayer();
     }
 
@@ -834,9 +838,15 @@ class _AudioFromBufferWidgetState extends State<AudioFromBufferWidget>
       sliderCurrentPosition = playStatus.currentPosition;
       maxDuration = playStatus.duration.toInt();
 
-      setState(() {});
+      if(mounted){
+        setState(() {});
+      }
+
     } else {
-      setState(() => _isPlaying = false);
+      if(mounted){
+        setState(() => _isPlaying = false);
+      }
+
     }
   }
 

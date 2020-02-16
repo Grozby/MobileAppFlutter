@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ryfy/models/chat/contact_mentor.dart';
@@ -47,11 +48,36 @@ class QuestionsProvider with ChangeNotifier {
 
   List<Answer> get answers => contactMentor.answers;
 
-  void insertAnswer({
+  Future<void> insertAnswer({
     String question,
     String textAnswer,
     String audioFilePath,
+    BuildContext context,
   }) async {
+    if(audioFilePath != null){
+      Scaffold.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: <Widget>[
+                CircularProgressIndicator(),
+                const SizedBox(width: 8),
+                AutoSizeText(
+                  "Saving answer...",
+                  style: Theme.of(context).textTheme.body1,
+                ),
+              ],
+            ),
+            backgroundColor: Theme.of(context).primaryColorLight,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(16),
+                topLeft: Radius.circular(16),
+              ),
+            ),
+          )
+      );
+    }
+
     contactMentor.answers.add(Answer(
       question: question,
       textAnswer: textAnswer,
@@ -65,6 +91,10 @@ class QuestionsProvider with ChangeNotifier {
     if (numberOfQuestions == currentIndex) {
       noMoreQuestions = true;
     }
+
+    Future.delayed(Duration(milliseconds: 500), () {
+      Scaffold.of(context).hideCurrentSnackBar();
+    });
 
     notifyListeners();
   }

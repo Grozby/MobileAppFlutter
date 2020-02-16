@@ -61,17 +61,20 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
               httpRequestWrapper: authenticationProvider.httpRequestWrapper,
               databaseProvider: databaseProvider,
             ),
-            update: (_, authP, previous) => UserDataProvider(
-              httpRequestWrapper: authP.httpRequestWrapper,
-              databaseProvider: databaseProvider,
-            ),
+            update: (_, authP, previous) => !authP.isLogged
+                ? UserDataProvider(
+                    httpRequestWrapper: authP.httpRequestWrapper,
+                    databaseProvider: databaseProvider,
+                  )
+                : previous,
           ),
           ChangeNotifierProxyProvider<AuthenticationProvider, CardProvider>(
             create: (_) => CardProvider(
               authenticationProvider.httpRequestWrapper,
             ),
-            update: (_, authP, previous) =>
-                CardProvider(authP.httpRequestWrapper),
+            update: (_, authP, previous) => !authP.isLogged
+                ? CardProvider(authP.httpRequestWrapper)
+                : previous,
           ),
           ChangeNotifierProxyProvider<AuthenticationProvider, ChatProvider>(
             create: (_) => ChatProvider(
@@ -79,11 +82,13 @@ class _ThemedMaterialAppState extends State<ThemedMaterialApp> {
               databaseProvider: databaseProvider,
               fcmToken: authenticationProvider.fcmToken,
             ),
-            update: (_, authP, previous) => ChatProvider(
-              httpRequestWrapper: authP.httpRequestWrapper,
-              databaseProvider: databaseProvider,
-              fcmToken: authP.fcmToken,
-            ),
+            update: (_, authP, previous) => !authP.isLogged
+                ? ChatProvider(
+                    httpRequestWrapper: authP.httpRequestWrapper,
+                    databaseProvider: databaseProvider,
+                    fcmToken: authP.fcmToken,
+                  )
+                : previous,
           ),
         ],
         child: MaterialApp(

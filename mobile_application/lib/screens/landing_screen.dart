@@ -58,7 +58,7 @@ class _LandingScreenState extends State<LandingScreen> {
                 ),
               ),
               const Expanded(
-                flex: 4,
+                flex: 5,
                 child: Center(),
               ),
               Expanded(
@@ -87,14 +87,6 @@ class _LandingScreenState extends State<LandingScreen> {
                     }
                   },
                   color: Colors.green,
-                ),
-              ),
-              Expanded(
-                child: ButtonStyled(
-                  fractionalWidthDimension: 0.833,
-                  text: 'Login with LinkedIn',
-                  onPressFunction: () {},
-                  color: Colors.blueAccent,
                 ),
               ),
               Expanded(

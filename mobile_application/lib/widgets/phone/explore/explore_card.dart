@@ -278,7 +278,7 @@ class _FrontCardContentState extends State<_FrontCardContent> with GetUser {
       alignment: Alignment.center,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.red.withOpacity(0.3),
+          color: Theme.of(context).primaryColorLight,
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
         padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
@@ -292,7 +292,7 @@ class _FrontCardContentState extends State<_FrontCardContent> with GetUser {
 
   Widget _pastExperienceBadge(PastExperience experience) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Container(
           height: 25,
@@ -568,27 +568,30 @@ class _BackCardContentMentorState extends State<_BackCardContentMentor>
 
   @override
   Widget build(BuildContext context) {
-    return CardContainer(
-      canExpand: false,
-      onLongPress: () {},
-      startingColor: color,
-      child: Column(
-        children: <Widget>[
-          const _CompanyInformationBar(),
-          const Divider(),
-          Selector<QuestionsProvider, bool>(
-            selector: (_, qProvider) => qProvider.noMoreQuestions,
-            builder: (ctx, noMoreQuestions, child) {
-              return noMoreQuestions
-                  ? Expanded(
-                      child: ContactMentor(),
-                    )
-                  : Expanded(
-                      child: QuestionsWidget(),
-                    );
-            },
-          ),
-        ],
+    return Provider.value(
+      value: context,
+      child: CardContainer(
+        canExpand: false,
+        onLongPress: () {},
+        startingColor: color,
+        child: Column(
+          children: <Widget>[
+            const _CompanyInformationBar(),
+            const Divider(),
+            Selector<QuestionsProvider, bool>(
+              selector: (_, qProvider) => qProvider.noMoreQuestions,
+              builder: (ctx, noMoreQuestions, child) {
+                return noMoreQuestions
+                    ? Expanded(
+                        child: ContactMentor(),
+                      )
+                    : Expanded(
+                        child: QuestionsWidget(),
+                      );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -638,12 +641,13 @@ class QuestionsWidgetState extends State<QuestionsWidget>
   }
 
   void notifyMeToStopAnswering() {
-    setState(() => canWriteAnswer = false);
     notifier.add(null);
+    setState(() => canWriteAnswer = false);
   }
 
-  void saveAnswerAndContinue() {
-    Provider.of<QuestionsProvider>(context, listen: false).insertAnswer(
+  void saveAnswerAndContinue() async {
+    notifier.add(null);
+    await Provider.of<QuestionsProvider>(context, listen: false).insertAnswer(
       question: getMentor(context)
           .getMentorQuestionAt(
             Provider.of<QuestionsProvider>(context, listen: false).currentIndex,
@@ -651,6 +655,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
           .question,
       textAnswer: textController.text,
       audioFilePath: audioPath,
+      context: Provider.of<BuildContext>(context, listen: false),
     );
 
     setState(() {
@@ -765,7 +770,7 @@ class QuestionsWidgetState extends State<QuestionsWidget>
               const SizedBox(height: 16),
               Container(
                 child: ButtonStyled(
-                  onPressFunction: saveAnswerAndContinue,
+                  onPressFunction: () => saveAnswerAndContinue(),
                   fractionalWidthDimension: 0.99,
                   text: "Continue",
                 ),
@@ -813,17 +818,18 @@ class QuestionsWidgetState extends State<QuestionsWidget>
               const SizedBox(height: 16),
               Container(
                 child: ButtonStyled(
-                  onPressFunction:
-                      Provider.of<_ExploreCardContentState>(context).rotateCard,
+                  onPressFunction: startAnswering,
                   fractionalWidthDimension: 0.99,
-                  text: "Back",
+                  text: "Start",
                 ),
               ),
               Container(
                 child: ButtonStyled(
-                  onPressFunction: startAnswering,
-                  fractionalWidthDimension: 0.99,
-                  text: "Start",
+                    onPressFunction:
+                    Provider.of<_ExploreCardContentState>(context).rotateCard,
+                    fractionalWidthDimension: 0.99,
+                    text: "Back",
+                    color: Theme.of(context).primaryColorLight,
                 ),
               ),
             ],
@@ -988,19 +994,21 @@ class _ContactMentorState extends State<ContactMentor> with GetMentor {
         const SizedBox(height: 16),
         Container(
           child: ButtonStyled(
-            onPressFunction:
-                Provider.of<_ExploreCardContentState>(context).rotateCard,
-            fractionalWidthDimension: 0.99,
-            text: "Back",
-          ),
-        ),
-        Container(
-          child: ButtonStyled(
             onPressFunction: () => sendRequestToMentor(context),
             fractionalWidthDimension: 0.99,
             text: "Send",
           ),
         ),
+        Container(
+          child: ButtonStyled(
+            onPressFunction:
+                Provider.of<_ExploreCardContentState>(context).rotateCard,
+            fractionalWidthDimension: 0.99,
+            text: "Back",
+            color: Theme.of(context).primaryColorLight,
+          ),
+        ),
+
       ],
     );
   }
@@ -1083,8 +1091,8 @@ class __BackCardContentMenteeState extends State<_BackCardContentMentee>
                             textAlign: TextAlign.left,
                           ),
                         ),
-                        if (a.textAnswer != null) const SizedBox(height: 8),
-                        if (a.textAnswer != null)
+                        if (a.textAnswer != null || a.textAnswer != "") const SizedBox(height: 8),
+                        if (a.textAnswer != null || a.textAnswer != "")
                           Container(
                             width: double.infinity,
                             child: AutoSizeText.rich(
@@ -1151,7 +1159,7 @@ class __BackCardContentMenteeState extends State<_BackCardContentMentee>
                         StatusRequest.refused,
                       ),
                       fractionalWidthDimension: 0.8,
-                      text: "Refuse",
+                      text: "Decline",
                     ),
                   )
                 ],
@@ -1162,6 +1170,7 @@ class __BackCardContentMenteeState extends State<_BackCardContentMentee>
                       Provider.of<_ExploreCardContentState>(context).rotateCard,
                   fractionalWidthDimension: 0.99,
                   text: "Back",
+                  color: Theme.of(context).primaryColorLight,
                 ),
               ),
             ],
