@@ -44,7 +44,8 @@ class _ExploreCardState extends State<ExploreCard>
   Widget build(BuildContext context) {
     super.build(context);
 
-    CardProvider cardProvider = Provider.of<CardProvider>(context, listen: false);
+    CardProvider cardProvider =
+        Provider.of<CardProvider>(context, listen: false);
 
     /// The [ScopedModel][IndexUser] is used for determining which user
     /// we are referring to.
@@ -825,11 +826,11 @@ class QuestionsWidgetState extends State<QuestionsWidget>
               ),
               Container(
                 child: ButtonStyled(
-                    onPressFunction:
-                    Provider.of<_ExploreCardContentState>(context).rotateCard,
-                    fractionalWidthDimension: 0.99,
-                    text: "Back",
-                    color: Theme.of(context).primaryColorLight,
+                  onPressFunction:
+                      Provider.of<_ExploreCardContentState>(context).rotateCard,
+                  fractionalWidthDimension: 0.99,
+                  text: "Back",
+                  color: Theme.of(context).primaryColorLight,
                 ),
               ),
             ],
@@ -1008,7 +1009,6 @@ class _ContactMentorState extends State<ContactMentor> with GetMentor {
             color: Theme.of(context).primaryColorLight,
           ),
         ),
-
       ],
     );
   }
@@ -1060,46 +1060,24 @@ class __BackCardContentMenteeState extends State<_BackCardContentMentee>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const _UserBasicInformation(isVertical: false),
-              ...getQuestionProvider(context)
-                  .answers
-                  .map<Widget>(
-                    (a) => ExpansionTile(
-                      title: AutoSizeText("Question ${answerCount + 1}"),
-                      children: <Widget>[
-                        const Divider(),
-                        Container(
-                          width: double.infinity,
-                          child: AutoSizeText.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: "Question: ",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .body1
-                                      .copyWith(
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                ),
-                                TextSpan(text: a.question),
-                              ],
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
-                        ),
-                        if (a.textAnswer != null || a.textAnswer != "") const SizedBox(height: 8),
-                        if (a.textAnswer != null || a.textAnswer != "")
+          const _UserBasicInformation(isVertical: false),
+          Expanded(
+            child: ListView(
+              children: <Widget>[
+                ...getQuestionProvider(context)
+                    .answers
+                    .map<Widget>(
+                      (a) => ExpansionTile(
+                        title: AutoSizeText("Question ${answerCount + 1}"),
+                        children: <Widget>[
+                          const Divider(),
                           Container(
                             width: double.infinity,
                             child: AutoSizeText.rich(
                               TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: "Answer: ",
+                                    text: "Question: ",
                                     style: Theme.of(context)
                                         .textTheme
                                         .body1
@@ -1107,31 +1085,55 @@ class __BackCardContentMenteeState extends State<_BackCardContentMentee>
                                           fontWeight: FontWeight.w800,
                                         ),
                                   ),
-                                  TextSpan(text: a.textAnswer),
+                                  TextSpan(text: a.question),
                                 ],
                               ),
                               textAlign: TextAlign.left,
                             ),
                           ),
-                        if (a.audioAnswer != null) const SizedBox(height: 8),
-                        if (a.audioAnswer != null)
-                          AudioFromBufferWidget(
-                            id: "${getQuestionProvider(context).userId}${answerCount++}",
-                            buffer: a.audioAnswer,
-                          ),
-                        if (a.audioAnswer == null && a.textAnswer == null)
-                          const SizedBox(height: 8),
-                        if (a.audioAnswer == null && a.textAnswer == null)
-                          Container(
-                            width: double.infinity,
-                            child: AutoSizeText("No answer given."),
-                          ),
-                        const SizedBox(height: 8)
-                      ],
-                    ),
-                  )
-                  .toList(),
-            ],
+                          if (a.textAnswer != null || a.textAnswer != "")
+                            const SizedBox(height: 8),
+                          if (a.textAnswer != null || a.textAnswer != "")
+                            Container(
+                              width: double.infinity,
+                              child: AutoSizeText.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "Answer: ",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .body1
+                                          .copyWith(
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                    ),
+                                    TextSpan(text: a.textAnswer),
+                                  ],
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          if (a.audioAnswer != null) const SizedBox(height: 8),
+                          if (a.audioAnswer != null)
+                            AudioFromBufferWidget(
+                              id: "${getQuestionProvider(context).userId}${answerCount++}",
+                              buffer: a.audioAnswer,
+                            ),
+                          if (a.audioAnswer == null && a.textAnswer == null)
+                            const SizedBox(height: 8),
+                          if (a.audioAnswer == null && a.textAnswer == null)
+                            Container(
+                              width: double.infinity,
+                              child: AutoSizeText("No answer given."),
+                            ),
+                          const SizedBox(height: 8)
+                        ],
+                      ),
+                    )
+                    .toList(),
+              ],
+            ),
           ),
           Column(
             mainAxisSize: MainAxisSize.min,

@@ -44,6 +44,10 @@ class EditProfileControllerProvider extends ChangeNotifier {
   int indexAcademicExperiences = 0;
   Map<int, AcademicDegreeController> academicExperiences = {};
 
+  var currentJobKey = PageStorageKey<String>('CurrentJob');
+  var educationListKey = PageStorageKey<String>('EducationList');
+  var workListKey = PageStorageKey<String>('Work experienceList');
+
   EditProfileControllerProvider(User user) {
     profileImage = user.pictureUrl;
     nameController = TextEditingController(text: user.name);

@@ -44,6 +44,7 @@ void main() async {
     baseUrl: Configuration.serverUrl,
     receiveTimeout: 8000,
     sendTimeout: 5000,
+    connectTimeout: 5000,
   );
 
   // Setup the Http manager

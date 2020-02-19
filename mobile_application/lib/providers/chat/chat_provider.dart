@@ -223,6 +223,14 @@ class ChatProvider with ChangeNotifier {
         },
       );
 
+      contacts.forEach(
+        (c) => c.messages.sort(
+          (m1, m2) {
+            return -m1.createdAt.difference(m2.createdAt).inMilliseconds;
+          },
+        ),
+      );
+
       /// Notify the UI of unread messages
       _numberUnreadMessagesNotifier.sink.add(
         contacts.where((c) => c.unreadMessages(userId) != 0).length,
@@ -269,6 +277,12 @@ class ChatProvider with ChangeNotifier {
               );
               await removeMessagesToDb(messagesToRemove, newC.id);
             }
+
+            contacts[contactIndex].messages.sort(
+              (m1, m2) {
+                return -m1.createdAt.difference(m2.createdAt).inMilliseconds;
+              },
+            );
             return;
           },
           onIncorrectStatusCode: (_) {
@@ -276,6 +290,10 @@ class ChatProvider with ChangeNotifier {
               "Couldn't load the messages. Try again later.",
             );
           });
+
+      _numberUnreadMessagesNotifier.sink.add(
+        contacts.where((c) => c.unreadMessages(userId) != 0).length,
+      );
 
       _updateContactsNotifier.sink.add(true);
     } on SomethingWentWrongException catch (e) {
@@ -372,6 +390,7 @@ class ChatProvider with ChangeNotifier {
       'offline',
       (data) {
         if (data["userId"] != userId &&
+            _mapChatNotifierStreams[data["chatId"]] != null &&
             _mapChatNotifierStreams[data["chatId"]].isOnline) {
           _mapChatNotifierStreams[data["chatId"]]
               .isOnlineNotifier(value: false);
@@ -411,7 +430,7 @@ class ChatProvider with ChangeNotifier {
 
       /// Sort the contacts by last received message.
       contacts.sort(
-            (c1, c2) {
+        (c1, c2) {
           DateTime timeC1 = c1.messages.isNotEmpty
               ? c1.messages.first.createdAt
               : c1.createdAt;
@@ -459,27 +478,27 @@ class ChatProvider with ChangeNotifier {
   }
 
   void joinChatWith(String chatId) {
-    socket.emit("new_chat", {
+    socket?.emit("new_chat", {
       "chatId": chatId,
     });
     currentActiveChatId = chatId;
   }
 
   void leaveChatWith(String chatId) {
-    socket.emit("leave_chat", {
+    socket?.emit("leave_chat", {
       "chatId": chatId,
     });
     currentActiveChatId = null;
   }
 
   void sendTypingNotification() {
-    socket.emit("typing", {
+    socket?.emit("typing", {
       "chatId": currentActiveChatId,
     });
   }
 
   void sendMessage(String message) {
-    socket.emit("message", {
+    socket?.emit("message", {
       "chatId": currentActiveChatId,
       "userId": userId,
       "content": message,

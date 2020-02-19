@@ -204,7 +204,7 @@ class _HomepageWidgetState extends State<HomepageWidget>
     loadExploreSection();
   }
 
-  void loadExploreSection() async {
+  void loadExploreSection() {
     AuthenticationProvider auth =
         Provider.of<AuthenticationProvider>(context, listen: false);
     _loadExploreSection = Future.wait([
@@ -292,7 +292,7 @@ class _HomepageWidgetState extends State<HomepageWidget>
                   child: snapshot.hasError
                       ? LoadingError(
                           exception: snapshot.error,
-                          retry: () => setState(loadExploreSection),
+                          retry: () => setState(() => loadExploreSection()),
                           buildContext: context,
                         )
                       : widget.exploreWidget,

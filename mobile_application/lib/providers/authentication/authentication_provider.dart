@@ -30,6 +30,7 @@ class AuthenticationProvider with ChangeNotifier {
 
   set token(String token) => _authenticationMode.token = token;
 
+
   AuthenticationProvider(this._httpManager, {this.databaseProvider}) {
     _authenticationMode = AuthenticationMode.getAuthenticationMode(
       'credentials',
@@ -56,6 +57,11 @@ class AuthenticationProvider with ChangeNotifier {
           return options;
         },
         onError: (DioError error) async {
+          if (error.type == DioErrorType.RECEIVE_TIMEOUT ||
+              error.type == DioErrorType.CONNECT_TIMEOUT ||
+              error.type == DioErrorType.SEND_TIMEOUT) {
+
+          }
           if (error.response?.statusCode == 401) {
             wasLogged = true;
             await removeAuthenticationData();

@@ -11,7 +11,7 @@ import '../../widgets/general/image_wrapper.dart';
 
 class AddPhotoWidget extends StatefulWidget {
   final double width, height;
-  final Future<void> Function(File) setImage;
+  final Future<void> Function(File, String) setImage;
   final String startingImage;
   final String assetPath;
 
@@ -38,17 +38,16 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
     startingImage = widget.startingImage;
   }
 
-  void setImage(File image) async {
+  void setImage(File image, String type) async {
     setState(() {
       startingImage = null;
       this.image = image;
     });
-    await widget.setImage(image);
-    if(!isModalPopped){
+    await widget.setImage(image, type);
+    if (!isModalPopped) {
       isModalPopped = true;
       Navigator.pop(context);
     }
-
   }
 
   void showSelection() async {
@@ -127,7 +126,7 @@ class _AddPhotoWidgetState extends State<AddPhotoWidget> {
 }
 
 class BottomSheetSelection extends StatefulWidget {
-  final void Function(File) setImage;
+  final void Function(File, String) setImage;
 
   BottomSheetSelection(this.setImage);
 
@@ -139,20 +138,24 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
   File selectedImage;
 
   void deleteImage() {
-    widget.setImage(null);
+    widget.setImage(null, "");
   }
 
   void pickImageFromCamera() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.camera);
+    File image = await ImagePicker.pickImage(
+      source: ImageSource.camera,
+      maxHeight: 400,
+      maxWidth: 400,
+    );
     if (image != null) {
-      widget.setImage(image);
+      widget.setImage(image, "camera");
     }
   }
 
   void pickImageFromGallery() async {
     File image = await FilePicker.getFile(type: FileType.IMAGE);
     if (image != null) {
-      widget.setImage(image);
+      widget.setImage(image, "gallery");
     }
   }
 
@@ -181,8 +184,8 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
             title: Text(
               'From camera',
               style: Theme.of(context).textTheme.title.copyWith(
-                fontWeight: FontWeight.w400,
-              ),
+                    fontWeight: FontWeight.w400,
+                  ),
             ),
             onTap: pickImageFromCamera,
           ),
@@ -194,8 +197,8 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
             title: Text(
               'From gallery',
               style: Theme.of(context).textTheme.title.copyWith(
-                fontWeight: FontWeight.w400,
-              ),
+                    fontWeight: FontWeight.w400,
+                  ),
             ),
             onTap: pickImageFromGallery,
           ),
@@ -207,8 +210,8 @@ class _BottomSheetSelectionState extends State<BottomSheetSelection> {
             title: Text(
               'Delete',
               style: Theme.of(context).textTheme.title.copyWith(
-                fontWeight: FontWeight.w400,
-              ),
+                    fontWeight: FontWeight.w400,
+                  ),
             ),
             onTap: deleteImage,
           )

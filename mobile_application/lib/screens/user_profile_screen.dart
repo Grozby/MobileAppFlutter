@@ -134,9 +134,7 @@ class _UserProfileBuilderState extends State<UserProfileBuilder> {
 
   void goToEditPage() async {
     await Navigator.of(context).pushNamed(UserProfileEditScreen.routeName);
-    setState(() {
-      _loadUserData = null;
-    });
+    refreshPage();
   }
 
   @override

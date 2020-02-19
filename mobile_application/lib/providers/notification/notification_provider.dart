@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -38,7 +39,6 @@ class NotificationProvider with ChangeNotifier {
           ReceivedNotification(
             id: id,
             payload: payload,
-
           ),
         );
       },
@@ -55,8 +55,6 @@ class NotificationProvider with ChangeNotifier {
     );
     if (callback != null) callback();
   }
-
-
 
   Future<void> initialize() async {
     await initializeLocalNotification();
@@ -156,15 +154,27 @@ class NotificationProvider with ChangeNotifier {
       payload['image'],
       'largeIcon',
     );
+    var lines = <String>[];
+    var body = await jsonDecode(payload["body"]);
+    body.forEach((l) => lines.add(l));
+
+    var inboxStyleInformation = InboxStyleInformation(
+      lines,
+      htmlFormatLines: true,
+      contentTitle: payload["title"],
+      htmlFormatContentTitle: true,
+    );
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       'media channel id',
       'media channel name',
       'media channel description',
       largeIcon: largeIconPath,
       largeIconBitmapSource: BitmapSource.FilePath,
-      style: AndroidNotificationStyle.Media,
+      style: AndroidNotificationStyle.Inbox,
+      autoCancel: true,
       priority: Priority.Max,
       importance: Importance.Max,
+      styleInformation: inboxStyleInformation,
     );
     var platformChannelSpecifics = NotificationDetails(
       androidPlatformChannelSpecifics,

@@ -4,6 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:image/image.dart';
 import 'package:provider/provider.dart';
+import 'package:ryfy/models/exceptions/no_internet_exception.dart';
 import 'package:ryfy/widgets/general/add_photo_widget.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -83,6 +84,7 @@ class UserProfileBuilderState extends State<UserProfileBuilder> {
 
   void sendUpdatedValues() async {
     try {
+
       if (!_formKey.currentState.validate()) {
         final snackBar =
             getSnackBar('Some of the inserted data are incorrect!');
@@ -99,15 +101,25 @@ class UserProfileBuilderState extends State<UserProfileBuilder> {
       final snackBar = getSnackBar('Correctly updated!');
       Scaffold.of(context).showSnackBar(snackBar);
     } catch (e) {
-      final snackBar = getSnackBar('Oops! Something went wrong!');
+      var snackBar;
+      if(e is NoInternetException) {
+        snackBar = getSnackBar(e.getMessage());
+      } else {
+        snackBar = getSnackBar('Oops! Something went wrong!');
+      }
+
       Scaffold.of(context).showSnackBar(snackBar);
     }
   }
 
-  Future<void> setImage(File image) async {
+  Future<void> setImage(File image, String type) async {
     if (image != null) {
       Image im = await decodeCompute(image);
       Image thumbnail = copyResizeCropSquare(im, 250);
+      if(type == "camera"){
+        thumbnail = copyRotate(thumbnail, 90);
+      }
+
       _controllerProvider.profileImage = await encodeCompute(thumbnail);
     } else {
       _controllerProvider.profileImage = null;
@@ -287,6 +299,7 @@ class _CardContentState extends State<CardContent> {
                 expansionTileEducations ??= Tooltip(
                   message: "Insert you academic degrees, obtained and ongoing.",
                   child: ExperienceExpansionList(
+                    key: dataProvider.educationListKey,
                     title: "Education",
                     subtitle: "School",
                     selector: (_, dataProvider) =>
@@ -298,6 +311,7 @@ class _CardContentState extends State<CardContent> {
                 expansionTileJobs ??= Tooltip(
                   message: "Insert you work experiences, past and ongoing.",
                   child: ExperienceExpansionList(
+                    key: dataProvider.workListKey,
                     title: "Work experience",
                     subtitle: "Company",
                     selector: (_, dataProvider) => dataProvider.jobExperiences,

@@ -28,15 +28,11 @@ class Message {
       identical(this, other) ||
       other is Message &&
           runtimeType == other.runtimeType &&
-          id == other.id &&
-          isRead == other.isRead &&
-          content == other.content;
+          id == other.id && isRead == other.isRead;
 
   @override
   int get hashCode =>
-      id.hashCode ^
-      content.hashCode ^
-      isRead.hashCode;
+      id.hashCode;
 
   ///
   /// Serializable methods

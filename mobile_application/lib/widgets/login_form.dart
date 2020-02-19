@@ -53,7 +53,7 @@ class _LoginFormState extends State<LoginForm> {
   Future<void> validateFormAndLogin() async {
     widget.isSendingRequest = true;
     final authenticationProvider =
-        Provider.of<AuthenticationProvider>(context, listen: true);
+        Provider.of<AuthenticationProvider>(context, listen: false);
     final isValid = _form.currentState.validate();
     if (!isValid) {
       widget.isSendingRequest = false;

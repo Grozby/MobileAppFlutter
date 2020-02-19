@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:ryfy/models/users/mentor.dart';
+import 'package:ryfy/providers/user/user_data_provider.dart';
 import 'package:ryfy/widgets/transition/loading_animated.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -190,7 +192,7 @@ class _MessageListState extends State<MessageList> with ChatTimeConverter {
   }
 }
 
-class ChatTile extends StatelessWidget with ChatTimeConverter {
+class ChatTile extends StatefulWidget with ChatTimeConverter {
   final ContactMentor chat;
   final void Function(String) selectChat;
 
@@ -202,21 +204,37 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
 
   ChatTile({@required this.chat, this.selectChat});
 
+  @override
+  _ChatTileState createState() => _ChatTileState();
+}
+
+class _ChatTileState extends State<ChatTile> {
   String getMessagePreview() {
-    if (chat.messages.isNotEmpty) {
-      return chat.messages[0].content;
+    if (widget.chat.messages.isNotEmpty) {
+      return widget.chat.messages[0].content;
     } else {
       //TODO change between mentor and mentee
       String response;
-      switch (chat.status) {
+      switch (widget.chat.status) {
         case StatusRequest.accepted:
-          response = "Contact ${chat.user.completeName} now!";
+          response = "Contact ${widget.chat.user.completeName} now!";
           break;
         case StatusRequest.pending:
-          response = "Waiting for ${chat.user.completeName} response.";
+          if (Provider.of<UserDataProvider>(context).user.runtimeType ==
+              Mentor) {
+            response = "Waiting for your response.";
+          } else {
+            response = "Waiting for ${widget.chat.user.completeName} response.";
+          }
           break;
         case StatusRequest.refused:
-          response = "${chat.user.completeName} refused the request.";
+          if (Provider.of<UserDataProvider>(context).user.runtimeType ==
+              Mentor) {
+            response = "You refused to connect.";
+          } else {
+            response = "${widget.chat.user.completeName} refused the request.";
+          }
+
           break;
       }
       return response;
@@ -224,10 +242,10 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
   }
 
   void goToSingleChatPage(BuildContext context) {
-    if (chat.status == StatusRequest.accepted) {
+    if (widget.chat.status == StatusRequest.accepted) {
       Navigator.of(context).pushNamed(
         SingleChatScreen.routeName,
-        arguments: SingleChatArguments(chat.id),
+        arguments: SingleChatArguments(widget.chat.id),
       );
     }
   }
@@ -237,8 +255,6 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
     ChatProvider chatProvider = Provider.of<ChatProvider>(context);
 
     double maxWidth = ScopedModel.of<AvailableSizes>(context).width;
-    int unreadMessages =
-        chat.unreadMessages(Provider.of<ChatProvider>(context).userId);
 
     return GestureDetector(
       onTap: () => goToSingleChatPage(context),
@@ -258,7 +274,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
               padding: const EdgeInsets.only(right: 6),
               child: Container(
                 width: 6,
-                color: statusColor[chat.status],
+                color: ChatTile.statusColor[widget.chat.status],
               ),
             ),
             Stack(
@@ -270,7 +286,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                     borderRadius: const BorderRadius.all(Radius.circular(60)),
                     child: ImageWrapper(
                       assetPath: AssetImages.user,
-                      imageUrl: chat.user.pictureUrl,
+                      imageUrl: widget.chat.user.pictureUrl,
                       boxFit: BoxFit.cover,
                     ),
                   ),
@@ -279,7 +295,8 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                   bottom: 0,
                   right: 0,
                   child: StreamBuilder<bool>(
-                      stream: chatProvider.getOnlineStatusStream(chat.id),
+                      stream:
+                          chatProvider.getOnlineStatusStream(widget.chat.id),
                       builder: (context, snapshot) => snapshot.hasData &&
                               snapshot.data
                           ? Container(
@@ -305,7 +322,8 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                   ),
                 ),
                 child: StreamBuilder<bool>(
-                    stream: chatProvider.getTypingNotificationStream(chat.id),
+                    stream: chatProvider
+                        .getTypingNotificationStream(widget.chat.id),
                     builder: (context, snapshot) {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -321,7 +339,7 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                 children: <Widget>[
                                   Container(
                                     child: AutoSizeText(
-                                      chat.user.completeName,
+                                      widget.chat.user.completeName,
                                       style: Theme.of(context)
                                           .textTheme
                                           .display1
@@ -368,33 +386,41 @@ class ChatTile extends StatelessWidget with ChatTimeConverter {
                                   (snapshot.hasData && snapshot.data)
                                       ? ""
                                       : timeToString(
-                                          chat.messages.isNotEmpty
-                                              ? chat.messages[0].createdAt
-                                              : chat.createdAt,
+                                          widget.chat.messages.isNotEmpty
+                                              ? widget
+                                                  .chat.messages[0].createdAt
+                                              : widget.chat.createdAt,
                                         ),
                                   maxLines: 1,
                                 ),
-                                unreadMessages != 0
-                                    ? Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.green,
-                                        ),
-                                        child: AutoSizeText(
-                                          "$unreadMessages",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .subhead
-                                              .copyWith(
-                                                fontSize: 14,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                          maxLines: 1,
-                                        ),
-                                      )
-                                    : Container()
+                                Consumer<ChatProvider>(
+                                  builder: (_, chatP, child) {
+                                    int unreadMessages = widget.chat
+                                        .unreadMessages(chatP.userId);
+
+                                    return unreadMessages != 0
+                                        ? Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.green,
+                                            ),
+                                            child: AutoSizeText(
+                                              "$unreadMessages",
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .subhead
+                                                  .copyWith(
+                                                    fontSize: 14,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                              maxLines: 1,
+                                            ),
+                                          )
+                                        : Container();
+                                  },
+                                ),
                               ],
                             ),
                           ),

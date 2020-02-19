@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ryfy/providers/authentication/authentication_provider.dart';
 
 import '../../models/exceptions/no_internet_exception.dart';
 import '../../models/exceptions/something_went_wrong_exception.dart';
@@ -79,7 +81,9 @@ class _NoInternetConnectionWidgetState
             child: ButtonStyled(
               fractionalWidthDimension: 0.4,
               text: "Retry now",
-              onPressFunction: widget.retryToConnect,
+              onPressFunction: () {
+                widget.retryToConnect();
+              },
             ),
           ),
         ],

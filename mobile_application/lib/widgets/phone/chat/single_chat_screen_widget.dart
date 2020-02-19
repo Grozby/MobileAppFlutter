@@ -627,7 +627,7 @@ class _InputMessageState extends State<InputMessage> {
   }
 
   void sendTypingNotification() {
-    if (_chatProvider.isConnected && _controller.text.isEmpty) {
+    if (_chatProvider.isConnected && !_controller.text.isEmpty) {
       _chatProvider.sendTypingNotification();
     }
   }

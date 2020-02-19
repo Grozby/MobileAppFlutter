@@ -81,6 +81,7 @@ class _EditTextState extends State<EditText> {
 }
 
 class ExperienceController {
+  PageStorageKey key;
   int index;
   bool expanded;
   String institutionImage;
@@ -114,9 +115,12 @@ class ExperienceController {
     toDateController.dispose();
   }
 
+  String get title => "asd";
+
   String get nameInstitution => nameInstitutionController.text;
 
-  String _parseString(String text) => _getDateTime(text).toIso8601String();
+  String _parseString(String text) =>
+      text == "Ongoing" || text == "" ? null : _getDateTime(text).toIso8601String();
 
   DateTime _getDateTime(String text) => DateFormat.yMd().parse(text);
 
@@ -148,8 +152,12 @@ class JobController extends ExperienceController {
           toDate: toDate,
           expanded: expanded,
         ) {
+    key = PageStorageKey("${title}SubList$index");
     workingRoleController = TextEditingController(text: workingRole ?? "");
   }
+
+  @override
+  String get title => "Job";
 
   @override
   void dispose() {
@@ -181,9 +189,14 @@ class AcademicDegreeController extends ExperienceController {
           toDate: toDate,
           expanded: expanded,
         ) {
+    key = PageStorageKey("${title}SubList$index");
     degreeLevelController = TextEditingController(text: degreeLevel ?? "");
     fieldOfStudyController = TextEditingController(text: fieldOfStudy ?? "");
   }
+
+
+@override
+String get title => "Education";
 
   @override
   void dispose() {
@@ -258,10 +271,15 @@ class EditJob extends StatefulWidget {
 }
 
 class _EditJobState extends State<EditJob> {
-  void setImage(File image) async {
+  Future<void> setImage(File image, String type ) async {
     if (image != null) {
       Image im = await decodeCompute(image);
       Image thumbnail = copyResizeCropSquare(im, 250);
+      if(type == "camera"){
+        thumbnail = copyRotate(thumbnail, 90);
+      }
+
+
       widget.controller.institutionImage = await encodeCompute(thumbnail);
     } else {
       widget.controller.institutionImage = null;
@@ -378,9 +396,14 @@ class EditEducation extends StatefulWidget {
 }
 
 class _EditEducationState extends State<EditEducation> {
-  void setImage(File image) async {
+  Future<void> setImage(File image, String type) async {
     Image im = await decodeCompute(image);
     Image thumbnail = copyResizeCropSquare(im, 250);
+
+    if(type == "camera"){
+      thumbnail = copyRotate(thumbnail, 90);
+    }
+
     widget.controller.institutionImage = await encodeCompute(thumbnail);
   }
 
@@ -488,6 +511,7 @@ class _EditEducationState extends State<EditEducation> {
 }
 
 class ExperienceExpansionList extends StatefulWidget {
+  final PageStorageKey key;
   final String title;
   final String subtitle;
   final Widget Function(ExperienceController) builder;
@@ -495,6 +519,7 @@ class ExperienceExpansionList extends StatefulWidget {
   final Map Function(BuildContext, EditProfileControllerProvider) selector;
 
   ExperienceExpansionList({
+    @required this.key,
     this.title,
     this.subtitle,
     this.builder,
@@ -516,7 +541,7 @@ class _ExperienceExpansionListState extends State<ExperienceExpansionList> {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-      key: PageStorageKey<String>('${widget.title}List'),
+      key: widget.key,
       title: AutoSizeText(
         "${widget.title}",
         style: Theme.of(context).textTheme.title,
@@ -543,9 +568,7 @@ class _ExperienceExpansionListState extends State<ExperienceExpansionList> {
                       background: Container(color: Colors.red),
                       child: ExpansionTile(
                         initiallyExpanded: entry.value.expanded,
-                        key: PageStorageKey(
-                          "${widget.title}SubList${entry.key}",
-                        ),
+                        key: entry.value.key,
                         title: AutoSizeText(
                           "${widget.subtitle}:"
                           " ${entry.value.nameInstitution != "" ? entry.value.nameInstitution : "No name set."}",
